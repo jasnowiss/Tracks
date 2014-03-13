@@ -77,7 +77,7 @@ def userprofile(request):
         if(form.is_valid):
             try:
                 form.save()
-                return HttpResponseRedirect('/Tracks/userprofile.html');
+                return HttpResponseRedirect('userprofile.html');
             except:
                 response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
                 response.status_code = 500;

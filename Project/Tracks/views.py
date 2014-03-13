@@ -64,6 +64,33 @@ def about(request):
         return render(request, 'Tracks/about.html', {})
 
 
+def userprofile(request):
+    temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
+
+    if(TracksUser.has_userprofile(temp_user)):
+        temp_instance = temp_user.userprofile
+    else:
+        temp_instance = UserProfile(user=temp_user)
+
+    if (request.method == 'POST'):
+        form = UserProfileForm(request.POST, instance=temp_instance)
+        if(form.is_valid):
+            try:
+                form.save()
+                return HttpResponseRedirect('/Tracks/userprofile.html');
+            except:
+                response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
+                response.status_code = 500;
+                return response
+        else:
+            form = UserProfileForm(instance=temp_instance)
+            return render(request, 'Tracks/userprofile.html', {'form' : form})
+
+    else:
+        form = UserProfileForm(instance=temp_instance)
+        return render(request, 'Tracks/userprofile.html', {'form' : form})
+
+
 def upload_MP3(request):
     #print('entered uploadmp3')
     if (request.method == 'POST'):

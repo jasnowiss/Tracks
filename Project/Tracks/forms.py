@@ -2,8 +2,8 @@
 
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-
-from Tracks.models import TracksUser  # might be incorrect
+from django.forms import ModelForm
+from Tracks.models import *
 
 
 class TracksUserCreationForm(forms.ModelForm):
@@ -84,3 +84,9 @@ class TracksUserChangeForm(forms.ModelForm):
 
 class UploadFileForm(forms.Form):
     file  = forms.FileField()
+
+
+class UserProfileForm(ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['field1', 'field2', 'field3', 'field4']

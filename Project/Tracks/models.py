@@ -26,7 +26,7 @@ class TracksUserManager(BaseUserManager):
 class TracksUser(AbstractBaseUser):
     """
     The class for Tracks Users. As of now requires an email address,
-    a first name, and a last name. 
+    a first name, and a last name.
     """
     email = models.EmailField(max_length=254, unique=True)
     firstName = models.CharField(max_length=45)
@@ -37,7 +37,7 @@ class TracksUser(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
 
     objects = TracksUserManager()
-    
+
     REQUIRED_FIELDS = ['firstName', 'lastName']
     USERNAME_FIELD = 'email'
 
@@ -54,6 +54,23 @@ class TracksUser(AbstractBaseUser):
         """Returns the user's first name."""
         return self.firstName.strip()
 
+    def has_userprofile(self):
+        try:
+            self.userprofile
+            return True
+        except:
+            return False
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(TracksUser)
+    field1 = models.CharField(max_length=200)
+    field2 = models.CharField(max_length=200)
+    field3 = models.CharField(max_length=200)
+    field4 = models.CharField(max_length=200)
+
+    def __unicode__(self):
+        return "profile of: " + self.user.username
+
 
 class Track(models.Model):
     filename = models.CharField(max_length=50)
@@ -61,6 +78,8 @@ class Track(models.Model):
 
     def __unicode__(self):
         return self.filename
+
+
 
 
 def handle_upload_file(f, track, path="..\\Project\\Tracks\\user_mp3_files"):
@@ -74,4 +93,3 @@ def handle_upload_file(f, track, path="..\\Project\\Tracks\\user_mp3_files"):
     track.filepath = temp_dest
     track.save()
     return temp_dest
-    

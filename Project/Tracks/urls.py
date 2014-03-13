@@ -10,6 +10,6 @@ urlpatterns = patterns('',
     url(r'^upload',views.index, name='index'),
     url(r'^upload_MP3', views.upload_MP3, name='upload_MP3'),
     url(r'^signin', views.signIn, name='SignIn'),
-    url(r'^signup', views.signUp, name='SignUp'),
+    url(r'^signup', views.register, name='SignUp'),
     url(r'^about.html', views.about, name='About')
 )

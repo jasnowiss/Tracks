@@ -13,9 +13,9 @@
 </head>
 <body>
 <div id="navbar" class="navbar navbar-inverse navbar-fixed-top" role="navigation"></div>
-hello world
+hello {{ user.firstName }}!
+<br>
 {% url 'Tracks:upload_MP3' as upload_mp3_url %}
-{{ upload_mp3_url }}
 <ol id="upload_list">
 <li><form action="/" method="post">
 {% csrf_token %}

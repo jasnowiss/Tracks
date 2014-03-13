@@ -17,9 +17,9 @@ import sys
 import traceback
 
 
-def index(request):
-    form = UploadFileForm()
-    return render(request, 'Tracks/index.html', {'form': form})
+##def index(request):
+##    form = UploadFileForm()
+##    return render(request, 'Tracks/index.html', {'form': form})
 
 
 def register(request):
@@ -65,7 +65,13 @@ def about(request):
 
 
 def userprofile(request):
-    temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
+    try:
+        temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
+#    temp_user = TracksUser.objects.get(email=request.session.get('email'))
+    except:
+        response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
+        response.status_code = 500;
+        return response
 
     if(TracksUser.has_userprofile(temp_user)):
         temp_instance = temp_user.userprofile
@@ -77,7 +83,7 @@ def userprofile(request):
         if(form.is_valid):
             try:
                 form.save()
-                return HttpResponseRedirect('userprofile.html');
+                return HttpResponseRedirect('userpage.html');
             except:
                 response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
                 response.status_code = 500;
@@ -89,6 +95,20 @@ def userprofile(request):
     else:
         form = UserProfileForm(instance=temp_instance)
         return render(request, 'Tracks/userprofile.html', {'form' : form})
+
+
+def userpage(request):
+    try:
+        temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
+#    temp_user = TracksUser.objects.get(email=request.session.get('email'))
+    except:
+        response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
+        response.status_code = 500;
+        return response
+
+    form = UploadFileForm()
+    #return render(request, 'Tracks/index.html', {'form': form})
+    return render(request, 'Tracks/userpage.html', {'user' : temp_user, 'form' : form})
 
 
 def upload_MP3(request):

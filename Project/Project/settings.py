@@ -79,7 +79,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'TracksUser', #also 'TracksApp'
+    'Tracks',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -92,9 +92,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'Tracks.urls'
+ROOT_URLCONF = 'Project.urls'
 
-WSGI_APPLICATION = 'Tracks.wsgi.application'
+WSGI_APPLICATION = 'Project.wsgi.application'
 
 
 
@@ -182,9 +182,9 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-AUTH_USER_MODEL = 'TracksUser.TracksUser'
+AUTH_USER_MODEL = 'Tracks.TracksUser' # might still be wrong
 
-from localsettings import *
+# from localsettings import *
 
 
 

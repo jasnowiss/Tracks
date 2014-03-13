@@ -17,5 +17,5 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 
     # Patterns
-    url(r'^Tracks/', include('TracksApp.urls', namespace='TracksApp')),
+    url(r'^Project/', include('Tracks.urls', namespace='Tracks')),
 )

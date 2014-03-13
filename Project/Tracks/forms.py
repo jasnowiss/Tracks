@@ -16,7 +16,7 @@ class TracksUserCreationForm(forms.ModelForm):
         'password_mismatch': "The two password fields don't match!",
     }
     email = forms.EmailField(label="Email Address", max_length=254)
-    firstName = forms.CharField(label="First Name", max_lenght=45)
+    firstName = forms.CharField(label="First Name", max_length=45)
     lastName = forms.CharField(label="Last Name", max_length=45)
     password = forms.CharField(label="Password",
         widget=forms.PasswordInput)

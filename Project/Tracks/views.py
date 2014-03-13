@@ -46,22 +46,22 @@ def signIn(request):
 
 
 def tracks(request):
-    return render(request, 'TracksApp/tracks.html',{})
+    return render(request, 'Tracks/tracks.html',{})
 
 
 def signIn(request):
     if (request.method == 'GET'):
-        return render(request, 'TracksApp/welcome.html',{})
+        return render(request, 'Tracks/welcome.html',{})
 
 
 def signUp(request):
     if (request.method == 'GET'):
-        return render(request, 'TracksApp/signup.html', {})
+        return render(request, 'Tracks/signup.html', {})
 
 
 def about(request):
     if (request.method == 'GET'):
-        return render(request, 'TracksApp/about.html', {})
+        return render(request, 'Tracks/about.html', {})
 
 
 def upload_MP3(request):

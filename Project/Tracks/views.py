@@ -27,8 +27,9 @@ def register(request):
     pass
 
 
+""" # Julian's version, undo when ready
 def signIn(request):
-    """Custom login"""
+    # Custom login
     email = password = ''
     if request.POST:
         email = request.POST.get('email')
@@ -41,6 +42,26 @@ def signIn(request):
                 return HttpResponseRedirect('')
 
     return render_to_response('login.html', {'email': email})
+"""
+
+
+def tracks(request):
+    return render(request, 'TracksApp/tracks.html',{})
+
+
+def signIn(request):
+    if (request.method == 'GET'):
+        return render(request, 'TracksApp/welcome.html',{})
+
+
+def signUp(request):
+    if (request.method == 'GET'):
+        return render(request, 'TracksApp/signup.html', {})
+
+
+def about(request):
+    if (request.method == 'GET'):
+        return render(request, 'TracksApp/about.html', {})
 
 
 def upload_MP3(request):

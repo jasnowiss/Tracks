@@ -1,0 +1,238 @@
+<head>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+</head>
+
+hello world
+{% url 'Tracks:upload_MP3' as upload_mp3_url %}
+{{ upload_mp3_url }}
+<ol id="upload_list">
+<li><form action="/" method="post">
+{% csrf_token %}
+    {% for field in form %}
+            {{ field.errors }}
+            {{ field.label_tag }} {{ field }}
+    {% endfor %}
+    <button id="upload_button" type="button">Upload</button>
+    <div id='progress_div'></div>
+</form>
+    </li>
+    </ol>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        /********************************** Functions of NISHANT KUMAR ***************************************/
+
+        /* FUNCTIONALITY: Creates a new progress bar element. 
+           INPUTS: 1) html_element: 
+                      The html element to add the progress bar to. 
+           OUTPUT: new_bar: 
+                   The progress bar element.        */
+        function add_new_progress_bar(html_element) {
+            var new_bar = $("<div></div>")
+                .addClass("progress_bar_container");
+
+            html_element.children().last().after(new_bar);
+
+            html_element.children(".progress_bar_container").append(
+            $("<div></div>").addClass("progress_bar_outer"));
+
+            html_element.children(".progress_bar_container").append(
+            $("<div></div>").addClass("progress_bar_inner"));
+
+            return new_bar;
+        }
+
+
+        /* FUNCTIONALITY: Creates a "track element" - i.e. an li element with text and a progress bar.
+                          The "track element" represents a file which is in the process of uploading.
+           INPUTS: 1) preceding_text: 
+                      The text to add before the progress bar.
+                   2) element_to_prepend_to:
+                      The html element to prepend the "track element" to (preferably a <ul> or <ol> element).
+           OUTPUT: new_bar: 
+                   The progress bar element of the "track element".       */
+        function add_loading_track(preceding_text, element_to_prepend_to) {
+            var temp = $("<li></li>").append(
+            $("<span></span>").text(preceding_text + " "));
+            var new_bar = add_new_progress_bar(temp);
+            element_to_prepend_to.prepend(temp);
+            return new_bar;
+        }
+
+
+        /* FUNCTIONALITY: Sets the length of the inner filling of the progress bar to visually indicate how much progress has been made.
+           INPUTS: 1) progress_bar: 
+                      The progress bar to set the filling of.
+                   2) percent_0_to_100:
+                      The percent (range 0 to 100) of the progress bar that should be filled.
+           OUTPUT: None       */
+        function progress_bar_setPercent(progress_bar,
+    percent_0_to_100) {
+            var progress_bar_max_width = parseInt(progress_bar.children("div.progress_bar_outer").css("width"), 10);
+            //alert(progress_bar_max_width);
+            var progress_bar_inner_margin_offset = parseInt(progress_bar.children("div.progress_bar_inner").css("margin"));
+            var progress_bar_width = percent_0_to_100 * (progress_bar_max_width / 100) - 2 * progress_bar_inner_margin_offset;
+            progress_bar_width = progress_bar_width.toString() + "px";
+            //alert(progress_bar_width);
+            progress_bar.children("div.progress_bar_inner").css("width", progress_bar_width);
+
+            if (percent_0_to_100 == 100) {
+                progress_bar.children("div.progress_bar_inner").css("background-color", "#41DD00");
+            }
+        }
+
+
+        /* FUNCTIONALITY: Sets the inner filling of the progress bar to red in order to visually indicate a failure.
+           INPUTS: 1) progress_bar: 
+                      The progress bar to set the filling of.
+           OUTPUT: None       */
+        function progress_bar_Failure(progress_bar) {
+            progress_bar.children("div.progress_bar_inner").css("background-color", "red");
+        }
+
+
+        /* FUNCTIONALITY: An event handler used for the event of a file upload in progress. Updates the progress bar appropriately.
+           INPUTS: 1) evt:
+                      The event object.
+                   2) progress_bar: 
+                      The progress bar to set the filling of.
+           OUTPUT: None       */
+        function progressHandler(evt, progress_bar) {
+            if (evt.lengthComputable) {
+                var percent_done = parseInt(100.0 * evt.loaded / evt.total);
+                progress_bar_setPercent(progress_bar, percent_done);
+            }
+        }
+
+
+        /* FUNCTIONALITY: An event handler used for the event of a file upload which failed. Updates the progress bar appropriately.
+           INPUTS: 1) evt:
+                      The event object.
+                   2) progress_bar: 
+                      The progress bar to set the filling of.
+           OUTPUT: None       */
+        function uploadFailedHandler(evt, progress_bar) {
+            progress_bar_Failure(progress_bar);
+        }
+
+
+        /* FUNCTIONALITY: Handles uploading a file to the server asynchronously. 
+                          This includes: 
+                          - sending data to the server (and waiting for the response).
+                          - updating the UI to reflect the progress of the file upload.
+           INPUTS: None
+           OUTPUT: None       */
+        $('#upload_button').click(function () {
+            // gets the file from the file input and prepares it for uploading
+            var form_data = new FormData();
+            var file_input = $('#id_file')[0];
+            var file = file_input.files[0];
+            form_data.append('file', file);
+
+            // updates the UI to reflect a file which is uploading
+            var new_bar = add_loading_track(file.name, $('#upload_list'));
+
+            // updates the UI to allow the user to upload another file while the previous file is uploading
+            $('#id_file').parents("form").get(0).reset();
+
+            // the ajax request to the server to upload the file
+            $.ajax({
+                url: "{{ upload_mp3_url }}",
+                type: 'POST',
+                data: form_data,
+                cache: false,        // tell the browser not to use its cache
+                processData: false,  // we already have a FormData obj, so $ needs to leave it alone
+                contentType: false,  // $ needs to leave the contentType alone
+                xhr: function () {
+                    var xhr = jQuery.ajaxSettings.xhr();
+                    if (xhr.upload) {
+                        xhr.upload.addEventListener('progress', function (evt) { progressHandler(evt, new_bar) }, false);
+                        xhr.upload.addEventListener("error", function (evt) { uploadFailedHandler(evt, new_bar) }, false);
+                    }//if
+                    return xhr;
+                },
+                success: function (data, textStatus, jqXHR) {
+                    //alert(jqXHR.responseText);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    progress_bar_Failure(new_bar);
+                    //alert(jqXHR.responseText);
+                },
+                async: true
+
+            });
+        });
+
+
+
+
+
+
+  /********************** The following methods are not mine, they are from Django. *****************************
+  ******* They allow safe POSTing with Jquery/AJAX (e.g. proper CSRF token, proper origin of request, etc.) *******/
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        function sameOrigin(url) {
+            // test that a given url is a same-origin URL
+            // url could be relative or scheme relative or absolute
+            var host = document.location.host; // host + port
+            var protocol = document.location.protocol;
+            var sr_origin = '//' + host;
+            var origin = protocol + sr_origin;
+            // Allow absolute or scheme relative URLs to same origin
+            return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+                (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+                // or any other URL that isn't scheme relative or absolute i.e relative.
+                !(/^(\/\/|http:|https:).*/.test(url));
+        }
+
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+                    // Send the token to same-origin, relative URLs only.
+                    // Send the token only if the method warrants CSRF protection
+                    // Using the CSRFToken value acquired earlier
+                    var csrftoken = $('input[name=csrfmiddlewaretoken]').val();
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+    });
+</script>
+
+<style>
+div.progress_bar_container, div.progress_bar_outer, div.progress_bar_inner {
+    display: inline-block;
+    position:relative;
+    left:0px;
+    top:-1px;
+    height:10px;
+}
+div.progress_bar_outer, div.progress_bar_inner {
+    border:1px solid black;
+    position:absolute;
+    padding: 0px;
+    margin:0px;
+}
+div.progress_bar_outer {
+    width:50px;
+    background-color:#FFFFFF;
+    z-index:-1;
+}
+div.progress_bar_inner {
+    width:0px;
+    border-color: #FFFFFF;
+    background-color:#1F45FC;
+    height:6px;
+    margin:2px;
+}
+li {
+    position:relative;
+}
+</style>

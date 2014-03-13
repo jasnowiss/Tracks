@@ -35,10 +35,10 @@ hello world
 
         /********************************** Functions of NISHANT KUMAR ***************************************/
 
-        /* FUNCTIONALITY: Creates a new progress bar element. 
-           INPUTS: 1) html_element: 
-                      The html element to add the progress bar to. 
-           OUTPUT: new_bar: 
+        /* FUNCTIONALITY: Creates a new progress bar element.
+           INPUTS: 1) html_element:
+                      The html element to add the progress bar to.
+           OUTPUT: new_bar:
                    The progress bar element.        */
         function add_new_progress_bar(html_element) {
             var new_bar = $("<div></div>")
@@ -58,11 +58,11 @@ hello world
 
         /* FUNCTIONALITY: Creates a "track element" - i.e. an li element with text and a progress bar.
                           The "track element" represents a file which is in the process of uploading.
-           INPUTS: 1) preceding_text: 
+           INPUTS: 1) preceding_text:
                       The text to add before the progress bar.
                    2) element_to_prepend_to:
                       The html element to prepend the "track element" to (preferably a <ul> or <ol> element).
-           OUTPUT: new_bar: 
+           OUTPUT: new_bar:
                    The progress bar element of the "track element".       */
         function add_loading_track(preceding_text, element_to_prepend_to) {
             var temp = $("<li></li>").append(
@@ -74,7 +74,7 @@ hello world
 
 
         /* FUNCTIONALITY: Sets the length of the inner filling of the progress bar to visually indicate how much progress has been made.
-           INPUTS: 1) progress_bar: 
+           INPUTS: 1) progress_bar:
                       The progress bar to set the filling of.
                    2) percent_0_to_100:
                       The percent (range 0 to 100) of the progress bar that should be filled.
@@ -96,7 +96,7 @@ hello world
 
 
         /* FUNCTIONALITY: Sets the inner filling of the progress bar to red in order to visually indicate a failure.
-           INPUTS: 1) progress_bar: 
+           INPUTS: 1) progress_bar:
                       The progress bar to set the filling of.
            OUTPUT: None       */
         function progress_bar_Failure(progress_bar) {
@@ -107,7 +107,7 @@ hello world
         /* FUNCTIONALITY: An event handler used for the event of a file upload in progress. Updates the progress bar appropriately.
            INPUTS: 1) evt:
                       The event object.
-                   2) progress_bar: 
+                   2) progress_bar:
                       The progress bar to set the filling of.
            OUTPUT: None       */
         function progressHandler(evt, progress_bar) {
@@ -121,7 +121,7 @@ hello world
         /* FUNCTIONALITY: An event handler used for the event of a file upload which failed. Updates the progress bar appropriately.
            INPUTS: 1) evt:
                       The event object.
-                   2) progress_bar: 
+                   2) progress_bar:
                       The progress bar to set the filling of.
            OUTPUT: None       */
         function uploadFailedHandler(evt, progress_bar) {
@@ -129,8 +129,8 @@ hello world
         }
 
 
-        /* FUNCTIONALITY: Handles uploading a file to the server asynchronously. 
-                          This includes: 
+        /* FUNCTIONALITY: Handles uploading a file to the server asynchronously.
+                          This includes:
                           - sending data to the server (and waiting for the response).
                           - updating the UI to reflect the progress of the file upload.
            INPUTS: None
@@ -218,7 +218,7 @@ hello world
 </script>
 {% load staticfiles %}
 <script src={% static "bootstrap-3.1.1-dist/js/bootstrap.min.js" %}></script>
-    
+
 <script type="text/javascript">
 	addNav();
 </script>

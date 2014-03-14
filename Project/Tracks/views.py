@@ -46,8 +46,8 @@ def signIn(request):
     email = password = msg = ''
     if request.POST:
         form = TracksUserSignInForm(request.POST)
-        email = request.POST.get('email')
-        password = request.POST.get('password')
+        email = request.POST.get('email', '')
+        password = request.POST.get('password', '')
         user = authenticate(username=email, password=password) #Unlike the TracksUserCreationForm, this form does not do the required work
         #Need error handling
         if user is not None:
@@ -63,6 +63,10 @@ def signIn(request):
             #msg = 'Invalid username/password combination!'
             #render(request, 'Tracks/signin.html', {'form': form, 'msg': msg})
             pass
+        #if next in request.POST:
+            #We've been redirected; return the user where they want to go
+            #url = request.POST.get('next')
+            #HttpResponseRedirect(url)
         return HttpResponseRedirect('') # should be user's profile when ready
     else:
         form = TracksUserSignInForm()
@@ -79,7 +83,7 @@ def about(request):
     if (request.method == 'GET'):
         return render(request, 'Tracks/about.html', {})
 
-
+#@login_required
 def upload_MP3(request):
     #print('entered uploadmp3')
     if (request.method == 'POST'):

@@ -220,3 +220,5 @@ LOGGING = {
         },
     }
 }
+
+LOGIN_URL = '/Tracks/signin/'

@@ -23,13 +23,40 @@
         </h1>
     </div>
 	<div class="container" style="width:50%">
+{% load myfilters %}
 	<form id="signin" action="" class="form-horizontal" role="form" method="post">
 	{% csrf_token %}
-    	<p><label for="id_email">Email Address:</label> <input id="id_email" maxlength="254" name="email" type="email" /></p>
-<p><label for="id_firstName">First Name:</label> <input id="id_firstName" maxlength="45" name="firstName" type="text" /></p>
-<p><label for="id_lastName">Last Name:</label> <input id="id_lastName" maxlength="45" name="lastName" type="text" /></p>
-<p><label for="id_password">Password:</label> <input id="id_password" name="password" type="password" /></p>
-<p><label for="id_confirm">Password confirmation:</label> <input id="id_confirm" name="confirm" type="password" /> <span class="helptext">Enter the same password as above, for verification.</span></p>        <div class="col-sm-offset-2" style="padding-left:5px">
+    	<div class="form-group" >
+        	<label for="firstname" class="col-sm-2 control-label">First Name:</label>
+            <div class="col-sm-10">
+            	{{ form.firstName|addattr:"class: form-control,placeholder: First Name" }}
+            </div>
+        </div>
+        <div class="form-group" >
+        	<label for="lastname" class="col-sm-2 control-label">Last Name:</label>
+            <div class="col-sm-10">
+            	{{ form.lastName|addattr:"class: form-control,placeholder: Last Name" }}
+            </div>
+        </div>
+        <div class="form-group" >
+        	<label for="email" class="col-sm-2 control-label">Email Address:</label>
+            <div class="col-sm-10">
+            	{{ form.email|addattr:"class: form-control,placeholder: Email" }}
+        	</div>
+        </div>
+        <div class="form-group" >
+        	<label for="password" class="col-sm-2 control-label" >Password:</label>
+            <div class="col-sm-10">
+            	{{ form.password|addattr:"class: form-control,placeholder: Password" }}
+            </div>
+        </div>
+        <div class="form-group" >
+        	<label for="confirm" class="col-sm-2 control-label">Confirm Password:</label>
+            <div class="col-sm-10">
+            	{{ form.confirm|addattr:"class: form-control,placeholder: Confirm Password" }}
+            </div>
+        </div>
+        <div class="col-sm-offset-2" style="padding-left:5px">
         	<button type="submit" class="btn btn-default"  >Create Account</button>
         </div>
     </form>

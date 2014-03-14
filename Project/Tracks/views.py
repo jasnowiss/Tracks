@@ -135,7 +135,7 @@ def upload_MP3(request):
                 #print("Before file check" + str(sizeOfFile))
                 notSupported=True
                 for name in acceptableFormats:
-                    if sizeOfFile.endswith(name):
+                    if temp_mp3.endswith(name):
                        notSupported = False
                 if notSupported:
                     response = HttpResponse('File extension not supported')

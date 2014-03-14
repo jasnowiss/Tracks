@@ -32,7 +32,7 @@ def register(request):
         firstName = request.POST.get('firstName')
         lastName = request.POST.get('lastName')
         confirm = request.POST.get('confirm')
-        #user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
+        user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
         return render(request, 'Tracks/tracks.html', {})
     else:
         return render(request, 'Tracks/signup.html', {})
@@ -98,3 +98,7 @@ def upload_MP3(request):
         response = HttpResponse('method not post')
         response.status_code = 400;
         return response
+
+def downbeat(request):
+    if (request.method == 'GET'):
+        return render(request, 'Tracks/downbeat.html', {})

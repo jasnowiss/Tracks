@@ -19,8 +19,8 @@ hello {{ user.firstName }}!
 {% else %}
 you are viewing the profile of {{ user.firstName }}
 {% endif %}
-
-<form action="{% url 'Tracks:userprofile' %}" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+{% url 'Tracks:userprofile' as userprofile_url %}
+<form action="{{ userprofile_url }}" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
 {% csrf_token %}
     {% for field in form %}
     <div>

@@ -27,46 +27,53 @@ def register(request):
     email = password = ''
     if request.method == 'POST':
         form = TracksUserCreationForm(request.POST)
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        firstName = request.POST.get('firstName')
-        lastName = request.POST.get('lastName')
-        confirm = request.POST.get('confirm')
+        #perhaps need to log in the user as well?
+        #Need error handling
+##        email = request.POST.get('email')
+##        password = request.POST.get('password')
+##        firstName = request.POST.get('firstName')
+##        lastName = request.POST.get('lastName')
+##        confirm = request.POST.get('confirm')
         #user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
-        return render(request, 'Tracks/index.html', {'form': form})
+        return HttpResponseRedirect('/upload') #Should be changed to user's profile?
     else:
         form = TracksUserCreationForm()
     return render(request, 'Tracks/signup.html', {'form': form})
 
     
- # Julian's version, undo when ready
 def signIn(request):
     # Custom login
-    email = password = ''
-    print request
+    email = password = msg = ''
     if request.POST:
         form = TracksUserSignInForm(request.POST)
         email = request.POST.get('email')
         password = request.POST.get('password')
-        """
-        user = authenticate(username=email, password=password)
+        user = authenticate(username=email, password=password) #Unlike the TracksUserCreationForm, this form does not do the required work
+        #Need error handling
         if user is not None:
             if user.is_active:
                 login(request, user)
-        """
-        return render(request, 'Tracks/tracks.html', {'form':form})
+            else:
+                #Will we ever have inactive users? Maybe instead of deletion?
+                #msg = 'That user is inactive!' (does this reveal too much information about a user?)
+                #render(request, 'Tracks/signin.html', {'form': form, 'msg': msg})
+                pass
+        else:
+            #Invalid password, we need to alert the user
+            #msg = 'Invalid username/password combination!'
+            #render(request, 'Tracks/signin.html', {'form': form, 'msg': msg})
+            pass
+        return HttpResponseRedirect('') # should be user's profile when ready
     else:
         form = TracksUserSignInForm()
     return render(request, 'Tracks/signin.html', {'form': form})
 
+def logout(request):
+    logout(request)
+    return HttpResponseRedirect('') #should be a log out page instead
+
 def tracks(request):
     return render(request, 'Tracks/tracks.html',{})
-
-
-##def signIn(request):
-##    if (request.method == 'GET'):
-##        return render(request, 'Tracks/welcome.html',{})
-
 
 def about(request):
     if (request.method == 'GET'):

@@ -27,18 +27,11 @@ def register(request):
     """Register a user."""
     email = password = ''
     if request.method == 'POST':
-
         #form = TracksUserCreationForm(request.POST)
         #perhaps need to log in the user as well?
         #Need error handling
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        firstName = request.POST.get('firstName')
-        lastName = request.POST.get('lastName')
-        confirm = request.POST.get('confirm')
-        user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
         # request.session['email'] = user.email # NEW ADD WHICH IS BUGGY
-        return HttpResponseRedirect('/Tracks/userpage') #Should be changed to user's profile?
+        return HttpResponseRedirect('/Tracks/userpage')
     else:
         form = TracksUserCreationForm()
     return render(request, 'Tracks/signup.html', {'form': form})

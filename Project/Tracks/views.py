@@ -132,23 +132,16 @@ def upload_MP3(request):
                 temp_mp3 = request.FILES['file']
                 #check the size of the file
                 sizeOfFile = temp_mp3._size
-<<<<<<< HEAD
-                ##print("Before file check" + str(sizeOfFile))
-                if (sizeOfFile > SIZE_LIMIT):
-                    ##print("Reached file check")
-=======
-                #print("Before file check" + str(sizeOfFile))
-                notSupported=True
+                notSupported = True
                 for name in acceptableFormats:
-                    if temp_mp3.endswith(name):
+                    if temp_mp3.name.endswith(name):
                        notSupported = False
                 if notSupported:
                     response = HttpResponse('File extension not supported')
                     response.status_code = 500;
                     return response
-                       
+
                 if sizeOfFile > SIZE_LIMIT:
->>>>>>> a28063aeb2b76b15e53b718cee229ddc977fe401
                     response = HttpResponse('File exceeding size limit')
                     response.status_code = 500;
                     return response

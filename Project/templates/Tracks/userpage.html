@@ -13,6 +13,7 @@
 </head>
 <body>
 <div id="navbar" class="navbar navbar-inverse navbar-fixed-top" role="navigation"></div>
+
 {% url 'Tracks:userprofile' user.email as userprofile_url %}
 {% url 'Tracks:upload_MP3' as upload_mp3_url %}
 {% url 'Tracks:collaborate_helper' as collaborate_helper_url %}
@@ -40,6 +41,7 @@ Viewing page of {{ user.firstName }}
 </ul>
 
 {% if not is_disabled %}
+
 <ol id="upload_list">
 <h3>Add Track</h3>
 <li><form action="/" method="post">

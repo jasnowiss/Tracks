@@ -2,9 +2,17 @@
 
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.forms import ModelForm
+from Tracks.models import *
 
-from Tracks.models import TracksUser  # might be incorrect
+class TracksUserSignInForm(forms.ModelForm):
+  error_messages = {}
+  email = forms.CharField(label="Email Address", max_length=254)
+  password = forms.CharField(label="Password", widget=forms.PasswordInput)
 
+  class Meta:
+    model = TracksUser
+    fields = ("email",)
 
 class TracksUserCreationForm(forms.ModelForm):
     """
@@ -15,9 +23,9 @@ class TracksUserCreationForm(forms.ModelForm):
         'alreadyExists': "A account with that e-mail adress already exists!",
         'password_mismatch': "The two password fields don't match!",
     }
-    email = forms.EmailField(label="Email Address", max_length=254)
     firstName = forms.CharField(label="First Name", max_length=45)
     lastName = forms.CharField(label="Last Name", max_length=45)
+    email = forms.EmailField(label="Email Address", max_length=254)
     password = forms.CharField(label="Password",
         widget=forms.PasswordInput)
     confirm = forms.CharField(label="Password confirmation",
@@ -84,3 +92,19 @@ class TracksUserChangeForm(forms.ModelForm):
 
 class UploadFileForm(forms.Form):
     file  = forms.FileField()
+
+
+class UserProfileForm(ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['field2', 'instrument', 'field3', 'field4']
+
+##    def __init__(self, readonly_form=False, *args, **kwargs):
+##            super(UserProfileForm, self).__init__(*args, **kwargs)
+##            if readonly_form:
+##                for field in self.fields:
+##                    self.fields[field].widget.attrs['readonly'] = True
+##
+
+
+

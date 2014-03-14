@@ -1,0 +1,151 @@
+System.ComponentModel.DataAnnotations
+
+http://msdn.microsoft.com/en-us/library/gg703322(v=vs.98).aspx
+
+http://www.codeproject.com/Articles/470107/ASP-NET-MVC-4-Part-1-Introduction
+
+
+Context.User.Identity.Name: @Context.User.Identity.Name
+
+ Environment.UserName: @Environment.UserName    @DateTime.Now.Millisecond.ToString()
+
+AMERICAS\kunishan
+
+
+//System.Data.Entity.Database.SetInitializer<IntakeContext>(new IntakeInitializer()); 
+            //IntakeContext context = new IntakeContext();
+            //context.Database.Initialize(true);
+
+
+cn=GCS_Prodsec,ou=Applications,o=hp.com
+pass: tpawco09242013
+
+<customErrors mode="Off"/>
+
+
+ Attempted to access an unloaded appdomain. (Exception from HRESULT: 0x80131014)
+
+TODO:
+In app globally:
+	
+x- Change admin role to user + additional rights (instead of different rights that do not overlap).
+	---- not sure how this will work. if an admin makes a request for someone else, who should the user be? will request be attached to the admin user? or will a new user need to be created, and then the request attached to said new user?
+        
+x- Use current add/remove user mechanism (not hard-coded username) 
+
+
+On all pages: 
+x- Please separate input from view via EDIT control  
+
+On the admin view page: 
+x- Change user field to contact  
+x- Change request field to Application Name 
+x- Implement engaged button 
+
+On the request input page (or question edit page)
+x- Make application name field required
+x- Create upload control (for word document. For now just make sure people aren’t loading anything larger than a 4MB file
+
+x- fix bug in [httppost] request_manager
+x- check usernames in create user against AD
+x- implement date control
+x- stripstring on all inputs
+x- add defaults for dropdowns
+x- need a way to attach questions to a request. not all requests 		will have same questions, depending on whether questions 	were deleted/added. in other words, need some form of logging
+x- validate dates
+- admin request: sort requests by date
+- pagination?
+x- add question type "hp email" which validates hp email text?
+x- portfolio id, it-owner, application name, and description will be fundamental to a request.
+-TT: priority - base, elevated
+x- change requestor to contact. use email address across app.
+	- AD: alias, email address, display name
+	
+
+x- validate HP email fields
+x- implement AJAX for Question(Model) is_active
+x- create delete request methods for admin
+x- test admin create request
+x- add user to logging table
+x- get rid of delete option for questions
+- add welcome/home page to both user and admin view
+x- show BU in index
+x- add control to have state change once consultant assigned
+x- add sorting and searching to index
+x- implement access levels on all pages
+x- add tasks
+x- add notes field
+x- add tabs
+x- add download control
+x- test sorting
+x- need authorizationattribute
+x- source field: text type
+x- credentials field: textarea type
+x- consultant tab
+x- help link on intake form
+- error pages
+x- email dropdown correspondants
+x- implement complete save state for template of request
+x- cleanup "viewbag.title"'s
+x- change stripstring behavior to the following: strip any characters in the string which aren't alpha-numeric characters or spacebar character.
+- remove <compilation debug="true"/>
+<customErrors mode="Off">
+</customErrors>
+from the tracking tool web.config file when deployed fully.
+x- application version = textfield in view request of TT. manual project entry field in TT which is link with query string containing id, application name, and maybe application version.
+x- add consultant field to intake form
+x- add link from TT to intake form for consultant to view questions
+	- consultant can view requests assigned to himself
+	- consultant can edit request which he is contact of
+https://gcstools.americas.hpqcorp.net/GCS/Intake/User_Requests_View?request_id=29
+x- about us and contact us links for intake form
+- if a user is a consultant and is assigned to a request, what happens if the user is dropped from being a consultant? right now the request will still have that user as a consultant, but it will not show up in the TT.
+x- finish consultant dropdown in intake form
+x- add "consultant view" to user_request page
+- stripstring on all inputs
+x- test "consultant view" and consultant dropdown in intake form and TT
+x- make TT tabs a dropdown, and try to make configurable.
+	---- HOW SHOULD CONFIGURATION WORK?
+		---- create new table called "TrackingToolNote" table
+			fields: ID, (foreign key) requestID, edittype, notes
+x- make link to intake form Q&A available to all consultants
+x- BU a read-only field pulled from the intake form
+x- Change Application name to Product Name (in back-end database also)
+x- make user privileges editable on user page
+x- test product version in TT_RequestManager
+x- make it so that an admin user cannot un-admin himself
+x- in user request index, allow consultant to see his requests
+	-- need to test
+x- have link in emails directing to the intake form/TT
+	----- no link in email from intake form. this is b/c intake form email
+		is the consultant assignment, which means consultant should visit
+		the TT.
+x- calculated risk, non-editable field in TT calculated by formula. 
+x- manual risk, dropdown editable in TT.
+- change request.consultant to request.consultantID (change from using names to using ID's). do this for pentester and toolingengineer too. (or use User model object, instead of string or id).
+x- add (and pull) keys in web.config's of TT and Intake referencing to the url of the other site
+- currently if a file is uploaded, then it is not possible to "un-upload" a file. in other words, if a file has been uploaded before, if a user comes and edits a request but leaves the file question blank, then the blank will not count as an "un-upload".the previous file will still show in the download control of the request_view.
+- if product name is changed in TT, it is not reflected as a change to the answer of the product name question.
+x- allow show/hide of inactive questions in intake form
+	x---- edit so show/hide state is preserved?
+x- allow reordering of questions in intake form
+- look into choices within choices for Q&A of intake form
+- look into having multiple contacts
+	-------
+	let user property hold the person who makes the request.
+	let contacts property hold list of contacts added.
+	-------
+- make GUID field for requests
+- source changed to url in TT, source code location textbox in TT
+x- fix visual bug regarding radio buttons
+x- allow show/hide and search of users
+- should StripString also be in TT? (should those inputs also be stripped?)
+
+
+explain how web.config urls work (in particular the one for the url in TT pointing back to intake)
+
+explain bug regarding dropdowns not showing value (problem with whitelisting)
+
+find a fix for ie10 bug with dropdowns
+
+send questions list

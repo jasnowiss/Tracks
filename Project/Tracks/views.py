@@ -38,7 +38,9 @@ def register(request):
         #user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
         return HttpResponseRedirect('/Tracks/upload') #Should be changed to user's profile?
     else:
-        return render(request, 'Tracks/signup.html', {})
+        form = TracksUserCreationForm()
+    return render(request, 'Tracks/signup.html', {'form': form})
+
 
     
 def signIn(request):

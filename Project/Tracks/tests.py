@@ -67,12 +67,20 @@ class SignInTest(TestCase):
     response = self.c.post('/Tracks/signin/',{'email':'a@a.a','password':'a'})
     self.assertEqual(response.status_code, 302)
   def test_user_doesnt_exist(self):
-    response = self.c.post('/Tracks/signin/',{'email':'z@z.z','password':'z'})
-    print(response.status_code) #test that this doesn't work
+    a = 0
+    try:
+      response = self.c.post('/Tracks/signin/',{'email':'z@z.z','password':'z'})
+    except:
+      a = 1
+    self.assertEqual(a,1)
 
   def test_wrong_passsword(self):
-    response = self.c.post('/Tracks/signin/',{'email':'a@a.a','password':'1'})
-    print(response.status_code) #test that this doesn't work
+    a = 0
+    try:
+      response = self.c.post('/Tracks/signin/',{'email':'a@a.a','password':'1'})
+    except:
+      a = 1
+    self.assertEqual(a,1)
 
 """
 class UserProfileTest(TestCase):

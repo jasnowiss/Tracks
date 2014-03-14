@@ -45,16 +45,19 @@ def signIn(request):
     email = password = ''
     print request
     if request.POST:
+        form = TracksUserSignInForm(request.POST)
         email = request.POST.get('email')
         password = request.POST.get('password')
-
+        """
         user = authenticate(username=email, password=password)
         if user is not None:
             if user.is_active:
                 login(request, user)
-                return HttpResponseRedirect('')
-
-    return render_to_response('login.html', {'email': email})
+        """
+        return render(request, 'Tracks/tracks.html', {'form':form})
+    else:
+        form = TracksUserSignInForm()
+    return render(request, 'Tracks/signin.html', {'form': form})
 
 def tracks(request):
     return render(request, 'Tracks/tracks.html',{})

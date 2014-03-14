@@ -5,6 +5,14 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
 from Tracks.models import TracksUser  # might be incorrect
 
+class TracksUserSignInForm(forms.ModelForm):
+  error_messages = {}
+  email = forms.CharField(label="Email Address", max_length=254)
+  password = forms.CharField(label="Password", widget=forms.PasswordInput)
+
+  class Meta:
+    model = TracksUser
+    fields = ("email",)
 
 class TracksUserCreationForm(forms.ModelForm):
     """

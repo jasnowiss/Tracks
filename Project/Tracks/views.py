@@ -4,7 +4,7 @@ from django.shortcuts import render, render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.utils import timezone
 # from TracksApp_forms import *
 from Tracks.forms import *
@@ -37,7 +37,7 @@ def register(request):
     return render(request, 'Tracks/signup.html', {'form': form})
 
 
-
+    
 def signIn(request):
     # Custom login
     email = password = msg = ''
@@ -72,7 +72,7 @@ def signIn(request):
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect('Tracks') #should be a log out page instead
+    return HttpResponseRedirect('/Tracks') #should be a log out page instead
 
 def tracks(request):
     return render(request, 'Tracks/tracks.html',{})
@@ -115,7 +115,7 @@ def userprofile(request, user_email=None):
 
     elif (request.method == 'POST'):
         form = UserProfileForm(request.POST, instance=temp_instance)
-        if(form.is_valid()):
+        if(form.is_valid):
             try:
                 form.save()
                 return HttpResponseRedirect('/Tracks/userpage/');
@@ -223,7 +223,7 @@ def upload_MP3(request):
     acceptableFormats = ['.mp3']
     if (request.method == 'POST'):
         form = UploadFileForm(request.POST, request.FILES)
-        if (form.is_valid()):
+        if (form.is_valid):
             try:
                 temp_mp3 = request.FILES['file']
                 #check the size of the file

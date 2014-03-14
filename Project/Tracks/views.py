@@ -26,17 +26,16 @@ def register(request):
     """Register a user."""
     email = password = ''
     if request.method == 'POST':
-        form = TracksUserCreationForm(request.POST)
+        print request.POST
         email = request.POST.get('email')
         password = request.POST.get('password')
         firstName = request.POST.get('firstName')
         lastName = request.POST.get('lastName')
         confirm = request.POST.get('confirm')
         #user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
-        return render(request, 'Tracks/index.html', {'form': form})
+        return render(request, 'Tracks/tracks.html', {})
     else:
-        form = TracksUserCreationForm()
-    return render(request, 'Tracks/signup.html', {'form': form})
+        return render(request, 'Tracks/signup.html', {})
 
     
  # Julian's version, undo when ready
@@ -60,9 +59,14 @@ def tracks(request):
     return render(request, 'Tracks/tracks.html',{})
 
 
-##def signIn(request):
-##    if (request.method == 'GET'):
-##        return render(request, 'Tracks/welcome.html',{})
+def signIn(request):
+    if (request.method == 'GET'):
+        return render(request, 'Tracks/welcome.html',{})
+
+
+def signUp(request):
+    if (request.method == 'GET'):
+        return render(request, 'Tracks/signup.html', {})
 
 
 def about(request):

@@ -27,18 +27,11 @@ def register(request):
     """Register a user."""
     email = password = ''
     if request.method == 'POST':
-
         #form = TracksUserCreationForm(request.POST)
         #perhaps need to log in the user as well?
         #Need error handling
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        firstName = request.POST.get('firstName')
-        lastName = request.POST.get('lastName')
-        confirm = request.POST.get('confirm')
-        user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
-        request.session['email'] = user.email # NEW ADD WHICH IS BUGGY
-        return HttpResponseRedirect('/Tracks/userpage') #Should be changed to user's profile?
+        # request.session['email'] = user.email # NEW ADD WHICH IS BUGGY
+        return HttpResponseRedirect('/Tracks/userpage')
     else:
         form = TracksUserCreationForm()
     return render(request, 'Tracks/signup.html', {'form': form})
@@ -57,6 +50,12 @@ def signIn(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
+                if next in request.POST:
+                    #We've been redirected; return the user where they want to go
+                    url = request.POST.get('next')
+                    HttpResponseRedirect(url)
+                request.session['email'] = user.email # NEW ADD WHICH IS BUGGY
+                return HttpResponseRedirect('/Tracks/userpage') # should be user's profile when ready
             else:
                 #Will we ever have inactive users? Maybe instead of deletion?
                 #msg = 'That user is inactive!' (does this reveal too much information about a user?)
@@ -67,19 +66,13 @@ def signIn(request):
             #msg = 'Invalid username/password combination!'
             #render(request, 'Tracks/signin.html', {'form': form, 'msg': msg})
             pass
-        #if next in request.POST:
-            #We've been redirected; return the user where they want to go
-            #url = request.POST.get('next')
-            #HttpResponseRedirect(url)
-        request.session['email'] = user.email # NEW ADD WHICH IS BUGGY
-        return HttpResponseRedirect('/Tracks/userpage') # should be user's profile when ready
     else:
         form = TracksUserSignInForm()
     return render(request, 'Tracks/signin.html', {'form': form})
 
-def logout(request):
+def logout_view(request):
     logout(request)
-    return HttpResponseRedirect('') #should be a log out page instead
+    return HttpResponseRedirect('Tracks') #should be a log out page instead
 
 def tracks(request):
     return render(request, 'Tracks/tracks.html',{})
@@ -91,6 +84,7 @@ def about(request):
 
 
 
+@login_required
 def userprofile(request, user_email=None):
     try:
         if(user_email != None):
@@ -140,6 +134,7 @@ def userprofile(request, user_email=None):
 
 
 
+@login_required
 def userpage(request, user_email=None):
     try:
         if(user_email != None):

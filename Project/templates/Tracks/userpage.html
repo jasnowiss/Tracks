@@ -138,6 +138,9 @@ hello {{ user.firstName }}!
         $('#upload_button').click(function () {
             // gets the file from the file input and prepares it for uploading
             var form_data = new FormData();
+            if (! $('#id_file').val()) {
+                return
+            }
             var file_input = $('#id_file')[0];
             var file = file_input.files[0];
             form_data.append('file', file);

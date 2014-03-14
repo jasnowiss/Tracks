@@ -37,7 +37,7 @@ def register(request):
         lastName = request.POST.get('lastName')
         confirm = request.POST.get('confirm')
         user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
-        # request.session['email'] = user.email # NEW ADD WHICH IS BUGGY
+        request.session['email'] = user.email # NEW ADD WHICH IS BUGGY
         return HttpResponseRedirect('/Tracks/userpage') #Should be changed to user's profile?
     else:
         form = TracksUserCreationForm()
@@ -71,7 +71,7 @@ def signIn(request):
             #We've been redirected; return the user where they want to go
             #url = request.POST.get('next')
             #HttpResponseRedirect(url)
-        # request.session['email'] = user.email # NEW ADD WHICH IS BUGGY
+        request.session['email'] = user.email # NEW ADD WHICH IS BUGGY
         return HttpResponseRedirect('/Tracks/userpage') # should be user's profile when ready
     else:
         form = TracksUserSignInForm()
@@ -97,8 +97,8 @@ def userprofile(request, user_email=None):
             temp_user = TracksUser.objects.get(email=user_email)
             is_disabled = True
         else:
-            temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
-            #temp_user = TracksUser.objects.get(email=request.session.get('email')) # NEW ADD WHICH IS BUGGY
+            #temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
+            temp_user = TracksUser.objects.get(email=request.session.get('email')) # NEW ADD WHICH IS BUGGY
             is_disabled = False
 
     except:
@@ -146,8 +146,8 @@ def userpage(request, user_email=None):
             temp_user = TracksUser.objects.get(email=user_email)
             is_disabled = True
         else:
-            temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
-            #temp_user = TracksUser.objects.get(email=request.session.get('email')) # NEW ADD WHICH IS BUGGY
+            #temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
+            temp_user = TracksUser.objects.get(email=request.session.get('email')) # NEW ADD WHICH IS BUGGY
             is_disabled = False
     except:
         response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
@@ -171,8 +171,8 @@ def userpage(request, user_email=None):
 # Function for JSON Call
 def get_tracks_for_current_user_JSON(request):
     try:
-        temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
-        #temp_user = TracksUser.objects.get(email=request.session.get('email')) # NEW ADD WHICH IS BUGGY
+        #temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
+        temp_user = TracksUser.objects.get(email=request.session.get('email')) # NEW ADD WHICH IS BUGGY
     except:
         response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
         response.status_code = 500;

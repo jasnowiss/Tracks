@@ -67,11 +67,12 @@
 	</script>
     <script type="text/javascript">
 	function json_request(page, dict, success, failure) {
-		alert(page);
 		$.ajax({
 			type: 'POST',
 			url: page,
 			data: dict,
+			contentType: "application/json",
+			dataType: "json",
 			success: success,
 			error: failure
     	});

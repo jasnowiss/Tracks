@@ -15,7 +15,6 @@ from Tracks.models import Track
 import os
 import sys
 import traceback
-from django.views.decorators.csrf import csrf_exempt
 
 
 def index(request):
@@ -28,6 +27,7 @@ def register(request):
     pass
 
 
+""" # Julian's version, undo when ready
 def signIn(request):
     # Custom login
     email = password = ''
@@ -40,22 +40,22 @@ def signIn(request):
             if user.is_active:
                 login(request, user)
                 return HttpResponseRedirect('')
-    if (request.method == 'GET'):
-        return render(request, 'Tracks/welcome.html',{})
 
     return render_to_response('login.html', {'email': email})
+"""
 
 
 def tracks(request):
     return render(request, 'Tracks/tracks.html',{})
-    
 
-@csrf_exempt
+
+def signIn(request):
+    if (request.method == 'GET'):
+        return render(request, 'Tracks/welcome.html',{})
+
+
 def signUp(request):
     if (request.method == 'GET'):
-        return render(request, 'Tracks/signup.html', {})
-    else:
-        print request
         return render(request, 'Tracks/signup.html', {})
 
 

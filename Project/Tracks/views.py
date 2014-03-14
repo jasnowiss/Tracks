@@ -84,6 +84,7 @@ def about(request):
 
 
 
+@login_required
 def userprofile(request, user_email=None):
     try:
         if(user_email != None):
@@ -133,6 +134,7 @@ def userprofile(request, user_email=None):
 
 
 
+@login_required
 def userpage(request, user_email=None):
     try:
         if(user_email != None):

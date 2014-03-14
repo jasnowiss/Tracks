@@ -70,9 +70,9 @@ def signIn(request):
         form = TracksUserSignInForm()
     return render(request, 'Tracks/signin.html', {'form': form})
 
-def logout(request):
+def logout_view(request):
     logout(request)
-    return HttpResponseRedirect('') #should be a log out page instead
+    return HttpResponseRedirect('Tracks') #should be a log out page instead
 
 def tracks(request):
     return render(request, 'Tracks/tracks.html',{})

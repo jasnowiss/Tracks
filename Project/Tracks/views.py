@@ -25,16 +25,18 @@ def index(request):
 def register(request):
     """Register a user."""
     email = password = ''
-    print request
     if request.method == 'POST':
+        form = TracksUserCreationForm(request.POST)
         email = request.POST.get('email')
         password = request.POST.get('password')
-        firstName = request.POST.get('firstname')
-        lastName = request.POST.get('lastname')
+        firstName = request.POST.get('firstName')
+        lastName = request.POST.get('lastName')
         confirm = request.POST.get('confirm')
-        user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
+        #user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
         return render(request, 'Tracks/index.html', {'form': form})
-    return render(request, 'Tracks/signup.html', {})
+    else:
+        form = TracksUserCreationForm()
+    return render(request, 'Tracks/signup.html', {'form': form})
 
     
  # Julian's version, undo when ready

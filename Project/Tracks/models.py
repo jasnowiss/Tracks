@@ -104,3 +104,16 @@ class Track(models.Model):
         self.filepath = temp_dest
         self.save()
         return temp_dest
+
+
+
+
+class Collaboration(models.Model):
+    tracks = models.ManyToManyField(Track)
+
+    def __unicode__(self):
+        return self.id
+
+
+
+

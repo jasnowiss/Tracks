@@ -13,10 +13,11 @@
 </head>
 <body>
 <div id="navbar" class="navbar navbar-inverse navbar-fixed-top" role="navigation"></div>
-
 {% url 'Tracks:userprofile' user.email as userprofile_url %}
 {% url 'Tracks:upload_MP3' as upload_mp3_url %}
-{% url 'Tracks:collaborate_helper' as collaborate_helper_url %}
+{% url 'Tracks:get_tracks_for_current_user_JSON' as get_tracks_for_current_user_JSON_url %}
+{% url 'Tracks:finalize_collaboration' as finalize_collaboration_url %}
+
 
 {% if not is_disabled %}
 hello {{ user.firstName }}!
@@ -30,6 +31,23 @@ Viewing page of {{ user.firstName }}
 
 <br>
 
+<ul id="collaborations_list">
+<h3>Collaborations</h3>
+{% for collaboration in list_of_collaborations %}
+<li>
+    <h4>Collaboration {{ collaboration.id }}</h4>
+    <ul>
+        {% for track in collaboration.tracks.all %}
+        <li>
+        <a href="javascript:;"> {{ track.filename }} </a> <!-- Might need to allow the file to be downloaded  -->
+            </li>
+      {% endfor %}
+        </ul>
+</li>
+{% endfor %}
+</ul>
+
+
 <ul id="tracks_list">
 <h3>Tracks</h3>
 {% for track in list_of_tracks %}
@@ -40,8 +58,8 @@ Viewing page of {{ user.firstName }}
 {% endfor %}
 </ul>
 
-{% if not is_disabled %}
 
+{% if not is_disabled %}
 <ol id="upload_list">
 <h3>Add Track</h3>
 <li><form action="/" method="post">
@@ -55,6 +73,10 @@ Viewing page of {{ user.firstName }}
 </form>
     </li>
     </ol>
+{% else %}
+    <form action="/" method="post">
+        {% csrf_token %}
+    </form>
 {% endif %}
 
 
@@ -166,7 +188,7 @@ Viewing page of {{ user.firstName }}
         $('#upload_button').click(function () {
             // gets the file from the file input and prepares it for uploading
             var form_data = new FormData();
-            if (! $('#id_file').val()) {
+            if (!$('#id_file').val()) {
                 return
             }
             var file_input = $('#id_file')[0];
@@ -209,14 +231,62 @@ Viewing page of {{ user.firstName }}
         });
 
         $("button[name='collaborate_button']").click(function () {
-
+            this_button = this;
+            var track1_id = $(this_button).attr("id");
+            $.getJSON("{{ get_tracks_for_current_user_JSON_url }}", function (data) {
+                var temp_select_input = turn_KV_data_into_select_input(data);
+                if (temp_select_input != null) {
+                    $(this_button).before(temp_select_input);
+                    $(this_button).text("Finalize Collaboration!");
+                    $(this_button).unbind("click");
+                    $(this_button).bind("click", finalize_collaboration);
+                    //$(this_button).attr("name", "finalize_collaboration_button");
+                }
+            });
         });
 
+        function finalize_collaboration() {
+            this_button = this;
+            var track1_id = $(this_button).attr("id");
+            var select_element = $(this_button).parent().children("select");
+            var track2_id = select_element.children(":selected").val();
+            
+            $.ajax({
+                url: "{{ finalize_collaboration_url }}",
+                type: 'POST',
+                data: {track1_id : track1_id, track2_id : track2_id},
+                success: function (data, textStatus, jqXHR) {
+                    alert(jqXHR.responseText);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(jqXHR.responseText);
+                },
+                async: true
+
+            });
+
+        };
+
+        function turn_KV_data_into_select_input(data) {
+            if (data == null || data.length == 0 || data == '{}') {
+                return null
+            }
+            var temp_select_input = $("<select></select>");
+
+            $.each(data, function (key, val) {
+                var temp_choice = $("<option></option>");
+                temp_choice.attr("value", key.toString());
+                temp_choice.text(val.toString());
+                temp_select_input.append(temp_choice);
+            });
+
+            return temp_select_input;
+        }
 
 
 
-  /********************** The following methods are not mine, they are from Django. *****************************
-  ******* They allow safe POSTing with Jquery/AJAX (e.g. proper CSRF token, proper origin of request, etc.) *******/
+        /********************** The following methods are not mine, they are from Django. *****************************
+        ******* They allow safe POSTing with Jquery/AJAX (e.g. proper CSRF token, proper origin of request, etc.) *******/
         function csrfSafeMethod(method) {
             // these HTTP methods do not require CSRF protection
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -254,7 +324,7 @@ Viewing page of {{ user.firstName }}
 <script src={% static "bootstrap-3.1.1-dist/js/bootstrap.min.js" %}></script>
 
 <script type="text/javascript">
-	addNav();
+    addNav();
 </script>
 <style>
 div.progress_bar_container, div.progress_bar_outer, div.progress_bar_inner {

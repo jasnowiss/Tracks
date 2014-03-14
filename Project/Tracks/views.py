@@ -67,7 +67,7 @@ def about(request):
 def userprofile(request):
     try:
         temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
-#    temp_user = TracksUser.objects.get(email=request.session.get('email'))
+#       temp_user = TracksUser.objects.get(email=request.session.get('email'))
     except:
         response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
         response.status_code = 500;
@@ -78,7 +78,15 @@ def userprofile(request):
     else:
         temp_instance = UserProfile(user=temp_user)
 
-    if (request.method == 'POST'):
+    if(request.method == 'GET'):
+        ##if(user_id == temp_user.email):
+        form = UserProfileForm(instance=temp_instance)
+        return render(request, 'Tracks/userprofile.html', {'user' : temp_user, 'form' : form})
+##        else:
+##            form = UserProfileForm(readonly_form=True, instance=temp_instance)
+##            return render(request, 'Tracks/userprofile.html', {'user' : temp_user, 'form' : form})
+
+    elif (request.method == 'POST'):
         form = UserProfileForm(request.POST, instance=temp_instance)
         if(form.is_valid):
             try:
@@ -92,9 +100,11 @@ def userprofile(request):
             form = UserProfileForm(instance=temp_instance)
             return render(request, 'Tracks/userprofile.html', {'user' : temp_user, 'form' : form})
 
-    else: # GET
-        form = UserProfileForm(instance=temp_instance)
-        return render(request, 'Tracks/userprofile.html', {'user' : temp_user, 'form' : form})
+    else:
+        response = HttpResponse('Fatal Error!')
+        response.status_code = 500;
+        return response
+
 
 
 def userpage(request):

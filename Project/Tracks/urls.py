@@ -12,5 +12,6 @@ urlpatterns = patterns('',
     url(r'^signin', views.signIn, name='SignIn'),
     url(r'^signup', views.signUp, name='SignUp'),
     url(r'^about.html', views.about, name='About'),
-    url(r'^userprofile', views.userprofile, name='userprofile')
+    url(r'^userprofile', views.userprofile, name='userprofile'),
+##    url(r'^userprofile/(?P<user_id>\d+)/$', views.userprofile, name='userprofile')
 )

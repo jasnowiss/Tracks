@@ -60,14 +60,9 @@ def tracks(request):
     return render(request, 'Tracks/tracks.html',{})
 
 
-def signIn(request):
-    if (request.method == 'GET'):
-        return render(request, 'Tracks/welcome.html',{})
-
-
-def signUp(request):
-    if (request.method == 'GET'):
-        return render(request, 'Tracks/signup.html', {})
+##def signIn(request):
+##    if (request.method == 'GET'):
+##        return render(request, 'Tracks/welcome.html',{})
 
 
 def about(request):

@@ -14,12 +14,9 @@
 <body>
 <div id="navbar" class="navbar navbar-inverse navbar-fixed-top" role="navigation"></div>
 
-{% url 'Tracks:userprofile' user.email as userprofile_url %}
 {% url 'Tracks:upload_MP3' as upload_mp3_url %}
 {% url 'Tracks:get_tracks_for_current_user_JSON' as get_tracks_for_current_user_JSON_url %}
 {% url 'Tracks:finalize_collaboration' as finalize_collaboration_url %}
-
-{{userprofile_url}}
 
 {% if not is_disabled %}
 hello {{ user.firstName }}!

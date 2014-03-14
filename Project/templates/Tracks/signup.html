@@ -25,8 +25,11 @@
 	<div class="container" style="width:50%">
 	<form id="signin" action="" class="form-horizontal" role="form" method="post">
 	{% csrf_token %}
-    	{{ form.as_p }}
-        <div class="col-sm-offset-2" style="padding-left:5px">
+    	<p><label for="id_email">Email Address:</label> <input id="id_email" maxlength="254" name="email" type="email" /></p>
+<p><label for="id_firstName">First Name:</label> <input id="id_firstName" maxlength="45" name="firstName" type="text" /></p>
+<p><label for="id_lastName">Last Name:</label> <input id="id_lastName" maxlength="45" name="lastName" type="text" /></p>
+<p><label for="id_password">Password:</label> <input id="id_password" name="password" type="password" /></p>
+<p><label for="id_confirm">Password confirmation:</label> <input id="id_confirm" name="confirm" type="password" /> <span class="helptext">Enter the same password as above, for verification.</span></p>        <div class="col-sm-offset-2" style="padding-left:5px">
         	<button type="submit" class="btn btn-default"  >Create Account</button>
         </div>
     </form>

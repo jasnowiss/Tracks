@@ -112,14 +112,32 @@ def userpage(request):
 
 
 def upload_MP3(request):
+    #currently the size of the file is a static final, however we should consider having a quota per user, in case a user wishes to extend their quota.
+    # 2.5MB - 2621440
+    # 5MB - 5242880
+    # 10MB - 10485760
+    # 20MB - 20971520
+    # 50MB - 5242880
+    # 100MB 104857600
+    # 250MB - 214958080
+    # 500MB - 429916160
+    SIZE_LIMIT = "2621440"
     #print('entered uploadmp3')
     if (request.method == 'POST'):
         form = UploadFileForm(request.POST, request.FILES)
         if (form.is_valid):
             try:
+                temp_mp3 = request.FILES['file']
+                #check the size of the file
+                sizeOfFile = temp_mp3._size
+                if sizeOfFile > SIZE_LIMIT:
+                    response = HttpResponse('File exceeding size limit') 
+                    response.status_code = 500;
+                    return response
+                    
                 temp_user = TracksUser.objects.get(email=request.POST['user_email'])
                 print temp_user
-                temp_mp3 = request.FILES['file']
+                
                 new_track = Track(user = temp_user, filename=temp_mp3.name)
                 new_track.handle_upload_file(temp_mp3)
                 response = HttpResponse('success')

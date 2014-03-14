@@ -19,6 +19,7 @@
 {% url 'Tracks:get_tracks_for_current_user_JSON' as get_tracks_for_current_user_JSON_url %}
 {% url 'Tracks:finalize_collaboration' as finalize_collaboration_url %}
 
+{{userprofile_url}}
 
 {% if not is_disabled %}
 hello {{ user.firstName }}!

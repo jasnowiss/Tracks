@@ -24,13 +24,26 @@ def index(request):
 
 def register(request):
     """Register a user."""
-    pass
+    email = password = ''
+    if request.method == 'POST':
+        form = TracksUserCreationForm(request.POST)
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        firstName = request.POST.get('firstName')
+        lastName = request.POST.get('lastName')
+        confirm = request.POST.get('confirm')
+        #user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
+        return render(request, 'Tracks/index.html', {'form': form})
+    else:
+        form = TracksUserCreationForm()
+    return render(request, 'Tracks/signup.html', {'form': form})
 
-
-""" # Julian's version, undo when ready
+    
+ # Julian's version, undo when ready
 def signIn(request):
     # Custom login
     email = password = ''
+    print request
     if request.POST:
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -42,8 +55,6 @@ def signIn(request):
                 return HttpResponseRedirect('')
 
     return render_to_response('login.html', {'email': email})
-"""
-
 
 def tracks(request):
     return render(request, 'Tracks/tracks.html',{})

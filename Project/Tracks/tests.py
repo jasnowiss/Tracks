@@ -25,3 +25,47 @@ class TrackTest(TestCase):
 
 
 class CollaborationTest(TestCase):
+
+
+class UploadFileTest(TestCase):
+
+	def test_valid_mp3_upload(self):
+		filepathOfMp3 = '~/mp3Files/valid.mp3'
+		#make a request with this file path
+		request = 
+		self.assertEqual(self.upload_mp3(request), 'success')
+
+		#then check if the file exists and is identical
+		self.assertEqual(getFileFromDatabase, file(filepathOfMp3))
+
+
+	def test_invalid_file_extension(self):
+		filepathOfMp3 = '~/mp3Files/badExt.ogg'
+		#make a request with this file path
+		request = 
+		self.assertEqual(self.upload_mp3(request), 'File extension not supported')		
+
+
+	def test_sizeLimitExceeded_file(self):
+		filepathOfMp3 = '~/mp3Files/long.mp3'
+		#make a request with this file path
+		request = 
+		self.assertEqual(self.upload_mp3(request), 'File exceeding size limit')
+
+
+	def test_null_name(self):
+		filepathOfMp3 = '~/mp3Files/ .mp3'
+		#make a request with this file path
+		request = 
+		self.assertEqual(self.upload_mp3(request), 'form not valid')
+
+	def test_filenameTooLong_file(self):
+		filepathOfMp3 = '~/mp3Files/qweirouqwepiorqwpjfslfj asjkdfhsjkfhiwqehr quiwerh qwiuerh qwuier hqwuierh qwic vhmc hvmc hvcm hv qweruqiwerhqwouiehfskvnkjsadfbkjsadfhjsfhsjkdf wqierhwiuerhqwuierhw uifahsd fuahsdfiu sfhuiasd fhuiasdfhuiasd fhisahfisd fhuias dfhiasf iasdfaidfsadfhasd.mp3'
+		request = 
+		self.assertEqual(self.upload_mp3(request), 'form not valid')
+	
+	def test_invalidChars_file(self):
+		filepathOfMp3 = '~/mp3Files/@#ds!fd.mp3'
+		#make a request with this file path
+		request = 
+		self.assertEqual(self.upload_mp3(request), 'form not valid')

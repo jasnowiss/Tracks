@@ -130,9 +130,9 @@ def upload_MP3(request):
                 temp_mp3 = request.FILES['file']
                 #check the size of the file
                 sizeOfFile = temp_mp3._size
-                print("Before file check" + str(sizeOfFile))
-                if sizeOfFile > SIZE_LIMIT:
-                    print("Reached file check")
+                ##print("Before file check" + str(sizeOfFile))
+                if (sizeOfFile > SIZE_LIMIT):
+                    ##print("Reached file check")
                     response = HttpResponse('File exceeding size limit')
                     response.status_code = 500;
                     return response

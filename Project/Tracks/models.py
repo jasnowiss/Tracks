@@ -8,6 +8,9 @@ import os
 class TracksUserManager(BaseUserManager):
     """A class to manage user creation. May not in fact be necessary."""
     def create_user(self, email, firstName, lastName, confirm, password=None,):
+        if not password:
+            #raise
+            pass
         user = self.model(
             email=self.normalize_email(email),
             firstName=firstName,
@@ -113,7 +116,5 @@ class Collaboration(models.Model):
 
     def __unicode__(self):
         return self.id
-
-
 
 

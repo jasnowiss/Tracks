@@ -25,44 +25,68 @@ import json
 
 def register(request):
     """Register a user."""
-    pass
+    email = password = ''
+    if request.method == 'POST':
+
+        form = TracksUserCreationForm(request.POST)
+        #perhaps need to log in the user as well?
+        #Need error handling
+##        email = request.POST.get('email')
+##        password = request.POST.get('password')
+##        firstName = request.POST.get('firstName')
+##        lastName = request.POST.get('lastName')
+##        confirm = request.POST.get('confirm')
+        #user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
+        return HttpResponseRedirect('/Tracks/upload') #Should be changed to user's profile?
+    else:
+        form = TracksUserCreationForm()
+    return render(request, 'Tracks/signup.html', {'form': form})
 
 
-""" # Julian's version, undo when ready
+    
 def signIn(request):
     # Custom login
-    email = password = ''
+    email = password = msg = ''
     if request.POST:
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-
-        user = authenticate(username=email, password=password)
+        form = TracksUserSignInForm(request.POST)
+        email = request.POST.get('email', '')
+        password = request.POST.get('password', '')
+        user = authenticate(username=email, password=password) #Unlike the TracksUserCreationForm, this form does not do the required work
+        #Need error handling
         if user is not None:
             if user.is_active:
                 login(request, user)
-                return HttpResponseRedirect('')
+            else:
+                #Will we ever have inactive users? Maybe instead of deletion?
+                #msg = 'That user is inactive!' (does this reveal too much information about a user?)
+                #render(request, 'Tracks/signin.html', {'form': form, 'msg': msg})
+                pass
+        else:
+            #Invalid password, we need to alert the user
+            #msg = 'Invalid username/password combination!'
+            #render(request, 'Tracks/signin.html', {'form': form, 'msg': msg})
+            pass
+        #if next in request.POST:
+            #We've been redirected; return the user where they want to go
+            #url = request.POST.get('next')
+            #HttpResponseRedirect(url)
+        return HttpResponseRedirect('/Tracks') # should be user's profile when ready
+    else:
+        form = TracksUserSignInForm()
+    return render(request, 'Tracks/signin.html', {'form': form})
 
-    return render_to_response('login.html', {'email': email})
-"""
-
+def logout(request):
+    logout(request)
+    return HttpResponseRedirect('') #should be a log out page instead
 
 def tracks(request):
     return render(request, 'Tracks/tracks.html',{})
 
 
-def signIn(request):
-    if (request.method == 'GET'):
-        return render(request, 'Tracks/welcome.html',{})
-
-
-def signUp(request):
-    if (request.method == 'GET'):
-        return render(request, 'Tracks/signup.html', {})
-
-
 def about(request):
     if (request.method == 'GET'):
         return render(request, 'Tracks/about.html', {})
+
 
 
 def userprofile(request, user_email=None):
@@ -185,6 +209,7 @@ def finalize_collaboration(request):
 
 
 # Fuction for AJAX Call
+
 def upload_MP3(request):
     #currently the size of the file is a static final, however we should consider having a quota per user, in case a user wishes to extend their quota.
     # 2.5MB - 2621440
@@ -239,3 +264,7 @@ def upload_MP3(request):
         response = HttpResponse('method not post')
         response.status_code = 400;
         return response
+
+def downbeat(request):
+    if (request.method == 'GET'):
+        return render(request, 'Tracks/downbeat.html', {})

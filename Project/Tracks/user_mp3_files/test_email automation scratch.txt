@@ -1,0 +1,54 @@
+Datacom Southeast Asia   11/29/2011
+Global Payment Inc.	  7/18/2011 
+License Stream		 11/7/2010
+Plum Choice 		 12/5/2009
+ROVI 			 3/26/2002
+SAVVIS - Palm 		 8/26/2011
+Teleperformance (SAPOS Sweden) 11/16/2011
+Teleperformance (SAPOS UK) 	9/9/2011
+
+
+
+
+The intent of the workflows is to compare the AOC/ROC Date with the actual date and 
+if the actual date is 10 months past the AOC/ROC Date, SharePoint should send emails 
+to the PCI owner and to our ITSecurityPCI.Compliance@hp.com distribution list.
+
+The workflow should send another email when the actual date is 11 months past the 
+AOC/ROC Date and every week following.  The emails would stop once the AOC/ROC Date
+ gets updated by someone on our team.
+
+
+
+
+ROC_date;
+current_date;
+
+ROC_date = ROC_date + 11 months
+if (current_date >= ROC_date) {
+	send an email
+	wait for 1 week
+}
+ 
+PCI Notification and Action Required - AOC/ROC of the Third Party Vendor
+
+
+Hello PCI Owner,
+
+Please DO NOT reply to this automated e-mail.
+
+PCI Third Party Service Provider name is [%Third Party Vendors:Vendor%].
+
+This automated e-mail is to inform you that the AOC/ROC of the Service Provider will expire soon or has expired, which requires your attention.
+
+As part of the PCI Compliance Requirement 12.8 from the PCI Data Security Standards (DSS), all third party Service Providers processing, storing, or transmitting Cardholder Data on behalf of HP must have Annual Compliant PCI DSS AOC/ROC from a certified QSA (Qualified Security Assessor).
+
+Please take the following actions:
+- Request the Service Provider to provide you with their latest Annual Compliant PCI DSS AOC/ROC from a certified QSA (Qualified Security Assessor).
+- Once you have received it from your vendor, please forward them to the IT Security PCI Compliance Mailbox for review.
+- Update SharePoint under "AOC/ROC Compliant" and "AOC/ROC Date" with the current information.
+
+If you have any questions or require PCI Guidance, please contact the IT Security PCI Compliance team.
+
+Regards,
+IT Security PCI Compliance

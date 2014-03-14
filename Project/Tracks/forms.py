@@ -89,4 +89,4 @@ class UploadFileForm(forms.Form):
 class UserProfileForm(ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['field1', 'field2', 'field3', 'field4']
+        fields = ['field2', 'instrument', 'field3', 'field4']

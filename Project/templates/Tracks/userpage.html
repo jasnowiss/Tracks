@@ -141,6 +141,7 @@ hello {{ user.firstName }}!
             var file_input = $('#id_file')[0];
             var file = file_input.files[0];
             form_data.append('file', file);
+            form_data.append('user_email', '{{ user.email }}');
 
             // updates the UI to reflect a file which is uploading
             var new_bar = add_loading_track(file.name, $('#upload_list'));

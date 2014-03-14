@@ -61,9 +61,19 @@ class TracksUser(AbstractBaseUser):
         except:
             return False
 
+    def get_unique_identifier(self):
+        return self.email
+
+INSTRUMENT_CHOICES = (
+    ('BASS', 'Bass'),
+    ('DRUMS', 'Drums'),
+    ('GUITAR', 'Guitar'),
+    ('VOCALS', 'Vocals')
+    )
+
 class UserProfile(models.Model):
     user = models.OneToOneField(TracksUser)
-    field1 = models.CharField(max_length=200)
+    instrument = models.CharField(max_length=200, choices=INSTRUMENT_CHOICES)
     field2 = models.CharField(max_length=200)
     field3 = models.CharField(max_length=200)
     field4 = models.CharField(max_length=200)
@@ -73,23 +83,22 @@ class UserProfile(models.Model):
 
 
 class Track(models.Model):
+    user = models.ForeignKey(TracksUser)
     filename = models.CharField(max_length=50)
     filepath = models.CharField(max_length=200)
 
     def __unicode__(self):
         return self.filename
 
+    def handle_upload_file(self, f, path="..\\Project\\Tracks\\user_mp3_files"):
+        ##print(path)
+        temp_dest = os.path.join(path, str(self.user.get_unique_identifier()) + "_" + self.filename) # need to change later to be a more unique identifier
+        ##timezone.datetime.now().strftime('%m-%d-%Y_%H-%M-%S'))
+        print(temp_dest)
+        with open(temp_dest,'wb+') as destination:
+            for chunk in f.chunks():
+                destination.write(chunk)
 
-
-
-def handle_upload_file(f, track, path="..\\Project\\Tracks\\user_mp3_files"):
-    ##print(path)
-    temp_dest = os.path.join(path, timezone.datetime.now().strftime('%m-%d-%Y_%H-%M-%S'))
-    print(temp_dest)
-    with open(temp_dest,'wb+') as destination:
-        for chunk in f.chunks():
-            destination.write(chunk)
-
-    track.filepath = temp_dest
-    track.save()
-    return temp_dest
+        self.filepath = temp_dest
+        self.save()
+        return temp_dest

@@ -90,11 +90,11 @@ def userprofile(request):
                 return response
         else:
             form = UserProfileForm(instance=temp_instance)
-            return render(request, 'Tracks/userprofile.html', {'form' : form})
+            return render(request, 'Tracks/userprofile.html', {'user' : temp_user, 'form' : form})
 
-    else:
+    else: # GET
         form = UserProfileForm(instance=temp_instance)
-        return render(request, 'Tracks/userprofile.html', {'form' : form})
+        return render(request, 'Tracks/userprofile.html', {'user' : temp_user, 'form' : form})
 
 
 def userpage(request):
@@ -117,9 +117,11 @@ def upload_MP3(request):
         form = UploadFileForm(request.POST, request.FILES)
         if (form.is_valid):
             try:
+                temp_user = TracksUser.objects.get(email=request.POST['user_email'])
+                print temp_user
                 temp_mp3 = request.FILES['file']
-                new_track = Track(filename=temp_mp3.name)
-                handle_upload_file(temp_mp3, new_track)
+                new_track = Track(user = temp_user, filename=temp_mp3.name)
+                new_track.handle_upload_file(temp_mp3)
                 response = HttpResponse('success')
                 response.status_code = 200;
                 return response

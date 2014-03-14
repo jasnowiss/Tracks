@@ -64,6 +64,7 @@ class TracksUser(AbstractBaseUser):
     def get_unique_identifier(self):
         return self.email
 
+
 INSTRUMENT_CHOICES = (
     ('BASS', 'Bass'),
     ('DRUMS', 'Drums'),
@@ -92,8 +93,9 @@ class Track(models.Model):
 
     def handle_upload_file(self, f, path="..\\Project\\Tracks\\user_mp3_files"):
         ##print(path)
-        temp_dest = os.path.join(path, str(self.user.get_unique_identifier()) + "_" + self.filename) # need to change later to be a more unique identifier
-        ##timezone.datetime.now().strftime('%m-%d-%Y_%H-%M-%S'))
+        ##temp_dest = os.path.join(path, str(self.user.get_unique_identifier()) + "_" + self.filename) # need to change later to be a more unique identifier
+        # using user_unique_identifier and timestamp to decrease chance of filename collisions
+        temp_dest = os.path.join(path, str(self.user.get_unique_identifier()) + "_" + timezone.datetime.now().strftime('%m-%d-%Y_%H-%M-%S'))
         print(temp_dest)
         with open(temp_dest,'wb+') as destination:
             for chunk in f.chunks():

@@ -7,11 +7,13 @@ from Tracks import views
 urlpatterns = patterns('',
     # url(r'^$', views.index, name='index'),
     url(r'^$', views.tracks, name='tracks'),
-    url(r'^userpage',views.userpage, name='userpage'),
     url(r'^upload_MP3', views.upload_MP3, name='upload_MP3'),
+    url(r'^collaborate_helper', views.collaborate_helper, name='collaborate_helper'),
     url(r'^signin', views.signIn, name='SignIn'),
     url(r'^signup', views.signUp, name='SignUp'),
     url(r'^about.html', views.about, name='About'),
-    url(r'^userprofile', views.userprofile, name='userprofile'),
-##    url(r'^userprofile/(?P<user_id>\d+)/$', views.userprofile, name='userprofile')
+    url(r'^userpage/$',views.userpage, name='userpage'),
+    url(r'^userpage/(?P<user_email>\w+)/$',views.userpage, name='userpage'),
+    url(r'^userprofile/$', views.userprofile, name='userprofile'),
+    url(r'^userprofile/(?P<user_email>\w+)/$', views.userprofile, name='userprofile')
 )

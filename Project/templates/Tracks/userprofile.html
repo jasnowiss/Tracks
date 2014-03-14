@@ -14,17 +14,23 @@
 <body>
 <div id="navbar" class="navbar navbar-inverse navbar-fixed-top" role="navigation"></div>
 
-hello user!
+{% if not is_disabled %}
+hello {{ user.firstName }}!
+{% else %}
+you are viewing the profile of {{ user.firstName }}
+{% endif %}
 
 <form action="{% url 'Tracks:userprofile' %}" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
 {% csrf_token %}
     {% for field in form %}
     <div>
             {{ field.errors }}
-            {{ field.label_tag }} {{ field }}
+            {{ field.label_tag }} {% if not is_disabled %} {{ field }} {% else %} {{ field.value }} {% endif %}
             </div>
     {% endfor %}
+    {% if not is_disabled %}
     <p><input type="submit" value="Save"></p>
+    {% endif %}
 </form>
 
 

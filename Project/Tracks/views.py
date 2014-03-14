@@ -64,10 +64,16 @@ def about(request):
         return render(request, 'Tracks/about.html', {})
 
 
-def userprofile(request):
+def userprofile(request, user_email=None):
     try:
-        temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
-#       temp_user = TracksUser.objects.get(email=request.session.get('email'))
+        if(user_email != None):
+            temp_user = TracksUser.objects.get(email=user_email)
+            is_disabled = True
+        else:
+            temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
+#           temp_user = TracksUser.objects.get(email=request.session.get('email'))
+            is_disabled = False
+
     except:
         response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
         response.status_code = 500;
@@ -81,7 +87,7 @@ def userprofile(request):
     if(request.method == 'GET'):
         ##if(user_id == temp_user.email):
         form = UserProfileForm(instance=temp_instance)
-        return render(request, 'Tracks/userprofile.html', {'user' : temp_user, 'form' : form})
+        return render(request, 'Tracks/userprofile.html', {'user' : temp_user, 'form' : form, 'is_disabled' : is_disabled})
 ##        else:
 ##            form = UserProfileForm(readonly_form=True, instance=temp_instance)
 ##            return render(request, 'Tracks/userprofile.html', {'user' : temp_user, 'form' : form})
@@ -91,7 +97,7 @@ def userprofile(request):
         if(form.is_valid):
             try:
                 form.save()
-                return HttpResponseRedirect('userpage.html');
+                return HttpResponseRedirect('/Tracks/userpage/');
             except:
                 response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
                 response.status_code = 500;
@@ -107,20 +113,34 @@ def userprofile(request):
 
 
 
-def userpage(request):
+def userpage(request, user_email=None):
     try:
-        temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
-#    temp_user = TracksUser.objects.get(email=request.session.get('email'))
+        if(user_email != None):
+            temp_user = TracksUser.objects.get(email=user_email)
+            is_disabled = True
+        else:
+            temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
+##           temp_user = TracksUser.objects.get(email=request.session.get('email'))
+            is_disabled = False
     except:
         response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
         response.status_code = 500;
         return response
 
-    form = UploadFileForm()
-    #return render(request, 'Tracks/index.html', {'form': form})
-    return render(request, 'Tracks/userpage.html', {'user' : temp_user, 'form' : form})
+    if(request.method == "GET"):
+        form = UploadFileForm()
+        ##return render(request, 'Tracks/index.html', {'form': form})
+        list_of_tracks = temp_user.track_set.all() # need to pass this to a function first which checks if the filepaths are still accurate
+        return render(request, 'Tracks/userpage.html', {'user' : temp_user, 'form' : form, 'is_disabled' : is_disabled, 'list_of_tracks' : list_of_tracks})
 
 
+# Function for AJAX Call
+def collaborate_helper(request):
+    response = HttpResponse()
+    return response
+
+
+# Fuction for AJAX Call
 def upload_MP3(request):
     #currently the size of the file is a static final, however we should consider having a quota per user, in case a user wishes to extend their quota.
     # 2.5MB - 2621440

@@ -5,6 +5,14 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
 from Tracks.models import TracksUser  # might be incorrect
 
+class TracksUserSignInForm(forms.ModelForm):
+  error_messages = {}
+  email = forms.CharField(label="Email Address", max_length=254)
+  password = forms.CharField(label="Password", widget=forms.PasswordInput)
+
+  class Meta:
+    model = TracksUser
+    fields = ("email",)
 
 class TracksUserCreationForm(forms.ModelForm):
     """
@@ -15,9 +23,9 @@ class TracksUserCreationForm(forms.ModelForm):
         'alreadyExists': "A account with that e-mail adress already exists!",
         'password_mismatch': "The two password fields don't match!",
     }
-    email = forms.EmailField(label="Email Address", max_length=254)
     firstName = forms.CharField(label="First Name", max_length=45)
     lastName = forms.CharField(label="Last Name", max_length=45)
+    email = forms.EmailField(label="Email Address", max_length=254)
     password = forms.CharField(label="Password",
         widget=forms.PasswordInput)
     confirm = forms.CharField(label="Password confirmation",

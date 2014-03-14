@@ -26,6 +26,7 @@ def register(request):
     """Register a user."""
     email = password = ''
     if request.method == 'POST':
+
         form = TracksUserCreationForm(request.POST)
         #perhaps need to log in the user as well?
         #Need error handling
@@ -35,10 +36,9 @@ def register(request):
 ##        lastName = request.POST.get('lastName')
 ##        confirm = request.POST.get('confirm')
         #user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
-        return HttpResponseRedirect('/upload') #Should be changed to user's profile?
+        return HttpResponseRedirect('/Tracks/upload') #Should be changed to user's profile?
     else:
-        form = TracksUserCreationForm()
-    return render(request, 'Tracks/signup.html', {'form': form})
+        return render(request, 'Tracks/signup.html', {})
 
     
 def signIn(request):
@@ -67,7 +67,7 @@ def signIn(request):
             #We've been redirected; return the user where they want to go
             #url = request.POST.get('next')
             #HttpResponseRedirect(url)
-        return HttpResponseRedirect('') # should be user's profile when ready
+        return HttpResponseRedirect('/Tracks') # should be user's profile when ready
     else:
         form = TracksUserSignInForm()
     return render(request, 'Tracks/signin.html', {'form': form})
@@ -78,6 +78,7 @@ def logout(request):
 
 def tracks(request):
     return render(request, 'Tracks/tracks.html',{})
+
 
 def about(request):
     if (request.method == 'GET'):
@@ -108,3 +109,7 @@ def upload_MP3(request):
         response = HttpResponse('method not post')
         response.status_code = 400;
         return response
+
+def downbeat(request):
+    if (request.method == 'GET'):
+        return render(request, 'Tracks/downbeat.html', {})

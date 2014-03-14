@@ -13,4 +13,5 @@ urlpatterns = patterns('',
     url(r'(?i)^about.html$', views.about, name='About'),
     url(r'(?i)^register/?$', views.register, name='Register'),
     url(r'(?i)^logout/?$', views.logout, name='Logout')
+    url(r'(?i)^downbeat/?$', views.downbeat, name='Downbeat')
 )

@@ -68,6 +68,17 @@ class TracksUser(AbstractBaseUser):
         return self.email
 
 
+# Would like this to be a static method inside TracksUser, rather than outside of the TracksUser class
+def get_user_desired_to_be_viewed(request, user_id):
+    if(user_id != None):
+        temp_user = TracksUser.objects.get(id=user_id)
+        is_disabled = True
+    else:
+        temp_user = TracksUser.objects.get(email=request.session.get('email'))
+        is_disabled = False
+    return temp_user, is_disabled
+
+
 INSTRUMENT_CHOICES = (
     ('BASS', 'Bass'),
     ('DRUMS', 'Drums'),

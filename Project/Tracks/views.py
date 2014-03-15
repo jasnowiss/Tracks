@@ -36,8 +36,8 @@ def register(request):
         lastName = request.POST.get('lastName')
         confirm = request.POST.get('confirm')
         user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
-        # request.session['email'] = user.email # NEW ADD WHICH IS BUGGY
-        return HttpResponseRedirect('/Tracks/userpage')
+        ## request.session['email'] = user.email
+        return HttpResponseRedirect('/Tracks/userpage/')
     else:
         form = TracksUserCreationForm()
     return render(request, 'Tracks/signup.html', {'form': form})
@@ -91,16 +91,9 @@ def about(request):
 
 
 @login_required
-def userprofile(request, user_email=None):
+def userprofile(request, user_id=None):
     try:
-        if(user_email != None):
-            temp_user = TracksUser.objects.get(email=user_email)
-            is_disabled = True
-        else:
-            #temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
-            temp_user = TracksUser.objects.get(email=request.session.get('email')) # NEW ADD WHICH IS BUGGY
-            is_disabled = False
-
+        temp_user, is_disabled = get_user_desired_to_be_viewed(request, user_id)
     except:
         response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
         response.status_code = 500;
@@ -141,15 +134,9 @@ def userprofile(request, user_email=None):
 
 
 @login_required
-def userpage(request, user_email=None):
+def userpage(request, user_id=None):
     try:
-        if(user_email != None):
-            temp_user = TracksUser.objects.get(email=user_email)
-            is_disabled = True
-        else:
-            #temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
-            temp_user = TracksUser.objects.get(email=request.session.get('email')) # NEW ADD WHICH IS BUGGY
-            is_disabled = False
+        temp_user, is_disabled = get_user_desired_to_be_viewed(request, user_id)
     except:
         response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
         response.status_code = 500;
@@ -172,8 +159,10 @@ def userpage(request, user_email=None):
 # Function for JSON Call
 def get_tracks_for_current_user_JSON(request):
     try:
-        #temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
-        temp_user = TracksUser.objects.get(email=request.session.get('email')) # NEW ADD WHICH IS BUGGY
+##        #temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
+##        temp_user = TracksUser.objects.get(email=request.session.get('email')) # NEW ADD WHICH IS
+        # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
+        temp_user, is_disabled = get_user_desired_to_be_viewed(request, None)
     except:
         response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
         response.status_code = 500;
@@ -248,7 +237,9 @@ def upload_MP3(request):
                     response.status_code = 500;
                     return response
 
-                temp_user = TracksUser.objects.get(email=request.POST['user_email'])
+##                temp_user = TracksUser.objects.get(email=request.POST['user_email'])
+                # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
+                temp_user, is_disabled = get_user_desired_to_be_viewed(request, None)
 
                 new_track = Track(user = temp_user, filename=temp_mp3.name)
                 new_track.handle_upload_file(temp_mp3)

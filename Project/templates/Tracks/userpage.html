@@ -24,7 +24,7 @@ hello {{ user.firstName }}!
 <a href="{{ userprofile_url }}"> Edit Profile </a>
 {% else %}
 Viewing page of {{ user.firstName }}
-{% url 'Tracks:userprofile' user.email as userprofile_url %}
+{% url 'Tracks:userprofile' user.id as userprofile_url %}
 <a href="{{ userprofile_url }}"> View Profile </a>
 {% endif %}
 
@@ -68,7 +68,7 @@ Viewing page of {{ user.firstName }}
             {{ field.errors }}
              {{ field }}
     {% endfor %}
-    <button id="upload_button" type="button" class="btn">Upload</button>
+    <!-- <button id="upload_button" type="button" class="btn">Upload</button> -->
     <div id='progress_div'></div>
 </form>
     </li>
@@ -185,13 +185,13 @@ Viewing page of {{ user.firstName }}
                           - updating the UI to reflect the progress of the file upload.
            INPUTS: None
            OUTPUT: None       */
-        $('#upload_button').click(function () {
+        $('#id_file').change(function () {
             // gets the file from the file input and prepares it for uploading
             var form_data = new FormData();
-            if (!$('#id_file').val()) {
+            if (!$(this).val()) {
                 return
             }
-            var file_input = $('#id_file')[0];
+            var file_input = $(this)[0];
             var file = file_input.files[0];
             form_data.append('file', file);
             form_data.append('user_email', '{{ user.email }}');
@@ -200,7 +200,7 @@ Viewing page of {{ user.firstName }}
             var new_bar = add_loading_track(file.name, $('#upload_list'));
 
             // updates the UI to allow the user to upload another file while the previous file is uploading
-            $('#id_file').parents("form").get(0).reset();
+            $(this).parents("form").get(0).reset();
 
             // the ajax request to the server to upload the file
             $.ajax({

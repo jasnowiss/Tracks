@@ -93,7 +93,7 @@ def about(request):
 @login_required
 def userprofile(request, user_id=None):
     try:
-        temp_user, is_disabled = get_user_desired_to_be_viewed(request, user_id)
+        temp_user, is_disabled = TracksUser.get_user_desired_to_be_viewed(request, user_id)
     except:
         response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
         response.status_code = 500;
@@ -136,7 +136,7 @@ def userprofile(request, user_id=None):
 @login_required
 def userpage(request, user_id=None):
     try:
-        temp_user, is_disabled = get_user_desired_to_be_viewed(request, user_id)
+        temp_user, is_disabled = TracksUser.get_user_desired_to_be_viewed(request, user_id)
     except:
         response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
         response.status_code = 500;
@@ -146,14 +146,32 @@ def userpage(request, user_id=None):
         form = UploadFileForm()
         ##return render(request, 'Tracks/index.html', {'form': form})
         list_of_tracks = temp_user.track_set.all() # need to pass this to a function first which checks if the filepaths are still accurate
-        list_of_collaborations = [];
-        for track in list_of_tracks:
-            for temp_collaboration in track.collaboration_set.all():
-                if(list_of_collaborations.count(temp_collaboration) == 0):
-                    list_of_collaborations.append(temp_collaboration)
+        list_of_collaborations = temp_user.collaboration_set.all() ##[]
+##        for track in list_of_tracks:
+##            for temp_collaboration in track.collaboration_set.all():
+##                if(list_of_collaborations.count(temp_collaboration) == 0):
+##                    list_of_collaborations.append(temp_collaboration)
 
         return render(request, 'Tracks/userpage.html', {'user' : temp_user, 'form' : form, 'is_disabled' : is_disabled,
                                                             'list_of_tracks' : list_of_tracks, 'list_of_collaborations' : list_of_collaborations})
+
+
+
+
+
+#@login_required  UNCOMMENT IF NEEDED
+def search(request):
+    if(request.method == "GET"):
+        searchString = request.GET.get('search', None)
+        # TODO: for security purposes, need to make sure that searchString does not contain any malicious code. Check to see if Django provides some help for this.
+        filtered_query_set = search_relevant_models(searchString)
+        return render(request, 'Tracks/search.html', {'filtered_query_set' : filtered_query_set})
+    else:
+        response = HttpResponse('you sent a GET request to search') # message string probably needs to change for production version
+        response.status_code = 500;
+        return response
+
+
 
 
 # Function for JSON Call
@@ -162,7 +180,7 @@ def get_tracks_for_current_user_JSON(request):
 ##        #temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
 ##        temp_user = TracksUser.objects.get(email=request.session.get('email')) # NEW ADD WHICH IS
         # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
-        temp_user, is_disabled = get_user_desired_to_be_viewed(request, None)
+        temp_user, is_disabled = TracksUser.get_user_desired_to_be_viewed(request, None)
     except:
         response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
         response.status_code = 500;
@@ -190,6 +208,8 @@ def finalize_collaboration(request):
 
         temp_collab.tracks.add(track1)
         temp_collab.tracks.add(track2)
+        temp_collab.users.add(track1.user)
+        temp_collab.users.add(track2.user)
 
         response = HttpResponse('track1_id = ' + str(track1_id) + 'track2_id = ' + str(track2_id))
         response.status_code = 200;
@@ -239,7 +259,7 @@ def upload_MP3(request):
 
 ##                temp_user = TracksUser.objects.get(email=request.POST['user_email'])
                 # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
-                temp_user, is_disabled = get_user_desired_to_be_viewed(request, None)
+                temp_user, is_disabled = TracksUser.get_user_desired_to_be_viewed(request, None)
 
                 new_track = Track(user = temp_user, filename=temp_mp3.name)
                 new_track.handle_upload_file(temp_mp3)

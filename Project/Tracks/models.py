@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager)
 from django.utils import timezone
 import os
+from django.db.models import Q
 
 # Create your models here.
 
@@ -68,15 +69,22 @@ class TracksUser(AbstractBaseUser):
         return self.email
 
 
-# Would like this to be a static method inside TracksUser, rather than outside of the TracksUser class
-def get_user_desired_to_be_viewed(request, user_id):
-    if(user_id != None):
-        temp_user = TracksUser.objects.get(id=user_id)
-        is_disabled = True
-    else:
-        temp_user = TracksUser.objects.get(email=request.session.get('email'))
-        is_disabled = False
-    return temp_user, is_disabled
+    @classmethod
+    def get_user_desired_to_be_viewed(cls, request, user_id):
+        if(user_id != None):
+            temp_user = cls.objects.get(id=user_id)
+            is_disabled = True
+        else:
+            temp_user = cls.objects.get(email=request.session.get('email'))
+            is_disabled = False
+        return temp_user, is_disabled
+
+    @classmethod
+    def filter_for_search(cls, searchString):
+        list_to_return = []
+        if(searchString != None and searchString !=''):
+            list_to_return = cls.objects.filter(Q(email__contains=searchString) | Q(firstName__contains=searchString) | Q(lastName__contains=searchString))
+        return list_to_return
 
 
 INSTRUMENT_CHOICES = (
@@ -108,8 +116,8 @@ class Track(models.Model):
     def handle_upload_file(self, f, path="..\\Project\\Tracks\\user_mp3_files"):
         ##print(path)
         ##temp_dest = os.path.join(path, str(self.user.get_unique_identifier()) + "_" + self.filename) # need to change later to be a more unique identifier
-        # using user_unique_identifier and timestamp to decrease chance of filename collisions
-        temp_dest = os.path.join(path, str(self.user.get_unique_identifier()) + "_" + timezone.datetime.now().strftime('%m-%d-%Y_%H-%M-%S'))
+        # using user.id and timestamp to decrease chance of filename collisions
+        temp_dest = os.path.join(path, str(self.user.id) + "_" + timezone.datetime.now().strftime('%m-%d-%Y_%H-%M-%S'))
         print(temp_dest)
         with open(temp_dest,'wb+') as destination:
             for chunk in f.chunks():
@@ -119,13 +127,42 @@ class Track(models.Model):
         self.save()
         return temp_dest
 
-
+    @classmethod
+    def filter_for_search(cls, searchString):
+        list_to_return = []
+        if(searchString != None and searchString !=''):
+            list_to_return = cls.objects.filter(Q(filename__contains=searchString))
+        return list_to_return
 
 
 class Collaboration(models.Model):
+    users = models.ManyToManyField(TracksUser)
     tracks = models.ManyToManyField(Track)
 
     def __unicode__(self):
-        return self.id
+        return str(self.id)
+
+
+##    @classmethod
+##    def filter_for_search(cls, searchString):
+##        list_to_return = []
+##        if(searchString != None and searchString !=''):
+##            list_to_return = cls.filter(Q(filename__contains=searchString))
+##        return list_to_return
+
+
+
+# TODO: in later iterations this function should return a sorted query set
+# TODO: for security purposes, need to make sure that searchString does not contain any malicious code. Check to see if Django provides some help for this
+def search_relevant_models(searchString):
+    list_of_relevant_models = [TracksUser, Track] ## ,Collaboration]
+    temp_query_set = []
+    for model in list_of_relevant_models:
+        temp_query_set += model.filter_for_search(searchString)
+    return temp_query_set
+
+
+
+
 
 

@@ -49,7 +49,7 @@ $.ajaxSetup({
     }
 });
 </script>");*/
-	$("#navbar").html('<div class="container"><div class="navbar-header"><button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a id="tracks_home" class="navbar-brand" href="">Tracks</a></div><div class="collapse navbar-collapse"><ul id="navbar_options" class="nav navbar-nav"> </ul><form class="navbar-form" role="search"><div class="form-group"><input type="text" class="form-control" placeholder="search"></div><button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-music"></span></button></form></div><!--/.nav-collapse --></div>')
+	$("#navbar").html('<div class="container"><div class="navbar-header"><button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a id="tracks_home" class="navbar-brand" href="">Tracks</a></div><div class="collapse navbar-collapse"><ul id="navbar_options" class="nav navbar-nav"> </ul><form method="GET" class="navbar-form" role="search"><div class="form-group"><input type="text" name="search" class="form-control" placeholder="search"></div><button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-music"></span></button></form></div><!--/.nav-collapse --></div>')
 	if (true) {
 		$("#navbar_options").html('<li><a id="downbeat">Downbeat</a></li><li><a id="about">About</a></li><li><a id="upload">Upload</a></li><li> <a id="signout" href="javascript:signOut()">Sign out</a></li>')
 	} else {
@@ -65,6 +65,7 @@ function hrefCreate() {
 	$("#about").attr('href', window.location.origin+"/Tracks/about.html")
 	$("#upload").attr('href', window.location.origin+"/Tracks/userpage/")
 	$("#signout").attr('href', window.location.origin+"/Tracks/logout/")
+	$(".navbar-form").attr('action', window.location.origin+"/Tracks/search/")
 	}
 
 

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+{% load staticfiles %}
+<link href={% static "bootstrap-3.1.1-dist/css/bootstrap.min.css" %} rel="stylesheet">
+
+<!-- Custom styles for this template -->
+<link href={% static "starter-template.css" %} rel="stylesheet">
+
+<!-- Universal js functions -->
+<script src={% static "sidebar.js" %} type="text/javascript"></script>
+</head>
+<body>
+<div id="navbar" class="navbar navbar-inverse navbar-fixed-top" role="navigation"></div>
+
+{% load tracks_extras %}
+<h2>Search Results:</h2>
+<ul>
+{% for model_object in filtered_query_set %}
+    {% if model_object|model_is_of_type:'TracksUser' %}
+        <li>
+            User <a href="{% url 'Tracks:userpage' model_object.id %}"> {{model_object.firstName}} {{model_object.lastName}} </a>
+        </li>
+    {% elif  model_object|model_is_of_type:'Track' %}
+        <li>
+            <!--TODO: In later iterations need to replace dummy <a> link with something more useful (e.g. a play mp3 control) -->
+            Track <a href="javascript:;">{{model_object.filename}}</a> of <a href="{% url 'Tracks:userpage' model_object.user.id %}"> {{model_object.user.firstName}} {{model_object.user.lastName}} </a>
+        </li>
+    {% endif %}
+{% endfor %}
+</ul>
+
+
+{% load staticfiles %}
+<script src={% static "bootstrap-3.1.1-dist/js/bootstrap.min.js" %}></script>
+
+<script type="text/javascript">
+	addNav();
+</script>
+</body>
+</html>

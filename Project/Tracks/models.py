@@ -3,6 +3,8 @@ from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager)
 from django.utils import timezone
 import os
 from django.db.models import Q
+from itertools import chain
+from operator import attrgetter
 
 # Create your models here.
 
@@ -120,7 +122,7 @@ class Track(models.Model):
         ##print(path)
         ##temp_dest = os.path.join(path, str(self.user.get_unique_identifier()) + "_" + self.filename) # need to change later to be a more unique identifier
         # using user.id and timestamp to decrease chance of filename collisions
-        temp_dest = os.path.join(path, str(self.user.id) + "_" + timezone.datetime.now().strftime('%m-%d-%Y_%H-%M-%S'))
+        temp_dest = os.path.join(path, str(self.user.id) + "_" + timezone.datetime.now().strftime('%m-%d-%Y_%H-%M-%S') + ".mp3")
         print(temp_dest)
         with open(temp_dest,'wb+') as destination:
             for chunk in f.chunks():
@@ -159,21 +161,26 @@ class Collaboration(models.Model):
 ADDED_HISTORY = 'added'
 MODIFIED_HISTORY = 'modified'
 class History(models.Model):
-    user = models.ForeignKey(TracksUser, editable=False)
-    added = models.BooleanField(default=False, editable=False)
-    modified = models.BooleanField(default=False, editable=False)
-    track = models.ForeignKey(Track, null=True, editable=False)
-    collaboration = models.ForeignKey(Collaboration, null=True, editable=False)
-    timestamp = models.DateTimeField(editable=False)
+    user = models.ForeignKey(TracksUser)
+    added = models.BooleanField(default=False)
+    modified = models.BooleanField(default=False)
+    track = models.ForeignKey(Track, null=True)
+    collaboration = models.ForeignKey(Collaboration, null=True)
+    timestamp = models.DateTimeField()
+
+    def __unicode__(self):
+        return "id:" + str(self.id) + " " + "timestamp:" + self.timestamp.strftime('%m/%d/%Y %H:%M:%S')
 
     @classmethod
     def get_downbeat_for(cls, temp_user):
-        downbeat_list = []
+        downbeat_list = None
         for collab in temp_user.collaboration_set.all():
             for collab_friend in collab.users.filter(~Q(email=temp_user.email)):
-    ##                if(collab_friend != temp_user):
-                downbeat_list += History.get_history_for(collab_friend)
-        #sorted(downbeat_list, key=lambda elem: elem.timestamp) #currently not working
+                if(downbeat_list != None):
+                    downbeat_list = chain(downbeat_list, History.get_history_for(collab_friend))
+                else:
+                    downbeat_list = History.get_history_for(collab_friend)
+        downbeat_list = sorted(downbeat_list, key=lambda elem: elem.timestamp, reverse=True)
         return downbeat_list
 
     @classmethod

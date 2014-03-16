@@ -159,7 +159,7 @@ def userpage(request, user_id=None):
 
 
 
-#@login_required  UNCOMMENT IF NEEDED
+@login_required
 def search(request):
     if(request.method == "GET"):
         searchString = request.GET.get('search', None)
@@ -172,6 +172,13 @@ def search(request):
         return response
 
 
+@login_required
+def downbeat(request):
+    if (request.method == 'GET'):
+        # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
+        temp_user, is_disabled = TracksUser.get_user_desired_to_be_viewed(request, None)
+        downbeat_list = History.get_downbeat_for(temp_user)
+        return render(request, 'Tracks/downbeat.html', {'user' : temp_user, 'downbeat_list' : downbeat_list})
 
 
 # Function for JSON Call
@@ -211,6 +218,13 @@ def finalize_collaboration(request):
         temp_collab.users.add(track1.user)
         temp_collab.users.add(track2.user)
 
+        if(track1.user != track2.user):
+            History.add_history(track1.user, temp_collab, ADDED_HISTORY)
+            History.add_history(track2.user, temp_collab, ADDED_HISTORY)
+        else:
+            History.add_history(track1.user, temp_collab, ADDED_HISTORY)
+
+
         response = HttpResponse('track1_id = ' + str(track1_id) + 'track2_id = ' + str(track2_id))
         response.status_code = 200;
         return response
@@ -228,11 +242,11 @@ def upload_MP3(request):
     # 5MB - 5242880
     # 10MB - 10485760
     # 20MB - 20971520
-    # 50MB - 5242880
+    # 50MB - 52428800
     # 100MB 104857600
     # 250MB - 214958080
     # 500MB - 429916160
-    SIZE_LIMIT = 2621440
+    SIZE_LIMIT = 5242880
     #print('entered uploadmp3')
     #list of acceptable extensions. make sure it starts with a dot'
     acceptableFormats = ['.mp3']
@@ -263,6 +277,7 @@ def upload_MP3(request):
 
                 new_track = Track(user = temp_user, filename=temp_mp3.name)
                 new_track.handle_upload_file(temp_mp3)
+                History.add_history(new_track.user, new_track, ADDED_HISTORY)
                 response = HttpResponse('success')
                 response.status_code = 200;
                 return response
@@ -278,7 +293,3 @@ def upload_MP3(request):
         response = HttpResponse('method not post')
         response.status_code = 400;
         return response
-
-def downbeat(request):
-    if (request.method == 'GET'):
-        return render(request, 'Tracks/downbeat.html', {})

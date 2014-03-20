@@ -1,7 +1,7 @@
 # Create your views here.
 from django import forms
 from django.shortcuts import render, render_to_response, get_object_or_404
-from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden, HttpResponse
+from django.http import *
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
@@ -17,7 +17,8 @@ import sys
 import traceback
 import json
 
-
+import Project.settings
+from django.core.servers.basehttp import FileWrapper
 ##def index(request):
 ##    form = UploadFileForm()
 ##    return render(request, 'Tracks/index.html', {'form': form})
@@ -293,3 +294,17 @@ def upload_MP3(request):
         response = HttpResponse('method not post')
         response.status_code = 400;
         return response
+
+
+
+
+
+def play_MP3(request, path):
+    filepath = os.path.join(Project.settings.MEDIA_ROOT, path).replace('\\', '/')
+    #print(filepath)
+    wrapper = FileWrapper(open(filepath, 'rb'))
+    response = StreamingHttpResponse(wrapper, content_type='audio/mpeg')
+    response['Content-Length'] = os.path.getsize(filepath)
+    response['Content-Disposition'] = 'attachment; filename=%s' % path
+    return response
+

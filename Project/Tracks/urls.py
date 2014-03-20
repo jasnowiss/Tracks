@@ -1,5 +1,7 @@
 from django.conf.urls import patterns, include, url
 from Tracks import views
+from django.conf import settings
+from django.conf.urls.static import static
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
@@ -27,3 +29,8 @@ urlpatterns = patterns('',
     #url(r'^about.html', views.about, name='About'),
     #url(r'(?i)^upload/?$',views.index, name='index'),
 )
+
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        url(r'^user_mp3_files/(?P<path>.*)$', views.play_MP3),
+   )

@@ -17,6 +17,9 @@
 {% url 'Tracks:upload_MP3' as upload_mp3_url %}
 {% url 'Tracks:get_tracks_for_current_user_JSON' as get_tracks_for_current_user_JSON_url %}
 {% url 'Tracks:finalize_collaboration' as finalize_collaboration_url %}
+{% load tracks_extras %}
+
+
 
 {% if not is_disabled %}
 hello {{ user.firstName }}!
@@ -49,11 +52,11 @@ Viewing page of {{ user.firstName }}
 
 <ul id="tracks_list">
 <h3>Tracks</h3>
+
 {% for track in list_of_tracks %}
-<li>
-    <a href="javascript:;"> {{ track.filename }} </a> <!-- Might need to allow the file to be downloaded  -->
-    <button id="{{track.id}}" name="collaborate_button">Collaborate</button>
-</li>
+
+    <button id="{{track.id}}" name="{{ track|get_server_filename }}" class="show_player">Show player</button>
+
 {% endfor %}
 </ul>
 
@@ -82,6 +85,16 @@ Viewing page of {{ user.firstName }}
 
 <script type="text/javascript">
     $(document).ready(function () {
+
+        $(".show_player").click(function(){
+        var temp_pathname = "{{MEDIA_URL}}" + this.name;
+        var parent = $(this).parent();
+        var audio_control = $("<audio></audio>").attr("controls", "").attr("autoplay", "").attr("preload","auto");
+        var source = $("<source></source>").attr("type", "audio/mp3").attr("src", temp_pathname);
+        audio_control.append(source);
+        parent.append(audio_control);
+
+        });
 
         /********************************** Functions of NISHANT KUMAR ***************************************/
 

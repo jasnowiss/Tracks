@@ -54,9 +54,11 @@ Viewing page of {{ user.firstName }}
 <h3>Tracks</h3>
 
 {% for track in list_of_tracks %}
-
-    <button id="{{track.id}}" name="{{ track|get_server_filename }}" class="show_player">Show player</button>
-
+    <li>
+        {{ track.filename }}
+        <button name="{{ track|get_server_filename }}" class="show_player">Show player</button>
+        <button id="{{track.id}}" name="collaborate_button">Collaborate</button>
+    </li>
 {% endfor %}
 </ul>
 

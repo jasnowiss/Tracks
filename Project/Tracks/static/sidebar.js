@@ -10,7 +10,7 @@ function addNav() {
         for (var i = 0; i < cookies.length; i++) {
             var cookie = jQuery.trim(cookies[i]);
             // Does this cookie string begin with the name we want?
- 
+
             if (cookie.substring(0, name.length + 1) == (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
@@ -60,6 +60,9 @@ $.ajaxSetup({
 }
 
 function hrefCreate() {
+    if (!window.location.origin) {
+      window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
+    }
 	$("#tracks_home").attr('href',window.location.origin+"/Tracks")
 	$("#downbeat").attr('href', window.location.origin+"/Tracks/downbeat/")
 	$("#about").attr('href', window.location.origin+"/Tracks/about.html")

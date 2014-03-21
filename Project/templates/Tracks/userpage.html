@@ -56,7 +56,7 @@ Viewing page of {{ user.firstName }}
 {% for track in list_of_tracks %}
     <li>
         {{ track.filename }}
-        <button name="{{ track|get_server_filename }}" class="show_player">Show player</button>
+        <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show player</button>
         <button id="{{track.id}}" name="collaborate_button">Collaborate</button>
     </li>
 {% endfor %}
@@ -88,17 +88,90 @@ Viewing page of {{ user.firstName }}
 <script type="text/javascript">
     $(document).ready(function () {
 
-        $(".show_player").click(function(){
-        var temp_pathname = "{{MEDIA_URL}}" + this.name;
-        var parent = $(this).parent();
-        var audio_control = $("<audio></audio>").attr("controls", "").attr("autoplay", "").attr("preload","auto");
-        var source = $("<source></source>").attr("type", "audio/mp3").attr("src", temp_pathname);
-        audio_control.append(source);
-        parent.append(audio_control);
-
-        });
-
         /********************************** Functions of NISHANT KUMAR ***************************************/
+
+        $(".show_hide_player_button").click(show_player);
+
+        function show_player() {
+            var music_player;
+            if (does_music_player_exist(this)) {
+                music_player = get_music_player(this);
+            } else {
+                var parent = $(this).parent();
+                music_player = create_music_player(this.name);
+                $(music_player).hide();
+                parent.append(music_player);
+            }
+            //$(music_player).show(500, function () {
+            //    play_music(music_player);
+            //});
+            play_music(music_player);
+            $(music_player).show(500);
+
+            $(this).unbind("click");
+            $(this).bind("click", hide_player);
+            $(this).text("Hide Player");
+        }
+
+        function hide_player() {
+            if (does_music_player_exist(this)) {
+                var music_player = get_music_player(this);
+                //pause_music(music_player);
+                //$(music_player).hide(500);
+                $(music_player).hide(500, function () {
+                    pause_music(music_player);
+                });
+                //$(music_player).hide(500, function (){ remove_music_player(music_player);});
+
+                $(this).unbind("click");
+                $(this).bind("click", show_player);
+                $(this).text("Show Player");
+            }
+        }
+
+        function create_music_player(audio_name) {
+            var audio_div = $("<div></div>").addClass("audio_div").attr("name", audio_name);
+            var temp_pathname = "{{MEDIA_URL}}" + audio_name;
+            var audio_control = $("<audio></audio>").attr("controls", "");
+            var source = $("<source></source>").attr("type", "audio/mp3").attr("src", temp_pathname);
+            audio_control.append(source);
+            audio_div.append(audio_control);
+            return audio_div;
+        }
+
+        function remove_music_player(music_player) {
+            $(music_player).remove();
+        }
+
+        function does_music_player_exist(html_element) {
+            var music_player = $(html_element).siblings(".audio_div");
+            if (music_player.length != 0) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+
+        function get_music_player(html_element) {
+            var music_player = $(html_element).siblings(".audio_div").get(0);
+            return music_player;
+        }
+
+        function play_music(music_player) {
+            var audio_control = $(music_player).children("audio").get(0);
+            if (audio_control) {
+                audio_control.play();
+            }
+        }
+
+        function pause_music(music_player) {
+            var audio_control = $(music_player).children("audio").get(0);
+            if (audio_control) {
+                audio_control.pause();
+            }
+        }
+
+
 
         /* FUNCTIONALITY: Creates a new progress bar element.
            INPUTS: 1) html_element:
@@ -369,6 +442,11 @@ div.progress_bar_inner {
 }
 li {
     position:relative;
+}
+audio {
+    width: 266px;
+    height: 37px;
+    display:block;
 }
 </style>
 </body>

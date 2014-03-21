@@ -33,19 +33,35 @@ Viewing page of {{ user.firstName }}
 
 <br>
 
-<ul id="collaborations_list">
 <h3>Collaborations</h3>
-{% for collaboration in list_of_collaborations %}
-<li>
-    <h4>Collaboration {{ collaboration.id }}</h4>
-    <ul>
-        {% for track in collaboration.tracks.all %}
-        <li>
-        <a href="javascript:;"> {{ track.filename }} </a> <!-- Might need to allow the file to be downloaded  -->
-            </li>
-      {% endfor %}
-        </ul>
-</li>
+<ul id="collaborations_list">
+    {% for collaboration in list_of_collaborations %}
+    <li>
+        <div class="collab_div_container">
+            <div class="collab_info_div">
+                Collaboration {{ collaboration.id }}
+                <button class="play_collab_button">Play</button>
+            </div>
+
+            <div class="collab_users_div">
+                <div class="collab_users_div_inner_left">
+                        ft. {{ collaboration|get_formatted_list_of_collab_users }}
+                </div>
+                <a class="collab_toggle_all_tracks" href="#">see all tracks</a>
+             </div>
+
+            <div class="collab_tracks_div">
+                <a class="collab_toggle_all_tracks" href="#">hide all tracks</a>
+                <ul>
+                {% for track in collaboration.tracks.all %}
+                    <li> {{ track.filename }} by <a href="{% url 'Tracks:userpage' track.user.id %}">{{ track.user.firstName }}</a>
+                        <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
+                     </li>
+                {% endfor %}
+                </ul>
+            </div>
+      </div>
+    </li>
 {% endfor %}
 </ul>
 
@@ -56,7 +72,7 @@ Viewing page of {{ user.firstName }}
 {% for track in list_of_tracks %}
     <li>
         {{ track.filename }}
-        <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show player</button>
+        <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
         <button id="{{track.id}}" name="collaborate_button">Collaborate</button>
     </li>
 {% endfor %}
@@ -90,21 +106,60 @@ Viewing page of {{ user.firstName }}
 
         /********************************** Functions of NISHANT KUMAR ***************************************/
 
+        $(".play_collab_button").click(play_collab);
+
+        function play_collab(){
+            var tracks_buttons = get_buttons_for_tracks_of_collab(this);
+            $(tracks_buttons).each(function() {
+                var music_player = get_music_player(this);
+                play_music(music_player);
+            });
+            $(this).unbind("click");
+            $(this).bind("click", pause_collab);
+            $(this).text("Pause");
+        }
+
+        function pause_collab(){
+            var tracks_buttons = get_buttons_for_tracks_of_collab(this);
+            $(tracks_buttons).each(function() {
+                var music_player = get_music_player(this);
+                pause_music(music_player);
+            });
+            $(this).unbind("click");
+            $(this).bind("click", play_collab);
+            $(this).text("Play");
+        }
+
+        function get_buttons_for_tracks_of_collab(play_collab_button_element){
+            var container_div = $(play_collab_button_element).parents(".collab_div_container").get(0);
+            var collab_tracks_div = $(container_div)
+                                    .children(".collab_tracks_div").get(0);
+            var tracks_buttons = $(collab_tracks_div).find(".show_hide_player_button");
+            if (tracks_buttons){
+                return tracks_buttons;
+            }
+        }
+
+        $(".collab_tracks_div").hide();
+
+        $(".collab_toggle_all_tracks").click(function () {
+            var container_div = $(this).parents(".collab_div_container").get(0);
+            if (container_div) {
+                var collab_tracks_div = $(container_div)
+                    .children(".collab_tracks_div").get(0);
+                var collab_users_div = $(container_div)
+                    .children(".collab_users_div").get(0);
+                if (collab_tracks_div) {
+                    $(collab_users_div).toggle(500);
+                    $(collab_tracks_div).toggle(500);
+                }
+            }
+        });
+
         $(".show_hide_player_button").click(show_player);
 
         function show_player() {
-            var music_player;
-            if (does_music_player_exist(this)) {
-                music_player = get_music_player(this);
-            } else {
-                var parent = $(this).parent();
-                music_player = create_music_player(this.name);
-                $(music_player).hide();
-                parent.append(music_player);
-            }
-            //$(music_player).show(500, function () {
-            //    play_music(music_player);
-            //});
+            var music_player = get_music_player(this);
             play_music(music_player);
             $(music_player).show(500);
 
@@ -119,7 +174,9 @@ Viewing page of {{ user.firstName }}
                 //pause_music(music_player);
                 //$(music_player).hide(500);
                 $(music_player).hide(500, function () {
-                    pause_music(music_player);
+                    if ($(this).parents(".collab_tracks_div").length == 0){
+                        pause_music(music_player);
+                    }
                 });
                 //$(music_player).hide(500, function (){ remove_music_player(music_player);});
 
@@ -153,8 +210,17 @@ Viewing page of {{ user.firstName }}
         }
 
         function get_music_player(html_element) {
-            var music_player = $(html_element).siblings(".audio_div").get(0);
-            return music_player;
+            var music_player;
+            if (does_music_player_exist(html_element)) {
+                music_player = $(html_element).siblings(".audio_div").get(0);
+                return music_player;
+            } else {
+                var parent = $(html_element).parent();
+                music_player = create_music_player(html_element.name);
+                $(music_player).hide();
+                parent.append(music_player);
+                return music_player;
+            }
         }
 
         function play_music(music_player) {
@@ -170,7 +236,6 @@ Viewing page of {{ user.firstName }}
                 audio_control.pause();
             }
         }
-
 
 
         /* FUNCTIONALITY: Creates a new progress bar element.
@@ -442,11 +507,40 @@ div.progress_bar_inner {
 }
 li {
     position:relative;
+    padding: 2px 2px 2px 2px;
 }
 audio {
     width: 266px;
     height: 37px;
     display:block;
+}
+.collab_div_container {
+    border: 1px solid black;
+    background-color: #FFFFFF;
+    width: 400px;
+}
+.collab_info_div {
+    border-bottom: 1px solid black;
+    background-color: #DBDBDB;
+}
+.collab_users_div {
+   /* border: 1px solid red; */
+}
+.collab_users_div_inner_left {
+    float:left;
+    text-overflow: ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+    /*border: 1px solid blue;*/
+    max-width: 290px;
+    padding-right:10px;
+}
+/*.collab_users_inner_right {
+    border: 1px solid green;
+}*/
+.collab_tracks_div {
+    /*border: 1px solid green*/
+    padding: 2px 2px 2px 2px;
 }
 </style>
 </body>

@@ -136,6 +136,7 @@ def userprofile(request, user_id=None):
 
 @login_required
 def userpage(request, user_id=None):
+    print (Project.settings.MEDIA_ROOT)
     try:
         temp_user, is_disabled = TracksUser.get_user_desired_to_be_viewed(request, user_id)
     except:

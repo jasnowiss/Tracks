@@ -132,6 +132,13 @@ class Track(models.Model):
         self.save()
         return temp_dest
 
+    def get_server_filename(self):
+        server_filename = '#'
+        temp_filepath = self.filepath
+        if(os.path.exists(temp_filepath)):
+            server_filename = os.path.basename(temp_filepath)
+        return server_filename
+
     @classmethod
     def filter_for_search(cls, searchString):
         list_to_return = []
@@ -143,11 +150,69 @@ class Track(models.Model):
 
 
 class Collaboration(models.Model):
-    users = models.ManyToManyField(TracksUser)
+    users = models.ManyToManyField(TracksUser) # In future iterations, this may also play a role in add/modify permissions for a collaboration
     tracks = models.ManyToManyField(Track)
 
     def __unicode__(self):
         return str(self.id)
+
+    def handle_adding_track(self, temp_track):
+        self.tracks.add(temp_track)
+        self.users.add(temp_track.user)
+
+    def handle_removing_track(self, temp_track):
+        self.tracks.remove(temp_track)
+
+        # if temp_track.user has no more tracks in this collaboration, then remove him/her from the collaboration.
+        # Subject to change, depending on how users field ends up being used (in regard to permissions)
+        if(len(self.tracks.filter(user=temp_track.user)) == 0):
+            self.users.remove(temp_track.user)
+
+    @classmethod
+    def handle_finalization(cls, track1_id, track2_id, collab_id, mod_type):
+        filtered_track1 = Track.objects.filter(id=track1_id)
+        filtered_track2 = Track.objects.filter(id=track2_id)
+        filtered_collab = Collaboration.objects.filter(id=collab_id)
+
+        if (len(filtered_track1) == 0 and len(filtered_track2) == 0):
+            raise LookupError("no such track 1 and track 2")
+        else: # at least one of the tracks is exists in the DB
+            temp_collab = None
+            track1 = None
+            track2 = None
+            list_of_valid_tracks = []
+            if(len(filtered_collab) == 0):
+                temp_collab = Collaboration()
+                temp_collab.save()
+                history_type = ADDED_HISTORY
+            else:
+                temp_collab = filtered_collab[0]
+                history_type = MODIFIED_HISTORY
+
+            if (len(filtered_track1) != 0):
+                track1 = filtered_track1[0]
+                list_of_valid_tracks.append(track1)
+
+            if(len(filtered_track2) != 0):
+                track2 = filtered_track2[0]
+                list_of_valid_tracks.append(track2)
+
+
+            temp_dict = dict()
+            for i in xrange(0, len(list_of_valid_tracks)):
+                temp_track = list_of_valid_tracks[i]
+                if(mod_type.lower().count("remove") != 0):
+                    temp_collab.handle_removing_track(temp_track)
+                else: # default action is to add
+                    temp_collab.handle_adding_track(temp_track)
+
+                if (not temp_dict.has_key(temp_track.user.id)):
+                    temp_dict[temp_track.user.id] = 1
+                    History.add_history(temp_track.user, temp_collab, history_type)
+
+
+            temp_collab.save()
+            return temp_collab
 
 
 ##    @classmethod

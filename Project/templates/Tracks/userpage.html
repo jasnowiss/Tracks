@@ -1,7 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+<!--Reference to Jquery 1.11.0 Library -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+
+<!-- Reference to JqueryUI 1.10.4 Library -->
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+
+<!-- Reference to JqueryUI 1.10.4 CSS -->
+<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css">
+
 {% load staticfiles %}
 <link href={% static "bootstrap-3.1.1-dist/css/bootstrap.min.css" %} rel="stylesheet">
 
@@ -37,7 +46,7 @@ Viewing page of {{ user.firstName }}
 <ul id="collaborations_list">
     {% for collaboration in list_of_collaborations %}
     <li>
-        <div class="collab_div_container collab_pause">
+        <div id="{{ collaboration.id }}" class="collab_div_container collab_pause">
             <div class="collab_info_div">
                 Collaboration {{ collaboration.id }}
                 <button class="play_collab_button">Play</button>
@@ -57,8 +66,12 @@ Viewing page of {{ user.firstName }}
                 {% for track in collaboration.tracks.all %}
                     <li> {{ track.filename }} by <a href="{% url 'Tracks:userpage' track.user.id %}">{{ track.user.firstName }}</a>
                         <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
+                        <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
                      </li>
                 {% endfor %}
+                    <li>
+                        <button class="collaborate_button">Collaborate</button>
+                    </li>
                 </ul>
             </div>
       </div>
@@ -72,34 +85,31 @@ Viewing page of {{ user.firstName }}
 
 {% for track in list_of_tracks %}
     <li>
-        {{ track.filename }}
+        <span>{{ track.filename }} </span>
         <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
-        <button id="{{track.id}}" name="collaborate_button">Collaborate</button>
+        <button name="{{track.id}}" class="collaborate_button">Collaborate</button>
     </li>
 {% endfor %}
-</ul>
-
 
 {% if not is_disabled %}
-
-<ol id="upload_list">
-<h3>Add Track</h3>
-<li><form action="/" method="post">
-{% csrf_token %}
-    {% for field in form %}
+    <li>
+    Upload Track:
+        <form action="/" method="post">
+        {% csrf_token %}
+        {% for field in form %}
             {{ field.errors }}
              {{ field }}
-    {% endfor %}
-    <!-- <button id="upload_button" type="button" class="btn">Upload</button> -->
-    <div id='progress_div'></div>
-</form>
+        {% endfor %}
+        </form>
     </li>
-    </ol>
 {% else %}
     <form action="/" method="post">
         {% csrf_token %}
     </form>
 {% endif %}
+</ul>
+
+
 
 
 <script type="text/javascript">
@@ -109,6 +119,23 @@ Viewing page of {{ user.firstName }}
 
         $(".play_collab_button").click(play_collab);
         $(".restart_collab_button").click(restart_collab);
+
+        $(".remove_track_from_collab_button").click(function () {
+            var this_button = this;
+            var dialog_text = "Are you sure you want to remove this track from the collaboration?";
+            var yes_func = function () {
+               // var collab_DB_id = get_collab_id(this_button);
+                //remove_track_from_collab(this_button.name, collab_DB_id);
+                finalize_collaboration(this_button, "removed")
+            };
+            var no_func = function () {};
+            confirm_dialog(dialog_text, yes_func, no_func);
+        });
+
+        //  function remove_track_from_collab(track_id, collab_id) {
+        //    alert("track id: " + track_id + " " + "collab id: " + collab_id);
+        //    $(this_button).bind("click", function(){ finalize_collaboration(this_button, "added") });
+        //}
 
         function play_collab() {
             var tracks_buttons = get_buttons_for_tracks_of_collab(this);
@@ -228,6 +255,15 @@ Viewing page of {{ user.firstName }}
             }
         }
 
+        function get_collab_id(html_element) {
+            if ($(html_element).parents(".collab_div_container").length == 0) {
+                var attempt2 = get_selected_value_of_sibling_select_list(html_element, "collab_select_list");
+                return attempt2;
+            } else {
+                return $(html_element).parents(".collab_div_container").get(0).id;
+            }
+        }
+
         function create_music_player(audio_name) {
             var audio_div = $("<div></div>").addClass("audio_div").attr("name", audio_name);
             var temp_pathname = "{{MEDIA_URL}}" + audio_name;
@@ -236,6 +272,34 @@ Viewing page of {{ user.firstName }}
             audio_control.append(source);
             audio_div.append(audio_control);
             return audio_div;
+        }
+
+         function confirm_dialog(dialog_text, yes_funcToExecute, no_funcToExecute) {
+            var dialog_box = $("<div></div>").appendTo("body").text(dialog_text);
+            $(dialog_box).dialog({
+                modal: true,
+                height: 180,
+                resizable: false,
+                draggable: false,
+                title: "Confirm",
+                dialogClass: "confirm_dialog",
+                open: function () {
+                    $(this).siblings('.ui-dialog-buttonpane').find('button:eq(1)').focus();
+                },
+                buttons: {
+                    "Yes": function () {
+                        yes_funcToExecute();
+                        $(this).dialog("close");
+                    },
+                        "No": function () {
+                        no_funcToExecute();
+                        $(this).dialog("close");
+                    }
+                },
+                close: function (event, ui) {
+                    $(this).remove();
+                }
+            });
         }
 
         function remove_music_player(music_player) {
@@ -296,12 +360,12 @@ Viewing page of {{ user.firstName }}
             var new_bar = $("<div></div>")
                 .addClass("progress_bar_container");
 
-            html_element.children().last().after(new_bar);
+            $(html_element).children().last().after(new_bar);
 
-            html_element.children(".progress_bar_container").append(
+            $(html_element).children(".progress_bar_container").append(
             $("<div></div>").addClass("progress_bar_outer"));
 
-            html_element.children(".progress_bar_container").append(
+            $(html_element).children(".progress_bar_container").append(
             $("<div></div>").addClass("progress_bar_inner"));
 
             return new_bar;
@@ -312,15 +376,15 @@ Viewing page of {{ user.firstName }}
                           The "track element" represents a file which is in the process of uploading.
            INPUTS: 1) preceding_text:
                       The text to add before the progress bar.
-                   2) element_to_prepend_to:
-                      The html element to prepend the "track element" to (preferably a <ul> or <ol> element).
+                   2) element_to_add_before_to:
+                      The html element which the "track element" will be added before to (preferably the <li> container of an upload file form element).
            OUTPUT: new_bar:
                    The progress bar element of the "track element".       */
-        function add_loading_track(preceding_text, element_to_prepend_to) {
+        function add_loading_track(preceding_text, element_to_add_before_to) {
             var temp = $("<li></li>").append(
             $("<span></span>").text(preceding_text + " "));
             var new_bar = add_new_progress_bar(temp);
-            element_to_prepend_to.prepend(temp);
+            $(element_to_add_before_to).before(temp);
             return new_bar;
         }
 
@@ -333,16 +397,18 @@ Viewing page of {{ user.firstName }}
            OUTPUT: None       */
         function progress_bar_setPercent(progress_bar,
     percent_0_to_100) {
-            var progress_bar_max_width = parseInt(progress_bar.children("div.progress_bar_outer").css("width"), 10);
+            var progress_bar_max_width = parseInt($(progress_bar).children("div.progress_bar_outer").css("width"), 10);
             //alert(progress_bar_max_width);
-            var progress_bar_inner_margin_offset = parseInt(progress_bar.children("div.progress_bar_inner").css("margin"));
+            var inner = $(progress_bar).children("div.progress_bar_inner");
+            var margin = $(inner).css("margin-top");
+            var progress_bar_inner_margin_offset = parseInt(margin, 10);
             var progress_bar_width = percent_0_to_100 * (progress_bar_max_width / 100) - 2 * progress_bar_inner_margin_offset;
             progress_bar_width = progress_bar_width.toString() + "px";
             //alert(progress_bar_width);
-            progress_bar.children("div.progress_bar_inner").css("width", progress_bar_width);
+            $(progress_bar).children("div.progress_bar_inner").css("width", progress_bar_width);
 
             if (percent_0_to_100 == 100) {
-                progress_bar.children("div.progress_bar_inner").css("background-color", "#41DD00");
+                $(progress_bar).children("div.progress_bar_inner").css("background-color", "#41DD00");
             }
         }
 
@@ -352,7 +418,7 @@ Viewing page of {{ user.firstName }}
                       The progress bar to set the filling of.
            OUTPUT: None       */
         function progress_bar_Failure(progress_bar) {
-            progress_bar.children("div.progress_bar_inner").css("background-color", "red");
+            $(progress_bar).children("div.progress_bar_inner").css("background-color", "red");
         }
 
 
@@ -399,7 +465,7 @@ Viewing page of {{ user.firstName }}
             form_data.append('user_email', '{{ user.email }}');
 
             // updates the UI to reflect a file which is uploading
-            var new_bar = add_loading_track(file.name, $('#upload_list'));
+            var new_bar = add_loading_track(file.name, $(this).parents("li"));
 
             // updates the UI to allow the user to upload another file while the previous file is uploading
             $(this).parents("form").get(0).reset();
@@ -422,6 +488,10 @@ Viewing page of {{ user.firstName }}
                 },
                 success: function (data, textStatus, jqXHR) {
                     //alert(jqXHR.responseText);
+                    server_filename = data["server_filename"];
+                    track_id = data["track_id"];
+                    update_completed_loading_track(new_bar, server_filename, track_id);
+
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     progress_bar_Failure(new_bar);
@@ -432,36 +502,66 @@ Viewing page of {{ user.firstName }}
             });
         });
 
-        $("button[name='collaborate_button']").click(function () {
+        function update_completed_loading_track(progress_bar, server_filename, track_id){
+            var show_player_button = create_show_player_button(server_filename);
+            var collaborate_button = create_collaborate_button(track_id);
+            $(progress_bar).before(show_player_button);
+            $(progress_bar).after(collaborate_button);
+            $(progress_bar).after(" ");
+            $(progress_bar).remove();
+        }
+
+        function create_show_player_button(server_filename){
+            var show_player_button = $("<button></button>").attr("name", server_filename);
+            $(show_player_button).addClass("show_hide_player_button");
+            $(show_player_button).text("Show Player");
+            $(show_player_button).bind("click", show_player);
+            return show_player_button;
+        }
+
+        function create_collaborate_button(track_id){
+            var collaborate_button = $("<button></button>").attr("name", track_id);
+            $(collaborate_button).addClass("collaborate_button");
+            $(collaborate_button).text("Collaborate");
+            $(collaborate_button).bind("click", begin_collaboration);
+            return collaborate_button;
+        }
+
+
+        $(".collaborate_button").click(begin_collaboration);
+
+        function begin_collaboration(){
             this_button = this;
-            var track1_id = $(this_button).attr("id");
+            var track1_id = $(this_button).attr("name");
             $.getJSON("{{ get_tracks_for_current_user_JSON_url }}", function (data) {
-                var temp_select_input = turn_KV_data_into_select_input(data);
+                var temp_select_input = turn_KV_data_into_select_input(data, "track_select_list");
                 if (temp_select_input != null) {
                     $(this_button).before(temp_select_input);
                     $(this_button).text("Finalize Collaboration!");
                     $(this_button).unbind("click");
-                    $(this_button).bind("click", finalize_collaboration);
-                    //$(this_button).attr("name", "finalize_collaboration_button");
+                    $(this_button).bind("click", function(){ finalize_collaboration(this_button, "added") });
                 }
             });
-        });
+        }
 
-        function finalize_collaboration() {
-            this_button = this;
-            var track1_id = $(this_button).attr("id");
-            var select_element = $(this_button).parent().children("select");
-            var track2_id = select_element.children(":selected").val();
+        function finalize_collaboration(html_element, mod_type) {
+            //this_button = this; = html_element
+            var track1_id = get_track1_id(html_element);
+            //var select_element = $(this_button).parent().children("select");
+            //var track2_id = select_element.children(":selected").val();
+            var track2_id = get_track2_id(html_element);
+            var collab_id = get_collab_id(html_element);
+            //alert("track1_id: " + track1_id + "track2_id: " + track2_id + "collab_id: " + collab_id + "mod_type: " + mod_type);
 
             $.ajax({
                 url: "{{ finalize_collaboration_url }}",
                 type: 'POST',
-                data: {track1_id : track1_id, track2_id : track2_id},
+                data: {track1_id : track1_id, track2_id : track2_id, collab_id : collab_id, mod_type : mod_type},
                 success: function (data, textStatus, jqXHR) {
-                    //alert(jqXHR.responseText);
+                    alert(jqXHR.responseText);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    //alert(jqXHR.responseText);
+                    alert(jqXHR.responseText);
                 },
                 async: true
 
@@ -469,17 +569,36 @@ Viewing page of {{ user.firstName }}
 
         };
 
-        function turn_KV_data_into_select_input(data) {
+        function get_track1_id(html_element){
+            return $(html_element).attr("name");
+        }
+
+        function get_track2_id(html_element){
+            return get_selected_value_of_sibling_select_list(html_element, "track_select_list");
+        }
+
+        function get_selected_value_of_sibling_select_list(html_element, class_of_select_list){
+            var select_element;
+            if((typeof class_of_select_list === "undefined")){
+                return "undefined";
+            } else {
+                select_element = $(html_element).siblings("select"+"."+class_of_select_list);
+            }
+            var selected_value = select_element.children(":selected").val();
+            return selected_value;
+        }
+
+        function turn_KV_data_into_select_input(data, class_string) {
             if (data == null || data.length == 0 || data == '{}') {
                 return null
             }
-            var temp_select_input = $("<select></select>");
+            var temp_select_input = $("<select></select>").addClass(class_string);
 
             $.each(data, function (key, val) {
                 var temp_choice = $("<option></option>");
-                temp_choice.attr("value", key.toString());
-                temp_choice.text(val.toString());
-                temp_select_input.append(temp_choice);
+                $(temp_choice).attr("value", key.toString());
+                $(temp_choice).text(val.toString());
+                $(temp_select_input).append(temp_choice);
             });
 
             return temp_select_input;
@@ -540,12 +659,12 @@ div.progress_bar_outer, div.progress_bar_inner {
     border:1px solid black;
     position:absolute;
     padding: 0px;
-    margin:0px;
 }
 div.progress_bar_outer {
     width:50px;
     background-color:#FFFFFF;
     z-index:-1;
+    margin:0px;
 }
 div.progress_bar_inner {
     width:0px;
@@ -554,9 +673,10 @@ div.progress_bar_inner {
     height:6px;
     margin:2px;
 }
-li {
+.collaborations_list li, .tracks_list li {
     position:relative;
     padding: 2px 2px 2px 2px;
+    margin-bottom: 10px;
 }
 audio {
     width: 266px;
@@ -637,6 +757,60 @@ audio {
     border-right: 1px solid white;
     background-color: inherit;
     color: white;
+}
+button.remove_track_from_collab_button {
+    color: #F0F0F0;
+    font-weight:900;
+    border: 1px solid #000000;
+    background-color: #000000;
+    height:20px;
+    width:20px;
+    position: relative;
+    top:1px;
+    padding: 0 0 0 0;
+    transition:all 0s;
+    -webkit-transition: all 0s;
+    -moz-transition: all 0s;
+    -o-transition: all 0s;
+}
+button.remove_track_from_collab_button:hover {
+    color: white;
+    border: 1px solid red;
+    background-color: red;
+}
+.ui-dialog {
+    border: none;
+    padding: 0px 0px 0px 0px;
+    border-radius: 0px;
+    box-shadow: 0px 0px 10px 2px #888888;
+}
+.confirm_dialog .ui-dialog-titlebar {
+    border: 1px solid black;
+    background: none;
+    background-color: black;
+    border-radius: 0px;
+    color: white;
+    padding: 2px 2px 2px 10px;
+}
+.confirm_dialog .ui-dialog-titlebar-close {
+    display:none;
+}
+.confirm_dialog .ui-dialog-content {
+}
+.confirm_dialog .ui-dialog-buttonpane {
+    padding: 0 0 0 0;
+}
+.confirm_dialog .ui-dialog-buttonset button {
+    border: 1px solid black;
+    background: none;
+    background-color: black;
+    margin: 1px 1px 1px 1px;
+    width: 60px;
+    color: white;
+    border-radius: 0px;
+}
+.confirm_dialog .ui-dialog-buttonset .ui-button-text {
+    padding: 1px 1px 1px 1px;
 }
 </style>
 </body>

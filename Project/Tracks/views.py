@@ -206,28 +206,33 @@ def get_tracks_for_current_user_JSON(request):
 # Function for AJAX Call
 def finalize_collaboration(request):
     try:
-        track1_id = int(request.POST['track1_id'])
-        track2_id = int(request.POST['track2_id'])
+        #track1_id = int(request.POST['track1_id'])
+        #track2_id = int(request.POST['track2_id'])
+        track1_id = int(request.POST.get('track1_id', 0))
+        track2_id = int(request.POST.get('track2_id', 0))
+        collab_id = int(request.POST.get('collab_id', 0))
+        mod_type = request.POST['mod_type']
 
-        track1 = Track.objects.get(id=track1_id)
-        track2 = Track.objects.get(id=track2_id)
+        collab = Collaboration.handle_finalization(track1_id, track2_id, collab_id, mod_type)
+##        track1 = Track.objects.get(id=track1_id)
+##        track2 = Track.objects.get(id=track2_id)
+##
+##        temp_collab = Collaboration()
+##        temp_collab.save()
+##
+##        temp_collab.tracks.add(track1)
+##        temp_collab.tracks.add(track2)
+##        temp_collab.users.add(track1.user)
+##        temp_collab.users.add(track2.user)
+##
+##        if(track1.user != track2.user):
+##            History.add_history(track1.user, temp_collab, ADDED_HISTORY)
+##            History.add_history(track2.user, temp_collab, ADDED_HISTORY)
+##        else:
+##            History.add_history(track1.user, temp_collab, ADDED_HISTORY)
 
-        temp_collab = Collaboration()
-        temp_collab.save()
 
-        temp_collab.tracks.add(track1)
-        temp_collab.tracks.add(track2)
-        temp_collab.users.add(track1.user)
-        temp_collab.users.add(track2.user)
-
-        if(track1.user != track2.user):
-            History.add_history(track1.user, temp_collab, ADDED_HISTORY)
-            History.add_history(track2.user, temp_collab, ADDED_HISTORY)
-        else:
-            History.add_history(track1.user, temp_collab, ADDED_HISTORY)
-
-
-        response = HttpResponse('track1_id = ' + str(track1_id) + 'track2_id = ' + str(track2_id))
+        response = HttpResponse('track1_id = ' + str(track1_id) + 'track2_id = ' + str(track2_id) + 'collab_id = ' + str(collab.id))
         response.status_code = 200;
         return response
     except:
@@ -280,7 +285,9 @@ def upload_MP3(request):
                 new_track = Track(user = temp_user, filename=temp_mp3.name)
                 new_track.handle_upload_file(temp_mp3)
                 History.add_history(new_track.user, new_track, ADDED_HISTORY)
-                response = HttpResponse('success')
+
+                response_data = {"server_filename" : new_track.get_server_filename(), "track_id" : new_track.id}
+                response = HttpResponse(json.dumps(response_data), content_type="application/json") #HttpResponse('success')
                 response.status_code = 200;
                 return response
             except:

@@ -20,12 +20,12 @@
 {% for model_object in filtered_query_set %}
     {% if model_object|model_is_of_type:'TracksUser' %}
         <li>
-            User <a href="{% url 'Tracks:userpage' model_object.id %}"> {{model_object.firstName}} {{model_object.lastName}} </a>
+            User <a href="{% url 'Tracks:userpage' model_object.id %}"> {{model_object.get_name_to_display}} </a>
         </li>
     {% elif  model_object|model_is_of_type:'Track' %}
         <li>
             <!--TODO: In later iterations need to replace dummy <a> link with something more useful (e.g. a play mp3 control) -->
-            Track <a href="javascript:;">{{model_object.filename}}</a> of <a href="{% url 'Tracks:userpage' model_object.user.id %}"> {{model_object.user.firstName}} {{model_object.user.lastName}} </a>
+            Track <a href="javascript:;">{{model_object.filename}}</a> of <a href="{% url 'Tracks:userpage' model_object.user.id %}"> {{model_object.user.get_name_to_display}} </a>
         </li>
     {% endif %}
 {% endfor %}

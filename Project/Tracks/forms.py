@@ -97,7 +97,7 @@ class UploadFileForm(forms.Form):
 class UserProfileForm(ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['field2', 'instrument', 'field3', 'field4']
+        fields = ['display_name', 'instrument', 'field3', 'field4']
 
 ##    def __init__(self, readonly_form=False, *args, **kwargs):
 ##            super(UserProfileForm, self).__init__(*args, **kwargs)

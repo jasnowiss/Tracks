@@ -31,11 +31,11 @@
 
 
 {% if not is_disabled %}
-hello {{ user.firstName }}!
+hello {{ user.get_name_to_display }}!
 {% url 'Tracks:userprofile' as userprofile_url %}
 <a href="{{ userprofile_url }}"> Edit Profile </a>
 {% else %}
-Viewing page of {{ user.firstName }}
+Viewing page of {{ user.get_name_to_display }}
 {% url 'Tracks:userprofile' user.id as userprofile_url %}
 <a href="{{ userprofile_url }}"> View Profile </a>
 {% endif %}
@@ -57,14 +57,14 @@ Viewing page of {{ user.firstName }}
                 <div class="collab_users_div_inner_left">
                         ft. {{ collaboration|get_formatted_list_of_collab_users }}
                 </div>
-                <a class="collab_toggle_all_tracks" href="#">see all tracks</a>
+                <a class="collab_toggle_all_tracks" href="javascript:;">see all tracks</a>
              </div>
 
             <div class="collab_tracks_div">
-                <a class="collab_toggle_all_tracks" href="#">hide all tracks</a>
+                <a class="collab_toggle_all_tracks" href="javascript:;">hide all tracks</a>
                 <ul>
                 {% for track in collaboration.tracks.all %}
-                    <li> {{ track.filename }} by <a href="{% url 'Tracks:userpage' track.user.id %}">{{ track.user.firstName }}</a>
+                    <li> {{ track.filename }} by <a href="{% url 'Tracks:userpage' track.user.id %}">{{ track.user.get_name_to_display }}</a>
                         <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
                         <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
                      </li>
@@ -80,9 +80,8 @@ Viewing page of {{ user.firstName }}
 </ul>
 
 
-<ul id="tracks_list">
 <h3>Tracks</h3>
-
+<ul id="tracks_list">
 {% for track in list_of_tracks %}
     <li>
         <span>{{ track.filename }} </span>
@@ -203,7 +202,9 @@ Viewing page of {{ user.firstName }}
 
         $(".collab_tracks_div").hide();
 
-        $(".collab_toggle_all_tracks").click(function () {
+        $(".collab_toggle_all_tracks").click(toggle_all_tracks);
+
+        function toggle_all_tracks(){
             var container_div = $(this).parents(".collab_div_container").get(0);
             if (container_div) {
                 var collab_tracks_div = $(container_div)
@@ -215,7 +216,7 @@ Viewing page of {{ user.firstName }}
                     $(collab_tracks_div).toggle(500);
                 }
             }
-        });
+        }
 
         $(".show_hide_player_button").click(show_player);
 
@@ -464,7 +465,7 @@ Viewing page of {{ user.firstName }}
             var file_input = $(this)[0];
             var file = file_input.files[0];
             form_data.append('file', file);
-            form_data.append('user_email', '{{ user.email }}');
+            //form_data.append('user_email', '{{ user.email }}');
 
             // updates the UI to reflect a file which is uploading
             var new_bar = add_loading_track(file.name, $(this).parents("li"));
@@ -561,8 +562,10 @@ Viewing page of {{ user.firstName }}
                 type: 'POST',
                 data: {track1_id : track1_id, track2_id : track2_id, collab_id : collab_id, mod_type : mod_type},
                 success: function (data, textStatus, jqXHR) {
-                    alert(jqXHR.responseText);
-                    collab_set_style_to(html_element, "pause");
+                    //alert(jqXHR.responseText);
+                    location.reload();
+                    //update_collab(html_element, jqXHR.responseText);
+                    //collab_set_style_to(html_element, "pause");
 
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -574,6 +577,35 @@ Viewing page of {{ user.firstName }}
             });
 
         };
+
+ /*
+        function update_collab(html_element, new_collab_html){
+            var new_collab_list_element = $("<li></li>").html(new_collab_html);
+            //collab_bind_all(new_collab_list_element);
+
+            var old_container_div = $(html_element).parents(".collab_div_container").get(0);
+            var old_collab_list_element = $(old_container_div).parent();
+
+            if (typeof old_container_div != "undefined"){
+                var next_sibling_list_element = $(old_collab_list_element).next()[0];
+                if (typeof next_sibling_list_element == "undefined"){
+                    //$(old_collab_list_element).remove();
+                    var ul_element = $(old_collab_list_element).parents();
+                    $(ul_element).append(new_collab_list_element);
+                } else {
+                    $(old_collab_list_element).remove();
+                    $(next_sibling_list_element).before(new_collab_list_element);
+                }
+            } else {
+                collab_set_style_to(html_element, "error");
+            }
+        }
+
+
+        function collab_bind_all(new_collab_list_element){
+
+        }
+ */
 
         function get_track1_id(html_element){
             return $(html_element).attr("name");
@@ -766,10 +798,10 @@ Viewing page of {{ user.firstName }}
         border: 1px solid blue;
         background-color: blue;
         color: #FFFFFF;
-        transition: all 1s;
-        -webkit-transition: all 1s;
-        -moz-transition: all 1s;
-        -o-transition: all 1s;
+        transition: all 0s;
+        -webkit-transition: all 0s;
+        -moz-transition: all 0s;
+        -o-transition: all 0s;
     }
     .collab_info_div button
     {

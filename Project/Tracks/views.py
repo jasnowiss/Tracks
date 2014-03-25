@@ -227,8 +227,7 @@ def finalize_collaboration(request):
 ##        else:
 ##            History.add_history(track1.user, temp_collab, ADDED_HISTORY)
 
-
-        response = HttpResponse('track1_id = ' + str(track1_id) + 'track2_id = ' + str(track2_id) + 'collab_id = ' + str(collab.id))
+        response = HttpResponse('success') ## render(request, 'Tracks/collaboration_for_AJAX.html', {'collaboration' : collab})
         response.status_code = 200;
         return response
     except:
@@ -319,6 +318,7 @@ def get_session_for_user(request):
 # Helper function for setting session. SHOULD NOT BE REQUESTED BY THE CLIENT
 def set_session_for_user(request, temp_user):
     request.session['email'] = temp_user.email
+    request.session.set_expiry(1800) # set expiration to 30 min
 
 
 # Allows the server to serve audio/mpeg files (e.g. mp3 files). Can be removed if another server is responsible for serving audio/mpeg files.

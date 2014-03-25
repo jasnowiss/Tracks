@@ -67,6 +67,15 @@ class TracksUser(AbstractBaseUser):
         except:
             return False
 
+    def get_name_to_display(self):
+        if(self.has_userprofile()):
+            if(len(self.userprofile.display_name) != 0):
+                return self.userprofile.display_name
+            else:
+                return self.firstName + " " + self.lastName
+        else:
+            return self.firstName + " " + self.lastName
+
     def get_tracks_list(self): # TODO: need to check if the filepaths are still accurate
         return self.track_set.all()
 
@@ -122,7 +131,7 @@ INSTRUMENT_CHOICES = (
 class UserProfile(models.Model):
     user = models.OneToOneField(TracksUser)
     instrument = models.CharField(max_length=200, choices=INSTRUMENT_CHOICES)
-    field2 = models.CharField(max_length=200)
+    display_name = models.CharField(max_length=200)
     field3 = models.CharField(max_length=200)
     field4 = models.CharField(max_length=200)
 
@@ -309,7 +318,12 @@ class History(models.Model):
                     downbeat_list = chain(downbeat_list, History.get_history_for(collab_friend))
                 else:
                     downbeat_list = History.get_history_for(collab_friend)
-        downbeat_list = sorted(downbeat_list, key=lambda elem: elem.timestamp, reverse=True)
+
+        if (downbeat_list == None):
+            downbeat_list = []
+        else:
+            downbeat_list = sorted(downbeat_list, key=lambda elem: elem.timestamp, reverse=True)
+
         return downbeat_list
 
     @classmethod

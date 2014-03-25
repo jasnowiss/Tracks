@@ -22,7 +22,20 @@ import json
 import Project.settings
 from django.core.servers.basehttp import FileWrapper
 
+"""
+TODO:
+    - (in userpage.html) allow removal of tracks.
 
+    - (in nav bar) upload in top nav bar goes to userpage. need to add functionality to nav bar upload so that an upload dialog opens.
+         also need a nav bar option to go to userpage (and maybe userprofile page).
+
+    - (in nav bar) need link in nav bar to register.
+
+    - (in nav bar) need link in nav bar to sign in.
+
+    - (in userpage.html) need to change the class of collabs which finished playing from "play" to "pause" (and seek audio to 0).
+
+"""
 
 
 def register(request):

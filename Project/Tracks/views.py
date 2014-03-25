@@ -6,22 +6,23 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.utils import timezone
-# from TracksApp_forms import *
+## from TracksApp_forms import *
 from Tracks.forms import *
-from Tracks.forms import UploadFileForm
+##from Tracks.forms import UploadFileForm
 from Tracks.models import *
-from Tracks.models import TracksUser
-from Tracks.models import Track
+##from Tracks.models import TracksUser
+##from Tracks.models import Track
 import os
-import sys
+##import sys
 import traceback
 import json
 
+# need these for serving mp3 files from this Django server. If another server handles serving mp3 files, these can be removed.
+# see play_mp3 function at bottom of page for more details.
 import Project.settings
 from django.core.servers.basehttp import FileWrapper
-##def index(request):
-##    form = UploadFileForm()
-##    return render(request, 'Tracks/index.html', {'form': form})
+
+
 
 
 def register(request):
@@ -37,7 +38,7 @@ def register(request):
         lastName = request.POST.get('lastName')
         confirm = request.POST.get('confirm')
         user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
-        ## request.session['email'] = user.email
+        ## set_session_for_user(request, user)
         return HttpResponseRedirect('/Tracks/userpage/')
     else:
         form = TracksUserCreationForm()
@@ -61,7 +62,8 @@ def signIn(request):
                     #We've been redirected; return the user where they want to go
                     url = request.POST.get('next')
                     HttpResponseRedirect(url)
-                request.session['email'] = user.email # NEW ADD WHICH IS BUGGY
+                ##request.session['email'] = user.email # NEW ADD WHICH IS BUGGY
+                set_session_for_user(request, user)
                 return HttpResponseRedirect('/Tracks/userpage') # should be user's profile when ready
             else:
                 #Will we ever have inactive users? Maybe instead of deletion?
@@ -94,41 +96,41 @@ def about(request):
 @login_required
 def userprofile(request, user_id=None):
     try:
-        temp_user, is_disabled = TracksUser.get_user_desired_to_be_viewed(request, user_id)
-    except:
-        response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
-        response.status_code = 500;
-        return response
+        temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), user_id)
+##    if(TracksUser.has_userprofile(temp_user)):
+##        temp_instance = temp_user.userprofile
+##    else:
+##        temp_instance = UserProfile(user=temp_user)
 
-    if(TracksUser.has_userprofile(temp_user)):
-        temp_instance = temp_user.userprofile
-    else:
-        temp_instance = UserProfile(user=temp_user)
+        temp_instance = temp_user.get_user_profile()
 
-    if(request.method == 'GET'):
-        ##if(user_id == temp_user.email):
-        form = UserProfileForm(instance=temp_instance)
-        return render(request, 'Tracks/userprofile.html', {'user' : temp_user, 'form' : form, 'is_disabled' : is_disabled})
-##        else:
-##            form = UserProfileForm(readonly_form=True, instance=temp_instance)
-##            return render(request, 'Tracks/userprofile.html', {'user' : temp_user, 'form' : form})
-
-    elif (request.method == 'POST'):
-        form = UserProfileForm(request.POST, instance=temp_instance)
-        if(form.is_valid()):
-            try:
-                form.save()
-                return HttpResponseRedirect('/Tracks/userpage/');
-            except:
-                response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
-                response.status_code = 500;
-                return response
-        else:
+        if(request.method == 'GET'):
             form = UserProfileForm(instance=temp_instance)
-            return render(request, 'Tracks/userprofile.html', {'user' : temp_user, 'form' : form})
+            return render(request, 'Tracks/userprofile.html', {'user' : temp_user, 'form' : form, 'is_disabled' : is_disabled})
 
-    else:
-        response = HttpResponse('Fatal Error!')
+        elif (request.method == 'POST'):
+            form = UserProfileForm(request.POST, instance=temp_instance)
+            if(form.is_valid()):
+                try:
+                    form.save()
+                    return HttpResponseRedirect('/Tracks/userpage/');
+                except:
+                    response = HttpResponse('userprofile could not be saved') # May need to change message sent
+                    print(traceback.format_exc()) # for debugging purposes only. DO NOT USE IN PRODUCTION
+                    response.status_code = 500;
+                    return response
+            else:
+                form = UserProfileForm(instance=temp_instance)
+                return render(request, 'Tracks/userprofile.html', {'user' : temp_user, 'form' : form})
+
+        else:
+            response = HttpResponse('Request was neither a GET or a POST') # Probably a good idea to mark as DO NO USE IN PRODUCTION.
+            response.status_code = 500;
+            return response
+
+    except:
+        response = HttpResponse('error in userprofile') # May need to change message sent
+        print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
         response.status_code = 500;
         return response
 
@@ -136,26 +138,21 @@ def userprofile(request, user_id=None):
 
 @login_required
 def userpage(request, user_id=None):
-    print (Project.settings.MEDIA_ROOT)
     try:
-        temp_user, is_disabled = TracksUser.get_user_desired_to_be_viewed(request, user_id)
+        temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), user_id)
+
+        if(request.method == "GET"):
+            form = UploadFileForm()
+            list_of_tracks = temp_user.get_tracks_list()
+            list_of_collaborations = temp_user.get_collaborations_list()
+            return render(request, 'Tracks/userpage.html', {'user' : temp_user, 'form' : form, 'is_disabled' : is_disabled,
+                                                                'list_of_tracks' : list_of_tracks, 'list_of_collaborations' : list_of_collaborations})
+
     except:
-        response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
+        response = HttpResponse('error in userpage') # May need to change message sent
+        print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
         response.status_code = 500;
         return response
-
-    if(request.method == "GET"):
-        form = UploadFileForm()
-        ##return render(request, 'Tracks/index.html', {'form': form})
-        list_of_tracks = temp_user.track_set.all() # need to pass this to a function first which checks if the filepaths are still accurate
-        list_of_collaborations = temp_user.collaboration_set.all() ##[]
-##        for track in list_of_tracks:
-##            for temp_collaboration in track.collaboration_set.all():
-##                if(list_of_collaborations.count(temp_collaboration) == 0):
-##                    list_of_collaborations.append(temp_collaboration)
-
-        return render(request, 'Tracks/userpage.html', {'user' : temp_user, 'form' : form, 'is_disabled' : is_disabled,
-                                                            'list_of_tracks' : list_of_tracks, 'list_of_collaborations' : list_of_collaborations})
 
 
 
@@ -169,7 +166,7 @@ def search(request):
         filtered_query_set = search_relevant_models(searchString)
         return render(request, 'Tracks/search.html', {'filtered_query_set' : filtered_query_set})
     else:
-        response = HttpResponse('you sent a GET request to search') # message string probably needs to change for production version
+        response = HttpResponse('you did not send a GET request to search') # message string probably needs to change for production version
         response.status_code = 500;
         return response
 
@@ -178,7 +175,7 @@ def search(request):
 def downbeat(request):
     if (request.method == 'GET'):
         # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
-        temp_user, is_disabled = TracksUser.get_user_desired_to_be_viewed(request, None)
+        temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), None)
         downbeat_list = History.get_downbeat_for(temp_user)
         return render(request, 'Tracks/downbeat.html', {'user' : temp_user, 'downbeat_list' : downbeat_list})
 
@@ -186,28 +183,27 @@ def downbeat(request):
 # Function for JSON Call
 def get_tracks_for_current_user_JSON(request):
     try:
-##        #temp_user = TracksUser.objects.get(email='test') #temporary line. FOR TESTING ONLY
-##        temp_user = TracksUser.objects.get(email=request.session.get('email')) # NEW ADD WHICH IS
         # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
-        temp_user, is_disabled = TracksUser.get_user_desired_to_be_viewed(request, None)
+        temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), None)
+
+##    response_data = {}
+##    list_of_tracks = temp_user.track_set.all()
+##    for track in list_of_tracks:
+##        response_data[track.id] = track.filename
+
+        response_data = temp_user.get_tracks_list_JSON()
+
+        response = HttpResponse(json.dumps(response_data), content_type="application/json")
+        return response
     except:
-        response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
+        response = HttpResponse('error trying to send list of tracks for current user') # May need to change message sent
+        print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
         response.status_code = 500;
         return response
-
-    response_data = {}
-    list_of_tracks = temp_user.track_set.all()
-    for track in list_of_tracks:
-        response_data[track.id] = track.filename
-
-    response = HttpResponse(json.dumps(response_data), content_type="application/json")
-    return response
 
 # Function for AJAX Call
 def finalize_collaboration(request):
     try:
-        #track1_id = int(request.POST['track1_id'])
-        #track2_id = int(request.POST['track2_id'])
         track1_id = int(request.POST.get('track1_id', 0))
         track2_id = int(request.POST.get('track2_id', 0))
         collab_id = int(request.POST.get('collab_id', 0))
@@ -236,7 +232,8 @@ def finalize_collaboration(request):
         response.status_code = 200;
         return response
     except:
-        response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
+        response = HttpResponse('error trying to finalize collaboration') # May need to change message sent
+        print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
         response.status_code = 500;
         return response
 
@@ -244,69 +241,87 @@ def finalize_collaboration(request):
 # Fuction for AJAX Call
 
 def upload_MP3(request):
-    #currently the size of the file is a static final, however we should consider having a quota per user, in case a user wishes to extend their quota.
-    # 2.5MB - 2621440
-    # 5MB - 5242880
-    # 10MB - 10485760
-    # 20MB - 20971520
-    # 50MB - 52428800
-    # 100MB 104857600
-    # 250MB - 214958080
-    # 500MB - 429916160
-    SIZE_LIMIT = 5242880
-    #print('entered uploadmp3')
-    #list of acceptable extensions. make sure it starts with a dot'
-    acceptableFormats = ['.mp3']
-    if (request.method == 'POST'):
-        form = UploadFileForm(request.POST, request.FILES)
-        if (form.is_valid()):
-            try:
-                temp_mp3 = request.FILES['file']
-                #check the size of the file
-                sizeOfFile = temp_mp3._size
-                notSupported = True
-                for name in acceptableFormats:
-                    if temp_mp3.name.endswith(name):
-                       notSupported = False
-                if notSupported:
-                    response = HttpResponse('File extension not supported')
-                    response.status_code = 500;
+##    #currently the size of the file is a static final, however we should consider having a quota per user, in case a user wishes to extend their quota.
+##    # 2.5MB - 2621440
+##    # 5MB - 5242880
+##    # 10MB - 10485760
+##    # 20MB - 20971520
+##    # 50MB - 52428800
+##    # 100MB 104857600
+##    # 250MB - 214958080
+##    # 500MB - 429916160
+##    SIZE_LIMIT = 5242880
+##    #print('entered uploadmp3')
+##    #list of acceptable extensions. make sure it starts with a dot'
+##    acceptableFormats = ['.mp3']
+    try:
+        if (request.method == 'POST'):
+            form = UploadFileForm(request.POST, request.FILES)
+            if (form.is_valid()):
+
+                    temp_file = request.FILES['file']
+    ##                #check the size of the file
+    ##                sizeOfFile = temp_file._size
+    ##                notSupported = True
+    ##                for name in acceptableFormats:
+    ##                    if temp_file.name.endswith(name):
+    ##                       notSupported = False
+    ##                if notSupported:
+    ##                    response = HttpResponse('File extension not supported')
+    ##                    response.status_code = 500;
+    ##                    return response
+    ##
+    ##                if sizeOfFile > SIZE_LIMIT:
+    ##                    response = HttpResponse('File exceeding size limit')
+    ##                    response.status_code = 500;
+    ##                    return response
+
+    ##                temp_user = TracksUser.objects.get(email=request.POST['user_email'])
+                    # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
+                    temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), None)
+
+    ##                new_track = Track(user = temp_user, filename=temp_file.name)
+    ##                new_track.handle_upload_file(temp_file)
+    ##                History.add_history(new_track.user, new_track, ADDED_HISTORY)
+
+                    server_filename, track_id, error = Track.handle_music_file_upload(temp_user, temp_file)
+
+                    if(error != None):
+                        response = HttpResponse(error)
+                        response.status_code = 400;
+                        return response
+
+                    response_data = {"server_filename" : server_filename, "track_id" : track_id}
+                    response = HttpResponse(json.dumps(response_data), content_type="application/json")
+                    response.status_code = 200;
                     return response
-
-                if sizeOfFile > SIZE_LIMIT:
-                    response = HttpResponse('File exceeding size limit')
-                    response.status_code = 500;
-                    return response
-
-##                temp_user = TracksUser.objects.get(email=request.POST['user_email'])
-                # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
-                temp_user, is_disabled = TracksUser.get_user_desired_to_be_viewed(request, None)
-
-                new_track = Track(user = temp_user, filename=temp_mp3.name)
-                new_track.handle_upload_file(temp_mp3)
-                History.add_history(new_track.user, new_track, ADDED_HISTORY)
-
-                response_data = {"server_filename" : new_track.get_server_filename(), "track_id" : new_track.id}
-                response = HttpResponse(json.dumps(response_data), content_type="application/json") #HttpResponse('success')
-                response.status_code = 200;
-                return response
-            except:
-                response = HttpResponse(traceback.format_exc()) # Currently sends a response with the traceback of the error. DO NOT USE IN PRODUCTION.
-                response.status_code = 500;
+            else:
+                response = HttpResponse('form not valid')
+                response.status_code = 400;
                 return response
         else:
-            response = HttpResponse('form not valid')
+            response = HttpResponse('method not post')
             response.status_code = 400;
             return response
-    else:
-        response = HttpResponse('method not post')
-        response.status_code = 400;
+
+    except:
+        response = HttpResponse('error with userprofile') # May need to change message sent
+        print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
+        response.status_code = 500;
         return response
 
 
 
+# Helper function for getting session. SHOULD NOT BE REQUESTED BY THE CLIENT
+def get_session_for_user(request):
+    return request.session['email']
+
+# Helper function for setting session. SHOULD NOT BE REQUESTED BY THE CLIENT
+def set_session_for_user(request, temp_user):
+    request.session['email'] = temp_user.email
 
 
+# Allows the server to serve audio/mpeg files (e.g. mp3 files). Can be removed if another server is responsible for serving audio/mpeg files.
 def play_MP3(request, path):
     filepath = os.path.join(Project.settings.MEDIA_ROOT, path).replace('\\', '/')
     #print(filepath)

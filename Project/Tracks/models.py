@@ -67,17 +67,37 @@ class TracksUser(AbstractBaseUser):
         except:
             return False
 
+    def get_tracks_list(self): # TODO: need to check if the filepaths are still accurate
+        return self.track_set.all()
+
+    def get_collaborations_list(self):
+        return self.collaboration_set.all()
+
+    def get_user_profile(self):
+        if(self.has_userprofile()):
+            temp_instance = self.userprofile
+        else:
+            temp_instance = UserProfile(user=self)
+        return temp_instance
+
+    def get_tracks_list_JSON(self):
+        response_data = {}
+        list_of_tracks = self.get_tracks_list()
+        for track in list_of_tracks:
+            response_data[track.id] = track.filename
+        return response_data
+
     def get_unique_identifier(self):
         return self.email
 
 
     @classmethod
-    def get_user_desired_to_be_viewed(cls, request, user_id):
-        if(user_id != None):
-            temp_user = cls.objects.get(id=user_id)
+    def get_desired_user(cls, session_user_email, id_of_user_desired_to_be_viewed):
+        if(id_of_user_desired_to_be_viewed != None):
+            temp_user = cls.objects.get(id=id_of_user_desired_to_be_viewed)
             is_disabled = True
         else:
-            temp_user = cls.objects.get(email=request.session.get('email'))
+            temp_user = cls.objects.get(email=session_user_email)
             is_disabled = False
         return temp_user, is_disabled
 
@@ -110,6 +130,9 @@ class UserProfile(models.Model):
         return "profile of: " + self.user.username
 
 
+#list of acceptable extensions. make sure it starts with a dot'
+ACCEPTABLE_MUSIC_FORMATS = ['.mp3']
+
 class Track(models.Model):
     user = models.ForeignKey(TracksUser)
     filename = models.CharField(max_length=50)
@@ -118,12 +141,19 @@ class Track(models.Model):
     def __unicode__(self):
         return self.filename
 
+    def get_server_filename(self):
+        server_filename = '#'
+        temp_filepath = self.filepath
+        if(os.path.exists(temp_filepath)):
+            server_filename = os.path.basename(temp_filepath)
+        return server_filename
+
     def handle_upload_file(self, f, path="../Project/Tracks/user_mp3_files"):
         ##print(path)
         ##temp_dest = os.path.join(path, str(self.user.get_unique_identifier()) + "_" + self.filename) # need to change later to be a more unique identifier
         # using user.id and timestamp to decrease chance of filename collisions
-        temp_dest = os.path.join(path, str(self.user.id) + "_" + timezone.datetime.now().strftime('%m-%d-%Y_%H-%M-%S') + ".mp3")
-        print(temp_dest)
+        temp_dest = os.path.join(path, str(self.user.id) + "_" + timezone.datetime.now().strftime('%m-%d-%Y_%H-%M-%S') + ".mp3").replace('\\', '/')
+        ##print(temp_dest)
         with open(temp_dest,'wb+') as destination:
             for chunk in f.chunks():
                 destination.write(chunk)
@@ -132,12 +162,48 @@ class Track(models.Model):
         self.save()
         return temp_dest
 
-    def get_server_filename(self):
-        server_filename = '#'
-        temp_filepath = self.filepath
-        if(os.path.exists(temp_filepath)):
-            server_filename = os.path.basename(temp_filepath)
-        return server_filename
+    @classmethod
+    def is_music_file_valid(cls, temp_file):
+        #currently the size of the file is a static final, however we should consider having a quota per user, in case a user wishes to extend their quota.
+        # 2.5MB - 2621440
+        # 5MB - 5242880
+        # 10MB - 10485760
+        # 20MB - 20971520
+        # 50MB - 52428800
+        # 100MB 104857600
+        # 250MB - 214958080
+        # 500MB - 429916160
+        SIZE_LIMIT = 5242880
+
+        #check the size of the file
+        sizeOfFile = temp_file._size
+        error = None
+        notSupported = True
+
+        for name in ACCEPTABLE_MUSIC_FORMATS:
+            if temp_file.name.endswith(name):
+               notSupported = False
+
+        if notSupported:
+            error = 'File extension not supported'
+        if sizeOfFile > SIZE_LIMIT:
+            error = 'File exceeding size limit'
+        return error
+
+    @classmethod
+    def handle_music_file_upload(cls, temp_user, temp_file):
+        server_filename = ''
+        track_id = 0
+        error = Track.is_music_file_valid(temp_file)
+
+        if(error == None):
+            new_track = Track(user = temp_user, filename=temp_file.name)
+            new_track.handle_upload_file(temp_file)
+            History.add_history(new_track.user, new_track, ADDED_HISTORY)
+            server_filename = new_track.get_server_filename()
+            track_id = new_track.id
+
+        return server_filename, track_id, error
 
     @classmethod
     def filter_for_search(cls, searchString):
@@ -145,8 +211,6 @@ class Track(models.Model):
         if(searchString != None and searchString !=''):
             list_to_return = cls.objects.filter(Q(filename__contains=searchString))
         return list_to_return
-
-
 
 
 class Collaboration(models.Model):

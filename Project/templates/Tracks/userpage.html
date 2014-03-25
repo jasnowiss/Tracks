@@ -126,7 +126,7 @@ Viewing page of {{ user.firstName }}
             var yes_func = function () {
                // var collab_DB_id = get_collab_id(this_button);
                 //remove_track_from_collab(this_button.name, collab_DB_id);
-                finalize_collaboration(this_button, "removed")
+                finalize_collaboration(this_button, "removed");
             };
             var no_func = function () {};
             confirm_dialog(dialog_text, yes_func, no_func);
@@ -169,23 +169,25 @@ Viewing page of {{ user.firstName }}
             });
         }
 
-        function collab_set_style_to(html_collab_element, style_type) {
-            if (style_type.toLowerCase() == "play") {
-                $(html_collab_element).parents(".collab_div_container")
-                    .removeClass()
-                    .addClass("collab_div_container collab_play");
-            } else if (style_type.toLowerCase() == "processing") {
-                $(html_collab_element).parents(".collab_div_container")
-                    .removeClass()
-                    .addClass("collab_div_container collab_processing");
-            } else if (style_type.toLowerCase() == "error") {
-                $(html_collab_element).parents(".collab_div_container")
-                    .removeClass()
-                    .addClass("collab_div_container collab_error");
-            } else { // style_type.toLowerCase() == "pause"
-                $(html_collab_element).parents(".collab_div_container")
-                    .removeClass()
-                    .addClass("collab_div_container collab_pause");
+        function collab_set_style_to(html_element_inside_collab, style_type) {
+            if (is_inside_collab(html_element_inside_collab)){
+                if (style_type.toLowerCase() == "play") {
+                    $(html_element_inside_collab).parents(".collab_div_container")
+                        .removeClass()
+                        .addClass("collab_div_container collab_play");
+                } else if (style_type.toLowerCase() == "processing") {
+                    $(html_element_inside_collab).parents(".collab_div_container")
+                        .removeClass()
+                        .addClass("collab_div_container collab_processing");
+                } else if (style_type.toLowerCase() == "error") {
+                    $(html_element_inside_collab).parents(".collab_div_container")
+                        .removeClass()
+                        .addClass("collab_div_container collab_error");
+                } else { // style_type.toLowerCase() == "pause"
+                    $(html_element_inside_collab).parents(".collab_div_container")
+                        .removeClass()
+                        .addClass("collab_div_container collab_pause");
+                }
             }
         }
 
@@ -248,7 +250,7 @@ Viewing page of {{ user.firstName }}
         }
 
         function is_inside_collab(html_element) {
-            if ($(html_element).parents(".collab_tracks_div").length == 0) {
+            if ($(html_element).parents(".collab_div_container").length == 0) {
                 return 0;
             } else {
                 return 1;
@@ -495,7 +497,7 @@ Viewing page of {{ user.firstName }}
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     progress_bar_Failure(new_bar);
-                    //alert(jqXHR.responseText);
+                    alert(jqXHR.responseText);
                 },
                 async: true
 
@@ -552,6 +554,7 @@ Viewing page of {{ user.firstName }}
             var track2_id = get_track2_id(html_element);
             var collab_id = get_collab_id(html_element);
             //alert("track1_id: " + track1_id + "track2_id: " + track2_id + "collab_id: " + collab_id + "mod_type: " + mod_type);
+            collab_set_style_to(html_element, "processing");
 
             $.ajax({
                 url: "{{ finalize_collaboration_url }}",
@@ -559,9 +562,12 @@ Viewing page of {{ user.firstName }}
                 data: {track1_id : track1_id, track2_id : track2_id, collab_id : collab_id, mod_type : mod_type},
                 success: function (data, textStatus, jqXHR) {
                     alert(jqXHR.responseText);
+                    collab_set_style_to(html_element, "pause");
+
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     alert(jqXHR.responseText);
+                    collab_set_style_to(html_element, "error");
                 },
                 async: true
 
@@ -648,170 +654,193 @@ Viewing page of {{ user.firstName }}
     addNav();
 </script>
 <style>
-div.progress_bar_container, div.progress_bar_outer, div.progress_bar_inner {
-    display: inline-block;
-    position:relative;
-    left:0px;
-    top:-1px;
-    height:10px;
-}
-div.progress_bar_outer, div.progress_bar_inner {
-    border:1px solid black;
-    position:absolute;
-    padding: 0px;
-}
-div.progress_bar_outer {
-    width:50px;
-    background-color:#FFFFFF;
-    z-index:-1;
-    margin:0px;
-}
-div.progress_bar_inner {
-    width:0px;
-    border-color: #FFFFFF;
-    background-color:#1F45FC;
-    height:6px;
-    margin:2px;
-}
-.collaborations_list li, .tracks_list li {
-    position:relative;
-    padding: 2px 2px 2px 2px;
-    margin-bottom: 10px;
-}
-audio {
-    width: 266px;
-    height: 37px;
-    display:block;
-}
-.collab_div_container {
-    width: 450px;
-    color: #FFFFFF;
-}
-.collab_info_div {
-    /*border-bottom: 1px solid black;*/
-    /*background-color: #DBDBDB; */
-    font-weight: bold;
-}
-.collab_users_div {
-    /* border: 1px solid red; */
-    background-color: #FFFFFF;
-    color: #000000;
-}
-.collab_users_div_inner_left {
-    float:left;
-    text-overflow: ellipsis;
-    overflow:hidden;
-    white-space:nowrap;
-    /*border: 1px solid blue;*/
-    max-width: 340px;
-    background-color: #FFFFFF;
-    color: #000000;
-    padding-right:10px;
-}
-.collab_tracks_div {
-    /*border: 1px solid green*/
-    padding: 2px 2px 2px 2px;
-    background-color: #FFFFFF;
-    color: #000000;
-    max-height: 500px;
-    overflow-y: auto;
-}
-.collab_play, .collab_play button {
-    border: 1px solid #00CF00;
-    background-color: #00CF00;
-    color: #FFFFFF;
-    transition:all 1s;
-    -webkit-transition: all 1s;
-    -moz-transition: all 1s;
-    -o-transition: all 1s;
-}
-.collab_pause, .collab_pause button {
-    border: 1px solid #9D9D9D;
-    background-color: #9D9D9D;
-    color: #FFFFFF;
-    transition:all 1s;
-    -webkit-transition: all 1s;
-    -moz-transition: all 1s;
-    -o-transition: all 1s;
-}
-.collab_error, .collab_error button {
-    border: 1px solid red;
-    background-color: red;
-    color: #FFFFFF;
-    transition:all 1s;
-    -webkit-transition: all 1s;
-    -moz-transition: all 1s;
-    -o-transition: all 1s;
-}
-.collab_processing, .collab_processing button {
-    border: 1px solid blue;
-    background-color: blue;
-    color: #FFFFFF;
-    transition:all 1s;
-    -webkit-transition: all 1s;
-    -moz-transition: all 1s;
-    -o-transition: all 1s;
-}
-.collab_info_div button {
-    border-left: 1px solid white;
-    border-right: 1px solid white;
-    background-color: inherit;
-    color: white;
-}
-button.remove_track_from_collab_button {
-    color: #F0F0F0;
-    font-weight:900;
-    border: 1px solid #000000;
-    background-color: #000000;
-    height:20px;
-    width:20px;
-    position: relative;
-    top:1px;
-    padding: 0 0 0 0;
-    transition:all 0s;
-    -webkit-transition: all 0s;
-    -moz-transition: all 0s;
-    -o-transition: all 0s;
-}
-button.remove_track_from_collab_button:hover {
-    color: white;
-    border: 1px solid red;
-    background-color: red;
-}
-.ui-dialog {
-    border: none;
-    padding: 0px 0px 0px 0px;
-    border-radius: 0px;
-    box-shadow: 0px 0px 10px 2px #888888;
-}
-.confirm_dialog .ui-dialog-titlebar {
-    border: 1px solid black;
-    background: none;
-    background-color: black;
-    border-radius: 0px;
-    color: white;
-    padding: 2px 2px 2px 10px;
-}
-.confirm_dialog .ui-dialog-titlebar-close {
-    display:none;
-}
-.confirm_dialog .ui-dialog-content {
-}
-.confirm_dialog .ui-dialog-buttonpane {
-    padding: 0 0 0 0;
-}
-.confirm_dialog .ui-dialog-buttonset button {
-    border: 1px solid black;
-    background: none;
-    background-color: black;
-    margin: 1px 1px 1px 1px;
-    width: 60px;
-    color: white;
-    border-radius: 0px;
-}
-.confirm_dialog .ui-dialog-buttonset .ui-button-text {
-    padding: 1px 1px 1px 1px;
-}
+    #collaborations_list li, #tracks_list li
+    {
+        position: relative;
+        padding: 2px 2px 2px 2px;
+        margin-bottom: 10px;
+    }
+    div.progress_bar_container, div.progress_bar_outer, div.progress_bar_inner
+    {
+        display: inline-block;
+        position: relative;
+        left: 0px;
+        top: -1px;
+        height: 10px;
+    }
+    div.progress_bar_outer, div.progress_bar_inner
+    {
+        border: 1px solid black;
+        position: absolute;
+        padding: 0px;
+    }
+    div.progress_bar_outer
+    {
+        width: 50px;
+        background-color: #FFFFFF;
+        z-index: -1;
+        margin: 0px;
+    }
+    div.progress_bar_inner
+    {
+        width: 0px;
+        border-color: #FFFFFF;
+        background-color: #1F45FC;
+        height: 6px;
+        margin: 2px;
+    }
+    audio
+    {
+        width: 266px;
+        height: 37px;
+        display: block;
+    }
+    .collab_div_container
+    {
+        width: 450px;
+        color: #FFFFFF;
+    }
+    .collab_info_div
+    {
+        /*border-bottom: 1px solid black;*/ /*background-color: #DBDBDB; */
+        font-weight: bold;
+    }
+    .collab_users_div
+    {
+        /* border: 1px solid red; */
+        background-color: #FFFFFF;
+        color: #000000;
+    }
+    .collab_users_div_inner_left
+    {
+        float: left;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap; /*border: 1px solid blue;*/
+        max-width: 340px;
+        background-color: #FFFFFF;
+        color: #000000;
+        padding-right: 10px;
+    }
+    .collab_tracks_div
+    {
+        /*border: 1px solid green*/
+        padding: 2px 2px 2px 2px;
+        background-color: #FFFFFF;
+        color: #000000;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    .collab_play, .collab_play button
+    {
+        border: 1px solid #00CF00;
+        background-color: #00CF00;
+        color: #FFFFFF;
+        transition: all 1s;
+        -webkit-transition: all 1s;
+        -moz-transition: all 1s;
+        -o-transition: all 1s;
+    }
+    .collab_pause, .collab_pause button
+    {
+        border: 1px solid #9D9D9D;
+        background-color: #9D9D9D;
+        color: #FFFFFF;
+        transition: all 1s;
+        -webkit-transition: all 1s;
+        -moz-transition: all 1s;
+        -o-transition: all 1s;
+    }
+    .collab_error, .collab_error button
+    {
+        border: 1px solid red;
+        background-color: red;
+        color: #FFFFFF;
+        transition: all 1s;
+        -webkit-transition: all 1s;
+        -moz-transition: all 1s;
+        -o-transition: all 1s;
+    }
+    .collab_processing, .collab_processing button
+    {
+        border: 1px solid blue;
+        background-color: blue;
+        color: #FFFFFF;
+        transition: all 1s;
+        -webkit-transition: all 1s;
+        -moz-transition: all 1s;
+        -o-transition: all 1s;
+    }
+    .collab_info_div button
+    {
+        border-left: 1px solid white;
+        border-right: 1px solid white;
+        background-color: inherit;
+        color: white;
+    }
+    button.remove_track_from_collab_button
+    {
+        color: #F0F0F0;
+        font-weight: 900;
+        border: 1px solid #000000;
+        background-color: #000000;
+        height: 20px;
+        width: 20px;
+        position: relative;
+        top: 1px;
+        padding: 0 0 0 0;
+        transition: all 0s;
+        -webkit-transition: all 0s;
+        -moz-transition: all 0s;
+        -o-transition: all 0s;
+    }
+    button.remove_track_from_collab_button:hover
+    {
+        color: white;
+        border: 1px solid red;
+        background-color: red;
+    }
+    .ui-dialog
+    {
+        border: none;
+        padding: 0px 0px 0px 0px;
+        border-radius: 0px;
+        box-shadow: 0px 0px 10px 2px #888888;
+    }
+    .confirm_dialog .ui-dialog-titlebar
+    {
+        border: 1px solid black;
+        background: none;
+        background-color: black;
+        border-radius: 0px;
+        color: white;
+        padding: 2px 2px 2px 10px;
+    }
+    .confirm_dialog .ui-dialog-titlebar-close
+    {
+        display: none;
+    }
+    .confirm_dialog .ui-dialog-content
+    {
+    }
+    .confirm_dialog .ui-dialog-buttonpane
+    {
+        padding: 0 0 0 0;
+    }
+    .confirm_dialog .ui-dialog-buttonset button
+    {
+        border: 1px solid black;
+        background: none;
+        background-color: black;
+        margin: 1px 1px 1px 1px;
+        width: 60px;
+        color: white;
+        border-radius: 0px;
+    }
+    .confirm_dialog .ui-dialog-buttonset .ui-button-text
+    {
+        padding: 1px 1px 1px 1px;
+    }
 </style>
 </body>
 </html>

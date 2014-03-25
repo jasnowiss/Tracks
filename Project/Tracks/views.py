@@ -51,7 +51,7 @@ def register(request):
         lastName = request.POST.get('lastName')
         confirm = request.POST.get('confirm')
         user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
-        ## set_session_for_user(request, user)
+        set_session_for_user(request, user)
         return HttpResponseRedirect('/Tracks/userpage/')
     else:
         form = TracksUserCreationForm()

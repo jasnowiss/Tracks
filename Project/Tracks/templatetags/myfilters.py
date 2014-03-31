@@ -4,6 +4,7 @@ register = template.Library()
 
 @register.filter(name='addattr')
 def addattr(value, arg):
+	"""ADD A DESCRIPTION"""
     attrs = {}
     css = arg.split(',')
 

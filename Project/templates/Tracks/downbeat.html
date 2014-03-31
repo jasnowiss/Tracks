@@ -46,7 +46,7 @@
               </a>
 
               {% if history_obj.added %}
-                % if history_obj.track != None %}
+                {% if history_obj.track != None %}
                   added a new Track: <a href="javascript:;">{{history_obj.track.filename}}</a>
 
                 {% elif history_obj.collaboration != None %}

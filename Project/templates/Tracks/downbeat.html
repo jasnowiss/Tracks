@@ -36,40 +36,40 @@
     <div class="container">
 
       <div class="starter-template">
-            <h3>Hello {{user.get_name_to_display}}!</h3>
-            <h5> Downbeat activity </h5>
-                <div class="container" style="border-width:1px; border-radius:4px,4px,0,0; border-color:#333">
-	        {% for history_obj in downbeat_list %}
-	        <p>
-	            <a href="{% url 'Tracks:userpage' history_obj.user.id %}">
-	                {{history_obj.user.get_name_to_display}}
-	                </a>
+        <h3>Hello {{user.get_name_to_display}}!</h3>
+        <h5> Downbeat activity </h5>
+        <div class="container" style="border-width:1px; border-radius:4px,4px,0,0; border-color:#333">
+          {% for history_obj in downbeat_list %}
+            <p>
+              <a href="{% url 'Tracks:userpage' history_obj.user.id %}">
+                {{history_obj.user.get_name_to_display}}
+              </a>
 
-	            {% if history_obj.added %}
-	                {% if history_obj.track != None %}
-	                     added a new Track: <a href="javascript:;">{{history_obj.track.filename}}</a>
+              {% if history_obj.added %}
+                % if history_obj.track != None %}
+                  added a new Track: <a href="javascript:;">{{history_obj.track.filename}}</a>
 
-	                {% elif history_obj.collaboration != None %}
-	                    started a new Collaboration: <a href="javascript:;">Collaboration {{history_obj.collaboration.id}}</a>
+                {% elif history_obj.collaboration != None %}
+                  started a new Collaboration: <a href="javascript:;">Collaboration {{history_obj.collaboration.id}}</a>
 
-	                {% endif %}
+                {% endif %}
 
-	            {% elif history_obj.modified %}
-	                {% if history_obj.track != None %}
-	                    modified Track: <a href="javascript:;">{{history_obj.track.filename}}</a>
+              {% elif history_obj.modified %}
+                {% if history_obj.track != None %}
+                  modified Track: <a href="javascript:;">{{history_obj.track.filename}}</a>
 
-	                {% elif history_obj.collaboration != None %}
-	                    modified Collaboration: <a href="javascript:;">Collaboration {{history_obj.collaboration.id}}</a>
+                {% elif history_obj.collaboration != None %}
+                  modified Collaboration: <a href="javascript:;">Collaboration {{history_obj.collaboration.id}}</a>
 
-	                {% endif %}
+                {% endif %}
 
-	            {% endif %}
-	            </p>
-	        {% endfor %}
-	 	        </div>
-	 	      </div>
+              {% endif %}
+            </p>
+          {% endfor %}
+        </div>
+      </div>
 
-	 	    </div><!-- /.container -->
+    </div><!-- /.container -->
 
 
     <!-- Bootstrap core JavaScript
@@ -80,7 +80,7 @@
     <script src={% static "bootstrap-3.1.1-dist/js/bootstrap.min.js" %}></script>
 
     <script type="text/javascript">
-		addNav();
-	</script>
+        addNav();
+    </script>
   </body>
 </html>

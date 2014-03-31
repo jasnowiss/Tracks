@@ -1,7 +1,8 @@
 
 
 function addNav() {
-	<!--Check if user is logged on-->
+	/* Check if user is logged on. */
+
 	/*$("body").append(" <script>function getCookie(name)
 {
     var cookieValue = null;
@@ -50,28 +51,28 @@ $.ajaxSetup({
 });
 </script>");*/
 	$("#navbar").html('<div class="container">
-                            <div class="navbar-header">
-                                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                                    <span class="sr-only">Toggle navigation</span>
-                                    <span class="icon-bar"></span>
-                                    <span class="icon-bar"></span>
-                                    <span class="icon-bar"></span>
-                                </button>
-                                <a id="tracks_home" class="navbar-brand" href="">Tracks</a>
+                          <div class="navbar-header">
+                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                              <span class="sr-only">Toggle navigation</span>
+                              <span class="icon-bar"></span>
+                              <span class="icon-bar"></span>
+                              <span class="icon-bar"></span>
+                            </button>
+                              <a id="tracks_home" class="navbar-brand" href="">Tracks</a>
                             </div>
                             <div class="collapse navbar-collapse">
-                                <ul id="navbar_options" class="nav navbar-nav"> </ul>
-                                <form method="GET" class="navbar-form" role="search">
-                                    <div class="form-group">
-                                        <input type="text" name="search" class="form-control" placeholder="search">
-                                    </div>
-                                    <button type="submit" class="btn btn-default">
-                                        <span class="glyphicon glyphicon-music"></span>
-                                    </button>
-                                </form>
+                              <ul id="navbar_options" class="nav navbar-nav"> </ul>
+                              <form method="GET" class="navbar-form" role="search">
+                                <div class="form-group">
+                                  <input type="text" name="search" class="form-control" placeholder="search">
+                                </div>
+                                <button type="submit" class="btn btn-default">
+                                  <span class="glyphicon glyphicon-music"></span>
+                                </button>
+                              </form>
                             </div>
                             <!--/.nav-collapse -->
-                        </div>')
+                          </div>')
 	if (true) {
 		$("#navbar_options").html('<li><a id="downbeat">Downbeat</a></li>
                                    <li><a id="about">About</a></li>
@@ -85,6 +86,7 @@ $.ajaxSetup({
 }
 
 function hrefCreate() {
+    /* ADD A DESCRIPTION */
     if (!window.location.origin) {
       window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
     }
@@ -98,6 +100,7 @@ function hrefCreate() {
 
 
 function signOut() {
+    /* ADD A DESCRIPTION */
 	var csrftoken = getCookie('csrftoken');
 	$.ajax({
 			type: 'POST',

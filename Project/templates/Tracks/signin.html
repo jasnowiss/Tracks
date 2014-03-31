@@ -24,7 +24,7 @@
 
     <div class="container" style="width:50%">
       <form id="signin" action="" class="form-horizontal" role="form" method="post">
-      {% csrf_token %}
+        {% csrf_token %}
         <p>
           <label for="id_email">Email Address:</label>
           <input id="id_email" maxlength="254" name="email" type="email" />
@@ -46,8 +46,8 @@
         addNav();
     </script>
     <script type="text/javascript">
+        /** ADD A DESCRIPTION */
         function json_request(page, dict, success, failure) {
-            /* ADD A DESCRIPTION */
             $.ajax({
                 type: 'POST',
                 url: page,
@@ -57,8 +57,8 @@
                 error: failure
             });
     }
+        /** ADD A DESCRIPTION */
         function createAccount() {
-            /* ADD A DESCRIPTION */
             json_request(window.location, {email:$("#email").val(), firstname:$("#firstname").val(),lastname:$("#lastname").val(),password:$("#password").val(),confirm:$("#confirm").val()}, function(data) {
                 alert(JSON.stringify(data));}, function(err) { alert("An error was encountered. *DEBUG*" + err.message);});
         }

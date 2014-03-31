@@ -1,6 +1,5 @@
-
+/** Check if user is logged on. */
 function addNav() {
-    /* Check if user is logged on. */
 
     /*$("body").append(" <script>function getCookie(name)
 {
@@ -84,8 +83,8 @@ $.ajaxSetup({
     hrefCreate();
 }
 
+/** ADD A DESCRIPTION */
 function hrefCreate() {
-    /* ADD A DESCRIPTION */
     if (!window.location.origin) {
       window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
     }
@@ -97,9 +96,8 @@ function hrefCreate() {
     $(".navbar-form").attr('action', window.location.origin+"/Tracks/search/")
     }
 
-
+/** ADD A DESCRIPTION */
 function signOut() {
-    /* ADD A DESCRIPTION */
     var csrftoken = getCookie('csrftoken');
     $.ajax({
             type: 'POST',

@@ -37,9 +37,8 @@ TODO:
 
 """
 
-
 def register(request):
-    """Register a user."""
+    """Registers a user."""
     email = password = ''
     if request.method == 'POST':
         #form = TracksUserCreationForm(request.POST)
@@ -58,8 +57,8 @@ def register(request):
     return render(request, 'Tracks/signup.html', {'form': form})
 
 
-
 def signIn(request):
+    """ADD A DESCRIPTION"""
     # Custom login
     email = password = msg = ''
     if request.POST:
@@ -92,22 +91,27 @@ def signIn(request):
         form = TracksUserSignInForm()
     return render(request, 'Tracks/signin.html', {'form': form})
 
+
 def logout_view(request):
+    """ADD A DESCRIPTION"""
     logout(request)
     return HttpResponseRedirect('/Tracks') #should be a log out page instead
 
+
 def tracks(request):
+    """ADD A DESCRIPTION"""
     return render(request, 'Tracks/tracks.html',{})
 
 
 def about(request):
+    """ADD A DESCRIPTION"""
     if (request.method == 'GET'):
         return render(request, 'Tracks/about.html', {})
 
 
-
 @login_required
 def userprofile(request, user_id=None):
+    """ADD A DESCRIPTION"""
     try:
         temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), user_id)
 ##    if(TracksUser.has_userprofile(temp_user)):
@@ -148,9 +152,9 @@ def userprofile(request, user_id=None):
         return response
 
 
-
 @login_required
 def userpage(request, user_id=None):
+    """ADD A DESCRIPTION"""
     try:
         temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), user_id)
 
@@ -168,11 +172,9 @@ def userpage(request, user_id=None):
         return response
 
 
-
-
-
 @login_required
 def search(request):
+    """ADD A DESCRIPTION"""
     if(request.method == "GET"):
         searchString = request.GET.get('search', None)
         # TODO: for security purposes, need to make sure that searchString does not contain any malicious code. Check to see if Django provides some help for this.
@@ -186,6 +188,7 @@ def search(request):
 
 @login_required
 def downbeat(request):
+    """ADD A DESCRIPTION"""
     if (request.method == 'GET'):
         # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
         temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), None)
@@ -195,6 +198,7 @@ def downbeat(request):
 
 # Function for JSON Call
 def get_tracks_for_current_user_JSON(request):
+    """ADD A DESCRIPTION"""
     try:
         # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
         temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), None)
@@ -214,8 +218,10 @@ def get_tracks_for_current_user_JSON(request):
         response.status_code = 500;
         return response
 
+
 # Function for AJAX Call
 def finalize_collaboration(request):
+    """ADD A DESCRIPTION"""
     try:
         track1_id = int(request.POST.get('track1_id', 0))
         track2_id = int(request.POST.get('track2_id', 0))
@@ -251,8 +257,8 @@ def finalize_collaboration(request):
 
 
 # Fuction for AJAX Call
-
 def upload_MP3(request):
+    """ADD A DESCRIPTION"""
 ##    #currently the size of the file is a static final, however we should consider having a quota per user, in case a user wishes to extend their quota.
 ##    # 2.5MB - 2621440
 ##    # 5MB - 5242880
@@ -323,19 +329,23 @@ def upload_MP3(request):
         return response
 
 
-
-# Helper function for getting session. SHOULD NOT BE REQUESTED BY THE CLIENT
 def get_session_for_user(request):
+    """Helper function for getting session. SHOULD NOT BE REQUESTED BY THE CLIENT"""
     return request.session['email']
 
-# Helper function for setting session. SHOULD NOT BE REQUESTED BY THE CLIENT
+
 def set_session_for_user(request, temp_user):
+    """Helper function for setting session. SHOULD NOT BE REQUESTED BY THE CLIENT"""
     request.session['email'] = temp_user.email
     request.session.set_expiry(1800) # set expiration to 30 min
 
 
-# Allows the server to serve audio/mpeg files (e.g. mp3 files). Can be removed if another server is responsible for serving audio/mpeg files.
 def play_MP3(request, path):
+    """Allows the server to serve audio/mpeg files (e.g. mp3 files). 
+    
+    Note: Can be removed if another server is responsible for serving audio/mpeg files.
+
+    """
     filepath = os.path.join(Project.settings.MEDIA_ROOT, path).replace('\\', '/')
     #print(filepath)
     wrapper = FileWrapper(open(filepath, 'rb'))

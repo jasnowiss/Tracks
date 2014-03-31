@@ -1,9 +1,9 @@
 
 
 function addNav() {
-	/* Check if user is logged on. */
+    /* Check if user is logged on. */
 
-	/*$("body").append(" <script>function getCookie(name)
+    /*$("body").append(" <script>function getCookie(name)
 {
     var cookieValue = null;
     if (document.cookie && document.cookie != '') {
@@ -50,7 +50,7 @@ $.ajaxSetup({
     }
 });
 </script>");*/
-	$("#navbar").html('<div class="container">
+    $("#navbar").html('<div class="container">
                           <div class="navbar-header">
                             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                               <span class="sr-only">Toggle navigation</span>
@@ -59,30 +59,30 @@ $.ajaxSetup({
                               <span class="icon-bar"></span>
                             </button>
                               <a id="tracks_home" class="navbar-brand" href="">Tracks</a>
-                            </div>
-                            <div class="collapse navbar-collapse">
-                              <ul id="navbar_options" class="nav navbar-nav"> </ul>
-                              <form method="GET" class="navbar-form" role="search">
-                                <div class="form-group">
-                                  <input type="text" name="search" class="form-control" placeholder="search">
-                                </div>
-                                <button type="submit" class="btn btn-default">
-                                  <span class="glyphicon glyphicon-music"></span>
-                                </button>
-                              </form>
-                            </div>
-                            <!--/.nav-collapse -->
-                          </div>')
-	if (true) {
-		$("#navbar_options").html('<li><a id="downbeat">Downbeat</a></li>
+                          </div>
+                          <div class="collapse navbar-collapse">
+                            <ul id="navbar_options" class="nav navbar-nav"> </ul>
+                            <form method="GET" class="navbar-form" role="search">
+                              <div class="form-group">
+                                <input type="text" name="search" class="form-control" placeholder="search">
+                              </div>
+                              <button type="submit" class="btn btn-default">
+                                <span class="glyphicon glyphicon-music"></span>
+                              </button>
+                            </form>
+                          </div>
+                          <!--/.nav-collapse -->
+                        </div>')
+    if (true) {
+        $("#navbar_options").html('<li><a id="downbeat">Downbeat</a></li>
                                    <li><a id="about">About</a></li>
                                    <li><a id="upload">Upload</a></li>
                                    <li> <a id="signout" href="javascript:signOut()">Sign out</a></li>')
-	} else {
-		// Show sign in link instead of projects, downbeat, profile, etc.
-		$("#navbar_options").html('<li><a href="#signin">Sign In</a></li>')
-	}
-	hrefCreate();
+    } else {
+        // Show sign in link instead of projects, downbeat, profile, etc.
+        $("#navbar_options").html('<li><a href="#signin">Sign In</a></li>')
+    }
+    hrefCreate();
 }
 
 function hrefCreate() {
@@ -90,21 +90,21 @@ function hrefCreate() {
     if (!window.location.origin) {
       window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
     }
-	$("#tracks_home").attr('href',window.location.origin+"/Tracks")
-	$("#downbeat").attr('href', window.location.origin+"/Tracks/downbeat/")
-	$("#about").attr('href', window.location.origin+"/Tracks/about.html")
-	$("#upload").attr('href', window.location.origin+"/Tracks/userpage/")
-	$("#signout").attr('href', window.location.origin+"/Tracks/logout/")
-	$(".navbar-form").attr('action', window.location.origin+"/Tracks/search/")
-	}
+    $("#tracks_home").attr('href',window.location.origin+"/Tracks")
+    $("#downbeat").attr('href', window.location.origin+"/Tracks/downbeat/")
+    $("#about").attr('href', window.location.origin+"/Tracks/about.html")
+    $("#upload").attr('href', window.location.origin+"/Tracks/userpage/")
+    $("#signout").attr('href', window.location.origin+"/Tracks/logout/")
+    $(".navbar-form").attr('action', window.location.origin+"/Tracks/search/")
+    }
 
 
 function signOut() {
     /* ADD A DESCRIPTION */
-	var csrftoken = getCookie('csrftoken');
-	$.ajax({
-			type: 'POST',
-			url: window.location.origin+"/Tracks/logout/",
-			data: {},
-    	});
+    var csrftoken = getCookie('csrftoken');
+    $.ajax({
+            type: 'POST',
+            url: window.location.origin+"/Tracks/logout/",
+            data: {},
+        });
 }

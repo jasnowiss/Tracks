@@ -1,5 +1,4 @@
 
-
 function addNav() {
     /* Check if user is logged on. */
 

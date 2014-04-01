@@ -94,6 +94,7 @@ def signIn(request):
 
 def logout_view(request):
     """ADD A DESCRIPTION"""
+    request.session.flush()
     logout(request)
     return HttpResponseRedirect('/Tracks') #should be a log out page instead
 

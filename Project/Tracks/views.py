@@ -277,42 +277,42 @@ def upload_MP3(request):
             form = UploadFileForm(request.POST, request.FILES)
             if (form.is_valid()):
 
-                    temp_file = request.FILES['file']
-    ##                #check the size of the file
-    ##                sizeOfFile = temp_file._size
-    ##                notSupported = True
-    ##                for name in acceptableFormats:
-    ##                    if temp_file.name.endswith(name):
-    ##                       notSupported = False
-    ##                if notSupported:
-    ##                    response = HttpResponse('File extension not supported')
-    ##                    response.status_code = 500;
-    ##                    return response
-    ##
-    ##                if sizeOfFile > SIZE_LIMIT:
-    ##                    response = HttpResponse('File exceeding size limit')
-    ##                    response.status_code = 500;
-    ##                    return response
+                temp_file = request.FILES['file']
+##                #check the size of the file
+##                sizeOfFile = temp_file._size
+##                notSupported = True
+##                for name in acceptableFormats:
+##                    if temp_file.name.endswith(name):
+##                       notSupported = False
+##                if notSupported:
+##                    response = HttpResponse('File extension not supported')
+##                    response.status_code = 500;
+##                    return response
+##
+##                if sizeOfFile > SIZE_LIMIT:
+##                    response = HttpResponse('File exceeding size limit')
+##                    response.status_code = 500;
+##                    return response
 
-    ##                temp_user = TracksUser.objects.get(email=request.POST['user_email'])
-                    # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
-                    temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), None)
+##                temp_user = TracksUser.objects.get(email=request.POST['user_email'])
+                # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
+                temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), None)
 
-    ##                new_track = Track(user = temp_user, filename=temp_file.name)
-    ##                new_track.handle_upload_file(temp_file)
-    ##                History.add_history(new_track.user, new_track, ADDED_HISTORY)
+##                new_track = Track(user = temp_user, filename=temp_file.name)
+##                new_track.handle_upload_file(temp_file)
+##                History.add_history(new_track.user, new_track, ADDED_HISTORY)
 
-                    server_filename, track_id, error = Track.handle_music_file_upload(temp_user, temp_file)
+                server_filename, track_id, error = Track.handle_music_file_upload(temp_user, temp_file)
 
-                    if(error != None):
-                        response = HttpResponse(error)
-                        response.status_code = 400;
-                        return response
-
-                    response_data = {"server_filename" : server_filename, "track_id" : track_id}
-                    response = HttpResponse(json.dumps(response_data), content_type="application/json")
-                    response.status_code = 200;
+                if(error != None):
+                    response = HttpResponse(error)
+                    response.status_code = 400;
                     return response
+
+                response_data = {"server_filename" : server_filename, "track_id" : track_id}
+                response = HttpResponse(json.dumps(response_data), content_type="application/json")
+                response.status_code = 200;
+                return response
             else:
                 response = HttpResponse('form not valid')
                 response.status_code = 400;

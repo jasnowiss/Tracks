@@ -194,8 +194,7 @@
         /** ADD A DESCRIPTION */
         function get_buttons_for_tracks_of_collab(play_collab_button_element){
             var container_div = $(play_collab_button_element).parents(".collab_div_container").get(0);
-            var collab_tracks_div = $(container_div)
-                                    .children(".collab_tracks_div").get(0);
+            var collab_tracks_div = $(container_div).children(".collab_tracks_div").get(0);
             var tracks_buttons = $(collab_tracks_div).find(".show_hide_player_button");
             if (tracks_buttons){
                 return tracks_buttons;
@@ -279,7 +278,7 @@
             var audio_div = $("<div></div>").addClass("audio_div").attr("name", audio_name);
             var temp_pathname = "{{MEDIA_URL}}" + audio_name;
             var audio_control = $("<audio></audio>").attr("controls", "");
-            var source = $("<source></source>").attr("type", "audio/mp3").attr("src", temp_pathname);
+            var source = $("<source></source>").attr("type", "audio/mpeg").attr("src", temp_pathname);
             audio_control.append(source);
             audio_div.append(audio_control);
             return audio_div;
@@ -374,8 +373,7 @@
          * OUTPUT: new_bar: The progress bar element.
          */
         function add_new_progress_bar(html_element) {
-            var new_bar = $("<div></div>")
-                .addClass("progress_bar_container");
+            var new_bar = $("<div></div>").addClass("progress_bar_container");
 
             $(html_element).children().last().after(new_bar);
 

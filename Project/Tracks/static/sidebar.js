@@ -117,11 +117,12 @@ function uploadFile() {
 
 	/** ADD A DESCRIPTION */
 	function upload_dialog(dialog_text, yes_funcToExecute, no_funcToExecute) {
-		var dialog_box = $("<div></div>").appendTo("body").html("<ul><li><form id='navbar-upload' action='/' method='post'><input id='navbar_file' type='file' name='file'></input></form></li></ul>");
+		var dialog_box = $("<div id='upload_dialog'></div>").appendTo("body").html("<ul><li><form id='navbar-upload' action='/' method='post'><input id='navbar_file' type='file' name='file'></input></form></li></ul>");
 		$('#navbar_file').attr('onchange','file_load(this)');
 		$(dialog_box).dialog({
 			modal: true,
 			height: 240,
+			widgth: 360,
 			resizable: false,
 			draggable: false,
 			title: "Upload Tracks",
@@ -145,7 +146,9 @@ function uploadFile() {
 	/** ADD A DESCRIPTION */
 	function navbar_create_music_player(audio_name) {
 		var audio_div = $("<div></div>").addClass("audio_div").attr("name", audio_name);
-		var temp_pathname = "{{MEDIA_URL}}" + audio_name;
+		// To be changed later (media_url)
+		var media_url = "http://127.0.0.1:8000/Tracks/user_mp3_files/";
+		var temp_pathname = media_url + audio_name;
 		var audio_control = $("<audio></audio>").attr("controls", "");
 		var source = $("<source></source>").attr("type", "audio/mpeg").attr("src", temp_pathname);
 		audio_control.append(source);
@@ -339,6 +342,8 @@ function uploadFile() {
 				//alert(jqXHR.responseText);
 				server_filename = data["server_filename"];
 				track_id = data["track_id"];
+				var height = $("#upload_dialog").attr('height') + 50;
+				$("#upload_dialog").attr('height',height);
 				navbar_update_completed_loading_track(new_bar, server_filename, track_id);
 	
 			},

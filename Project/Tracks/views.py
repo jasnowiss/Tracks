@@ -259,6 +259,7 @@ def finalize_collaboration(request):
 
 
 # Fuction for AJAX Call
+@login_required
 def upload_MP3(request):
     """ADD A DESCRIPTION"""
 ##    #currently the size of the file is a static final, however we should consider having a quota per user, in case a user wishes to extend their quota.

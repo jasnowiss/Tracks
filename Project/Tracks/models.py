@@ -50,9 +50,9 @@ class TracksUser(AbstractBaseUser):
     def __unicode__(self):
         """Returns the user's username (i.e. email address)."""
         return self.email
-   
+
     def get_full_name(self):
-        """Returns the user's full name.""" 
+        """Returns the user's full name."""
         fullName = self.firstName.strip() + " " + self.lastName.strip()
         return firstName
 
@@ -103,14 +103,25 @@ class TracksUser(AbstractBaseUser):
         """Returns a unique identifier for the user (i.e. email address)."""
         return self.email
 
+##    @classmethod
+##    def get_desired_user(cls, session_user_email, id_of_user_desired_to_be_viewed):
+##        """ADD A DESCRIPTION"""
+##        if(id_of_user_desired_to_be_viewed != None):
+##            temp_user = cls.objects.get(id=id_of_user_desired_to_be_viewed)
+##            is_disabled = True
+##        else:
+##            temp_user = cls.objects.get(email=session_user_email)
+##            is_disabled = False
+##        return temp_user, is_disabled
+
     @classmethod
-    def get_desired_user(cls, session_user_email, id_of_user_desired_to_be_viewed):
+    def get_desired_user(cls, session_user, id_of_user_desired_to_be_viewed):
         """ADD A DESCRIPTION"""
         if(id_of_user_desired_to_be_viewed != None):
             temp_user = cls.objects.get(id=id_of_user_desired_to_be_viewed)
             is_disabled = True
         else:
-            temp_user = cls.objects.get(email=session_user_email)
+            temp_user = session_user
             is_disabled = False
         return temp_user, is_disabled
 
@@ -335,7 +346,7 @@ class History(models.Model):
     collaboration = models.ForeignKey(Collaboration, null=True)
     timestamp = models.DateTimeField()
 
-    def __unicode__(self):   
+    def __unicode__(self):
         """ADD A DESCRIPTION"""
         return "id:" + str(self.id) + " " + "timestamp:" + self.timestamp.strftime('%m/%d/%Y %H:%M:%S')
 
@@ -381,7 +392,7 @@ def search_relevant_models(searchString):
 
     TODO: in later iterations this function should return a sorted query set
     TODO: for security purposes, need to make sure that searchString does not contain any malicious code. Check to see if Django provides some help for this
-    
+
     """
     list_of_relevant_models = [TracksUser, Track] ## ,Collaboration]
     temp_query_set = []

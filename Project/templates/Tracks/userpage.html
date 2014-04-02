@@ -48,8 +48,8 @@
           <div id="{{ collaboration.id }}" class="collab_div_container collab_pause">
             <div class="collab_info_div">
               Collaboration {{ collaboration.id }}
-              <button class="play_collab_button">Play</button>
-              <button class="restart_collab_button">Restart</button>
+              <button name="collab_{{ collaboration.id }}" class="play_collab_button">Play</button>
+              <button name="collab_{{ collaboration.id }}" class="restart_collab_button">Restart</button>
             </div>
 
             <div class="collab_users_div">
@@ -402,7 +402,7 @@
             return new_bar;
         }
 
-        /** 
+        /**
         FUNCTIONALITY: Sets the length of the inner filling of the progress bar to visually indicate how much progress has been made.
          * INPUTS: 1) progress_bar: The progress bar to set the filling of.
          *         2) percent_0_to_100: The percent (range 0 to 100) of the progress bar that should be filled.
@@ -445,7 +445,7 @@
         }
 
         /** FUNCTIONALITY: An event handler used for the event of a file upload which failed. Updates the progress bar appropriately.
-        * INPUTS: 1) evt: The event object. 
+        * INPUTS: 1) evt: The event object.
         *         2) progress_bar: The progress bar to set the filling of.
         * OUTPUT: None
         */

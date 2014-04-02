@@ -50,10 +50,13 @@ def register(request):
         lastName = request.POST.get('lastName')
         confirm = request.POST.get('confirm')
         user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
-        set_session_for_user(request, user)
-        return HttpResponseRedirect('/Tracks/userpage/')
-    else:
-        form = TracksUserCreationForm()
+        user = authenticate(username=email, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return HttpResponseRedirect('/Tracks/userpage/')
+    #else:
+    form = TracksUserCreationForm()
     return render(request, 'Tracks/signup.html', {'form': form, 'session':request.user.is_authenticated()})
 
 
@@ -74,8 +77,6 @@ def signIn(request):
                     #We've been redirected; return the user where they want to go
                     url = request.POST.get('next')
                     HttpResponseRedirect(url)
-                ##request.session['email'] = user.email # NEW ADD WHICH IS BUGGY
-                set_session_for_user(request, user)
                 return HttpResponseRedirect('/Tracks/userpage') # should be user's profile when ready
             else:
                 #Will we ever have inactive users? Maybe instead of deletion?
@@ -94,7 +95,6 @@ def signIn(request):
 
 def logout_view(request):
     """ADD A DESCRIPTION"""
-    request.session.flush()
     logout(request)
     return HttpResponseRedirect('/Tracks') #should be a log out page instead
 
@@ -102,7 +102,7 @@ def logout_view(request):
 def tracks(request):
     """ADD A DESCRIPTION"""
     return render(request, 'Tracks/tracks.html',{'session':request.user.is_authenticated()})
-    
+
 
 
 def about(request):
@@ -115,7 +115,7 @@ def about(request):
 def userprofile(request, user_id=None):
     """ADD A DESCRIPTION"""
     try:
-        temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), user_id)
+        temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), user_id)
 ##    if(TracksUser.has_userprofile(temp_user)):
 ##        temp_instance = temp_user.userprofile
 ##    else:
@@ -158,7 +158,7 @@ def userprofile(request, user_id=None):
 def userpage(request, user_id=None):
     """ADD A DESCRIPTION"""
     try:
-        temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), user_id)
+        temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), user_id)
 
         if(request.method == "GET"):
             form = UploadFileForm()
@@ -193,7 +193,7 @@ def downbeat(request):
     """ADD A DESCRIPTION"""
     if (request.method == 'GET'):
         # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
-        temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), None)
+        temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), None)
         downbeat_list = History.get_downbeat_for(temp_user)
         return render(request, 'Tracks/downbeat.html', {'user' : temp_user, 'downbeat_list' : downbeat_list})
 
@@ -203,7 +203,7 @@ def get_tracks_for_current_user_JSON(request):
     """ADD A DESCRIPTION"""
     try:
         # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
-        temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), None)
+        temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), None)
 
 ##    response_data = {}
 ##    list_of_tracks = temp_user.track_set.all()
@@ -299,7 +299,7 @@ def upload_MP3(request):
 
 ##                temp_user = TracksUser.objects.get(email=request.POST['user_email'])
                 # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
-                temp_user, is_disabled = TracksUser.get_desired_user(get_session_for_user(request), None)
+                temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), None)
 
 ##                new_track = Track(user = temp_user, filename=temp_file.name)
 ##                new_track.handle_upload_file(temp_file)
@@ -332,20 +332,13 @@ def upload_MP3(request):
         return response
 
 
-def get_session_for_user(request):
+def get_session_user(request):
     """Helper function for getting session. SHOULD NOT BE REQUESTED BY THE CLIENT"""
-    return request.session['email']
-
-
-def set_session_for_user(request, temp_user):
-    """Helper function for setting session. SHOULD NOT BE REQUESTED BY THE CLIENT"""
-    request.session['email'] = temp_user.email
-    request.session.set_expiry(1800) # set expiration to 30 min
-
+    return request.user
 
 def play_MP3(request, path):
-    """Allows the server to serve audio/mpeg files (e.g. mp3 files). 
-    
+    """Allows the server to serve audio/mpeg files (e.g. mp3 files).
+
     Note: Can be removed if another server is responsible for serving audio/mpeg files.
 
     """

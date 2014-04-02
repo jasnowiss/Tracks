@@ -51,8 +51,14 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     {% load staticfiles %}
     <script src={% static "bootstrap-3.1.1-dist/js/bootstrap.min.js" %}></script>
+    {% if session %}
     <script type="text/javascript">
-        addNav();
+        addNav(true);
     </script>
+    {% else %}
+    <script type="text/javascript">
+        addNav(false);
+    </script>
+    {% endif %}
   </body>
 </html>

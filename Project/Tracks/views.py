@@ -54,7 +54,7 @@ def register(request):
         return HttpResponseRedirect('/Tracks/userpage/')
     else:
         form = TracksUserCreationForm()
-    return render(request, 'Tracks/signup.html', {'form': form})
+    return render(request, 'Tracks/signup.html', {'form': form, 'session':request.user.is_authenticated()})
 
 
 def signIn(request):
@@ -89,7 +89,7 @@ def signIn(request):
             pass
     else:
         form = TracksUserSignInForm()
-    return render(request, 'Tracks/signin.html', {'form': form})
+    return render(request, 'Tracks/signin.html', {'form': form, 'session':request.user.is_authenticated()})
 
 
 def logout_view(request):
@@ -101,13 +101,14 @@ def logout_view(request):
 
 def tracks(request):
     """ADD A DESCRIPTION"""
-    return render(request, 'Tracks/tracks.html',{})
+    return render(request, 'Tracks/tracks.html',{'session':request.user.is_authenticated()})
+    
 
 
 def about(request):
     """ADD A DESCRIPTION"""
     if (request.method == 'GET'):
-        return render(request, 'Tracks/about.html', {})
+        return render(request, 'Tracks/about.html', {'session':request.user.is_authenticated()})
 
 
 @login_required
@@ -180,7 +181,7 @@ def search(request):
         searchString = request.GET.get('search', None)
         # TODO: for security purposes, need to make sure that searchString does not contain any malicious code. Check to see if Django provides some help for this.
         filtered_query_set = search_relevant_models(searchString)
-        return render(request, 'Tracks/search.html', {'filtered_query_set' : filtered_query_set})
+        return render(request, 'Tracks/search.html', {'filtered_query_set' : filtered_query_set, 'session' : request.user.is_authenticated()})
     else:
         response = HttpResponse('you did not send a GET request to search') # message string probably needs to change for production version
         response.status_code = 500;

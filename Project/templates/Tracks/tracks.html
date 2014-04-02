@@ -37,7 +37,11 @@
 
       <div class="starter-template">
         <h1>Welcome to Tracks!</h1>
+        {% if session %}
+        	<p class="lead">Hello, welcome back to Tracks! Check out some <a href="downbeat">recent activity</a> or add to your <a href="userpage">collaborations!</a></p>
+        {% else %}
         <p class="lead">If you are not already signed in, <a href="signin">sign in here</a>. To make an account, register <a href="register">here</a>.</p>
+       	{% endif %}
       </div>
 
     </div><!-- /.container -->
@@ -50,9 +54,15 @@
     {% load staticfiles %}
     <script src={% static "bootstrap-3.1.1-dist/js/bootstrap.min.js" %}></script>
     
+    {% if session %}
     <script type="text/javascript">
-        addNav();
+        addNav(true);
     </script>
+    {% else %}
+    <script type="text/javascript">
+        addNav(false);
+    </script>
+    {% endif %}
   
   </body>
 </html>

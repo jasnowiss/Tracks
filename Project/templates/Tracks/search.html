@@ -35,8 +35,14 @@
     {% load staticfiles %}
     <script src={% static "bootstrap-3.1.1-dist/js/bootstrap.min.js" %}></script>
 
+    {% if session %}
     <script type="text/javascript">
-        addNav();
+        addNav(true);
     </script>
+    {% else %}
+    <script type="text/javascript">
+        addNav(false);
+    </script>
+    {% endif %}
   </body>
 </html>

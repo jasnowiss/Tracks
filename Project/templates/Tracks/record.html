@@ -37,7 +37,6 @@
         <fieldset><legend>RECORD AUDIO</legend>
             <input onclick="toggleRecording(this)" type="button" name="Rec" class="record"/>
             <input onclick="play()" type="button" name="Play" class="play"/>
-            {% url 'Tracks:userpage' as user_page %}
             <input onclick="saveAudio()" type="submit" name="Save" class="btn btn-default" value="Save"></input>
             <a href="{% url 'Tracks:userpage' %}" class="btn btn-default">Done</a>
         </fieldset>

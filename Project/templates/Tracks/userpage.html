@@ -99,6 +99,11 @@
             {% endfor %}
           </form>
         </li>
+        <li>
+          Record Track:
+            {% url 'Tracks:record' as user_record %}
+            <button onclick="window.location='{{ user_record }}'">Record</button>
+        </li>
       {% else %}
         <form action="/" method="post">
           {% csrf_token %}

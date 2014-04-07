@@ -9,6 +9,7 @@
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="{% static "Recorder/recorder.js" %}"></script>
     <script src="{% static "Recorder/recorderMain.js" %}"></script>
+    <link href={% static "bootstrap-3.1.1-dist/css/bootstrap.min.css" %} rel="stylesheet">
     <!-- Should be moved to a .css file -->
     <style>
         .record{
@@ -36,7 +37,9 @@
         <fieldset><legend>RECORD AUDIO</legend>
             <input onclick="toggleRecording(this)" type="button" name="Rec" class="record"/>
             <input onclick="play()" type="button" name="Play" class="play"/>
-            <input onclick="saveAudio()" type="submit" name="Save" value="Save" />
+            {% url 'Tracks:userpage' as user_page %}
+            <input onclick="saveAudio()" type="submit" name="Save" class="btn btn-default" value="Save"></input>
+            <a href="{% url 'Tracks:userpage' %}" class="btn btn-default">Done</a>
         </fieldset>
         <!--<a id="save" href="#">save</a>-->
     </body>

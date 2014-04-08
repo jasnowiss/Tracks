@@ -87,22 +87,24 @@
           <button name="{{track.id}}" class="collaborate_button">Collaborate</button>
         </li>
       {% endfor %}
-
+      <!--<h3 class="noindent">Upload Track</h3>-->
       {% if not is_disabled %}
         <li>
-          Upload Track:
-          <form action="/" method="post">
+          <h3 class="noindent">Upload Track</h3>
+          <!--<div class="fileUpload btn btn-default">
+            <span>Upload</span>
+            <input class="upload" type="file" />
+          </div> -->
+          <form action="/" method="post" class="fileUpload btn btn-primary">
             {% csrf_token %}
             {% for field in form %}
               {{ field.errors }}
               {{ field }}
+              Upload
             {% endfor %}
           </form>
-        </li>
-        <li>
-          Record Track:
-            {% url 'Tracks:record' as user_record %}
-            <button onclick="window.location='{{ user_record }}'">Record</button>
+          {% url 'Tracks:record' as user_record %}
+          <button onclick="window.location='{{ user_record }}'" class="btn btn-danger">Record</button>
         </li>
       {% else %}
         <form action="/" method="post">
@@ -110,6 +112,8 @@
         </form>
       {% endif %}
     </ul>
+
+
 
 
     <script type="text/javascript">
@@ -371,7 +375,7 @@
                 audio_control.currentTime = 0;
             }
         }
-	
+  
         /**
          * FUNCTIONALITY: Creates a new progress bar element.
          * INPUTS: 1) html_element: The html element to add the progress bar to.
@@ -634,7 +638,7 @@
         /** ADD A DESCRIPTION */
         function get_selected_value_of_sibling_select_list(html_element, class_of_select_list){
             var select_element;
-            if((typeof class_of_select_list === "undefined")){
+            if (typeof class_of_select_list === "undefined") {
                 return "undefined";
             } else {
                 select_element = $(html_element).siblings("select"+"."+class_of_select_list);
@@ -659,6 +663,13 @@
 
             return temp_select_input;
         }
+
+
+        /** This replaces the ugliness from django with pretiness.
+        function prettify() {
+            $("#id_file").html("Upload");
+        }
+        prettify(); */
 
 
 
@@ -892,6 +903,41 @@
         .confirm_dialog .ui-dialog-buttonset .ui-button-text
         {
             padding: 1px 1px 1px 1px;
+        }
+
+        .fileUpload {
+            position: relative;
+            overflow: hidden;
+            margin: 10px;
+        }
+        /* .fileUpload input.upload {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 0;
+            padding: 0;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0;
+            filter: alpha(opacity=0);
+        } */
+        #id_file {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 0;
+            padding: 0;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0;
+            filter: alpha(opacity=0);
+        }
+
+        .noindent {
+            margin-left: -40px;
+            margin-right: 0px;
+            padding-left: 0px;
+            padding-right: 0px;
         }
     </style>
   </body>

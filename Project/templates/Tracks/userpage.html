@@ -30,7 +30,7 @@
     {% load tracks_extras %}
 
     {% if not is_disabled %}
-      hello {{ user.get_name_to_display }}!
+      Hello {{ user.get_name_to_display }}!
       {% url 'Tracks:userprofile' as userprofile_url %}
       <a href="{{ userprofile_url }}"> Edit Profile </a>
     {% else %}
@@ -50,6 +50,9 @@
               Collaboration {{ collaboration.id }}
               <button name="collab_{{ collaboration.id }}" class="play_collab_button">Play</button>
               <button name="collab_{{ collaboration.id }}" class="restart_collab_button">Restart</button>
+              <!-- ADD FUNCTIONALITY -->
+              <button>Edit</button>
+              <!-- REMEMBER TO ADD FUNCTIONALITY -->
             </div>
 
             <div class="collab_users_div">
@@ -57,6 +60,7 @@
                 ft. {{ collaboration|get_formatted_list_of_collab_users }}
               </div>
               <a class="collab_toggle_all_tracks" href="javascript:;">see all tracks</a>
+              <span></span>
             </div>
 
             <div class="collab_tracks_div">

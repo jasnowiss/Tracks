@@ -160,7 +160,7 @@ class UserProfile(models.Model):
 
 
 #list of acceptable extensions. make sure it starts with a dot'
-ACCEPTABLE_MUSIC_FORMATS = ['.mp3']
+ACCEPTABLE_MUSIC_FORMATS = ['.mp3','.wav']
 
 class Track(models.Model):
     """A class to manage sound files."""
@@ -208,7 +208,7 @@ class Track(models.Model):
         # 100MB 104857600
         # 250MB - 214958080
         # 500MB - 429916160
-        SIZE_LIMIT = 5242880
+        SIZE_LIMIT = 52428800
 
         #check the size of the file
         sizeOfFile = temp_file._size

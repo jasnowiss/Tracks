@@ -30,10 +30,6 @@ TODO:
     - (in nav bar) upload in top nav bar goes to userpage. need to add functionality to nav bar upload so that an upload dialog opens.
          also need a nav bar option to go to userpage (and maybe userprofile page).
 
-    - (in nav bar) need link in nav bar to register.
-
-    - (in nav bar) need link in nav bar to sign in.
-
     - (in userpage.html) need to change the class of collabs which finished playing from "play" to "pause" (and seek audio to 0).
 
 """
@@ -117,11 +113,6 @@ def userprofile(request, user_id=None):
     """ADD A DESCRIPTION"""
     try:
         temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), user_id)
-##    if(TracksUser.has_userprofile(temp_user)):
-##        temp_instance = temp_user.userprofile
-##    else:
-##        temp_instance = UserProfile(user=temp_user)
-
         temp_instance = temp_user.get_user_profile()
 
         if(request.method == 'GET'):
@@ -205,14 +196,7 @@ def get_tracks_for_current_user_JSON(request):
     try:
         # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
         temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), None)
-
-##    response_data = {}
-##    list_of_tracks = temp_user.track_set.all()
-##    for track in list_of_tracks:
-##        response_data[track.id] = track.filename
-
         response_data = temp_user.get_tracks_list_JSON()
-
         response = HttpResponse(json.dumps(response_data), content_type="application/json")
         return response
     except:
@@ -232,22 +216,6 @@ def finalize_collaboration(request):
         mod_type = request.POST['mod_type']
 
         collab = Collaboration.handle_finalization(track1_id, track2_id, collab_id, mod_type)
-##        track1 = Track.objects.get(id=track1_id)
-##        track2 = Track.objects.get(id=track2_id)
-##
-##        temp_collab = Collaboration()
-##        temp_collab.save()
-##
-##        temp_collab.tracks.add(track1)
-##        temp_collab.tracks.add(track2)
-##        temp_collab.users.add(track1.user)
-##        temp_collab.users.add(track2.user)
-##
-##        if(track1.user != track2.user):
-##            History.add_history(track1.user, temp_collab, ADDED_HISTORY)
-##            History.add_history(track2.user, temp_collab, ADDED_HISTORY)
-##        else:
-##            History.add_history(track1.user, temp_collab, ADDED_HISTORY)
 
         response = HttpResponse('success') ## render(request, 'Tracks/collaboration_for_AJAX.html', {'collaboration' : collab})
         response.status_code = 200;
@@ -263,51 +231,14 @@ def finalize_collaboration(request):
 @login_required
 def upload_MP3(request):
     """ADD A DESCRIPTION"""
-##    #currently the size of the file is a static final, however we should consider having a quota per user, in case a user wishes to extend their quota.
-##    # 2.5MB - 2621440
-##    # 5MB - 5242880
-##    # 10MB - 10485760
-##    # 20MB - 20971520
-##    # 50MB - 52428800
-##    # 100MB 104857600
-##    # 250MB - 214958080
-##    # 500MB - 429916160
-##    SIZE_LIMIT = 5242880
-##    #print('entered uploadmp3')
-##    #list of acceptable extensions. make sure it starts with a dot'
-##    acceptableFormats = ['.mp3']
     try:
         if (request.method == 'POST'):
             form = UploadFileForm(request.POST, request.FILES)
             if (form.is_valid()):
-
                 temp_file = request.FILES['file']
-##                #check the size of the file
-##                sizeOfFile = temp_file._size
-##                notSupported = True
-##                for name in acceptableFormats:
-##                    if temp_file.name.endswith(name):
-##                       notSupported = False
-##                if notSupported:
-##                    response = HttpResponse('File extension not supported')
-##                    response.status_code = 500;
-##                    return response
-##
-##                if sizeOfFile > SIZE_LIMIT:
-##                    response = HttpResponse('File exceeding size limit')
-##                    response.status_code = 500;
-##                    return response
-
-##                temp_user = TracksUser.objects.get(email=request.POST['user_email'])
                 # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
                 temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), None)
-
-##                new_track = Track(user = temp_user, filename=temp_file.name)
-##                new_track.handle_upload_file(temp_file)
-##                History.add_history(new_track.user, new_track, ADDED_HISTORY)
-
                 server_filename, track_id, error = Track.handle_music_file_upload(temp_user, temp_file)
-
                 if(error != None):
                     response = HttpResponse(error)
                     response.status_code = 400;
@@ -360,7 +291,7 @@ def record(request):
         return render(request, 'Tracks/record.html', {'user': user})
     else:
         return render(request, 'Tracks/disabled')
- 
+
 @login_required
 def handleRecord(request):
     """

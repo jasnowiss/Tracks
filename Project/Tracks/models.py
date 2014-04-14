@@ -249,6 +249,22 @@ class Track(models.Model):
             list_to_return = cls.objects.filter(Q(filename__contains=searchString))
         return list_to_return
 
+    @classmethod
+    def handle_delete_track(cls, track_id):
+        """ Returns True if track has been successfully deleted from the database and its corresponding file has been deleted from the server.
+            Otherwise, returns False """
+        track = Track.objects.get(id=track_id)
+        if (track == None):
+            return False
+        temp_filepath = track.filepath
+        if (os.path.isfile(temp_filepath)):
+            os.remove(temp_filepath)
+            track.delete()
+            return True
+        else:
+            return False
+
+
 
 class Collaboration(models.Model):
     """A class for managing the layering and editing of Tracks."""

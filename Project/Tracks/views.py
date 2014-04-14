@@ -218,14 +218,32 @@ def finalize_collaboration(request):
         collab = Collaboration.handle_finalization(track1_id, track2_id, collab_id, mod_type)
 
         response = HttpResponse('success') ## render(request, 'Tracks/collaboration_for_AJAX.html', {'collaboration' : collab})
-        response.status_code = 200;
+        response.status_code = 200
         return response
     except:
         response = HttpResponse('error trying to finalize collaboration') # May need to change message sent
         print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
-        response.status_code = 500;
+        response.status_code = 500
         return response
 
+
+# Function for AJAX Call
+def delete_track_from_server(request):
+    try:
+        track_id = int(request.POST.get('track_id', 0))
+        if (Track.handle_delete_track(track_id)):
+            response = HttpResponse('success')
+            response.status_code = 200
+            return response
+        else:
+            response = HttpResponse('no such track exists')
+            response.status_code = 400
+            return response
+    except:
+        response = HttpResponse('error trying to delete track') # May need to change message sent
+        print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
+        response.status_code = 500
+        return response
 
 # Fuction for AJAX Call
 @login_required

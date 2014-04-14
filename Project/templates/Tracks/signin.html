@@ -23,10 +23,10 @@
         Welcome to Tracks! Please sign in.
       </h1>
       <h4>
-        If you do not have an account, please register <a id="regLink" href="">here</a>.
+        If you do not have an account, please register <a id="regLink" href="{% url 'Tracks:register' %}">here</a>.
       </h4>
     </div>
-    
+
     <div class="container" style="width:50%">
       <form id="signin" action="" class="form-horizontal" role="form" method="post">
         {% csrf_token %}
@@ -49,45 +49,25 @@
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    
+
         <!-- Reference to JqueryUI 1.10.4 Library -->
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 
     <!-- Reference to JqueryUI 1.10.4 CSS -->
     <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css">
-    
+
     {% load staticfiles %}
     <script src={% static "bootstrap-3.1.1-dist/js/bootstrap.min.js" %}></script>
+
     {% if session %}
     <script type="text/javascript">
-		$("#regLink").attr('href',window.location.origin+'/Tracks/register/'+window.location.search);
         addNav(true);
     </script>
     {% else %}
     <script type="text/javascript">
-		$("#regLink").attr('href',window.location.origin+'/Tracks/register/'+window.location.search);
         addNav(false);
     </script>
     {% endif %}
-    
-    <script type="text/javascript">
-        /** ADD A DESCRIPTION */
-        function json_request(page, dict, success, failure) {
-            $.ajax({
-                type: 'POST',
-                url: page,
-                data: dict,
-                contentType: "application/json",
-                success: success,
-                error: failure
-            });
-        }
-        /*
-        function createAccount() {
-            json_request(window.location, {email:$("#email").val(), firstname:$("#firstname").val(),lastname:$("#lastname").val(),password:$("#password").val(),confirm:$("#confirm").val()}, function(data) {
-                alert(JSON.stringify(data));}, function(err) { alert("An error was encountered. *DEBUG*" + err.message);});
-        }
-        */
-    </script>
+
   </body>
 </html>

@@ -54,7 +54,7 @@ class TracksUser(AbstractBaseUser):
     def get_full_name(self):
         """Returns the user's full name."""
         fullName = self.firstName.strip() + " " + self.lastName.strip()
-        return firstName
+        return fullName
 
     def get_short_name(self):
         """Returns the user's first name."""
@@ -131,7 +131,7 @@ class TracksUser(AbstractBaseUser):
         list_to_return = []
 
         # allow only searchString which won't return every user in the database
-        # TODO: Need a better way to gaurantee above comment. Current blacklisting might need to be replaced with whitelisting.
+        # TODO: Need a better way to guarantee above comment. Current blacklisting might need to be replaced with whitelisting.
         if(searchString != None and searchString !='' and (len(searchString)>4 or '.com'.count(searchString) == 0) and '@'.count(searchString) == 0):
             list_to_return = cls.objects.filter(Q(email__contains=searchString) | Q(firstName__contains=searchString) | Q(lastName__contains=searchString))
         return list_to_return
@@ -157,6 +157,26 @@ class UserProfile(models.Model):
     def __unicode__(self):
         """Returns the user's username (i.e. email address)."""
         return "profile of: " + self.user.email
+
+    @classmethod
+    def filter_for_search(cls, searchString):
+        """ADD A DESCRIPTION"""
+        list_to_return = []
+        profile_list = []
+        if(searchString != None and searchString !=''):
+            profile_list = cls.objects.filter(Q(instrument__contains=searchString))
+            for item in profile_list:
+                list_to_return.append([item.instrument, "Instrument", item])
+            profile_list = cls.objects.filter(Q(display_name__contains=searchString))
+            for item in profile_list:
+                list_to_return.append([item.display_name, "Display Name", item])
+            profile_list = cls.objects.filter(Q(field3__contains=searchString))
+            for item in profile_list:
+                list_to_return.append([item.field3, "Field 3", item])
+            profile_list = cls.objects.filter(Q(field4__contains=searchString))
+            for item in profile_list:
+                list_to_return.append([item.field4, "Field 4", item])
+        return list_to_return
 
 
 #list of acceptable extensions. make sure it starts with a dot'
@@ -394,7 +414,7 @@ def search_relevant_models(searchString):
     TODO: for security purposes, need to make sure that searchString does not contain any malicious code. Check to see if Django provides some help for this
 
     """
-    list_of_relevant_models = [TracksUser, Track] ## ,Collaboration]
+    list_of_relevant_models = [TracksUser, Track, UserProfile] ## ,Collaboration]
     temp_query_set = []
     for model in list_of_relevant_models:
         temp_query_set += model.filter_for_search(searchString)

@@ -188,6 +188,7 @@ class Track(models.Model):
     user = models.ForeignKey(TracksUser)
     filename = models.CharField(max_length=50)
     filepath = models.CharField(max_length=200)
+    displayname = models.CharField(max_length=50, default=filename)
 
     def __unicode__(self):
         """Returns the name of the file."""
@@ -215,6 +216,24 @@ class Track(models.Model):
         self.filepath = temp_dest
         self.save()
         return temp_dest
+
+    def getDisplayName(self):
+        """
+        Returns the track's display name
+        """
+        return self.displayname
+
+    def rename(self, new_display_name):
+        """
+        Sets this track's display name to new_display_name. Returns ERR_NAME_TOO_LONG if > 50 characters.
+        ALWAYS MAKE SURE TO USE force_escape AND escapejs FILTERS ON DISPLAY
+        """
+        if len(new_display_name) > 50:
+            return ERR_NAME_TOO_LONG
+        track = Track.objects.get(displayname=self.displayname)
+        track.displayname = new_display_name
+        track.save()
+        return SUCCESS
 
     @classmethod
     def is_music_file_valid(cls, temp_file):
@@ -291,6 +310,7 @@ class Collaboration(models.Model):
 
     users = models.ManyToManyField(TracksUser) # In future iterations, this may also play a role in add/modify permissions for a collaboration
     tracks = models.ManyToManyField(Track)
+    displayname = models.CharField(max_length=50)
 
     def __unicode__(self):
         """Returns the default django identifier."""
@@ -313,6 +333,24 @@ class Collaboration(models.Model):
 
         if(len(self.tracks.filter(user=temp_track.user)) == 0):
             self.users.remove(temp_track.user)
+
+    def getDisplayName(self):
+        """
+        Returns the collaboration's display name
+        """
+        return self.displayname
+
+    def rename(self, new_display_name):
+        """
+        Sets this collaboration's display name to new_display_name. Returns ERR_NAME_TOO_LONG if > 50 characters.
+        ALWAYS MAKE SURE TO USE force_escape AND escapejs FILTERS ON DISPLAY
+        """
+        if len(new_display_name) > 50:
+            return ERR_NAME_TOO_LONG
+        collaboration = Collaboration.objects.get(displayname=self.displayname)
+        collaboration.displayname = new_display_name
+        collaboration.save()
+        return SUCCESS
 
     @classmethod
     def handle_finalization(cls, track1_id, track2_id, collab_id, mod_type):
@@ -435,6 +473,9 @@ def search_relevant_models(searchString):
     for model in list_of_relevant_models:
         temp_query_set += model.filter_for_search(searchString)
     return temp_query_set
+
+ERR_NAME_TOO_LONG = -1
+SUCCESS = 1
 
 
 

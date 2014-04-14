@@ -27,6 +27,7 @@
     {% url 'Tracks:upload_MP3' as upload_mp3_url %}
     {% url 'Tracks:get_tracks_for_current_user_JSON' as get_tracks_for_current_user_JSON_url %}
     {% url 'Tracks:finalize_collaboration' as finalize_collaboration_url %}
+    {% url 'Tracks:delete_track_from_server' as delete_track_from_server_url %}
     {% load tracks_extras %}
 
     {% if not is_disabled %}
@@ -87,10 +88,11 @@
     <h3>Tracks</h3>
     <ul id="tracks_list">
       {% for track in list_of_tracks %}
-        <li>
+        <li class="tracks_list_item">
           <span>{{ track.filename }} </span>
           <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
-          <button name="{{track.id}}" class="collaborate_button">Collaborate</button>
+          <button name="{{ track.id }}" class="collaborate_button">Collaborate</button>
+          <button name= "{{ track.id }}" class="delete_track_from_server_button">X</button>
         </li>
       {% endfor %}
       <!--<h3 class="noindent">Upload Track</h3>-->
@@ -381,7 +383,7 @@
                 audio_control.currentTime = 0;
             }
         }
-  
+
         /**
          * FUNCTIONALITY: Creates a new progress bar element.
          * INPUTS: 1) html_element: The html element to add the progress bar to.
@@ -528,7 +530,10 @@
         function update_completed_loading_track(progress_bar, server_filename, track_id){
             var show_player_button = create_show_player_button(server_filename);
             var collaborate_button = create_collaborate_button(track_id);
+            var delete_track_button = create_delete_track_button(track_id);
             $(progress_bar).before(show_player_button);
+            $(progress_bar).after(delete_track_button);
+            $(progress_bar).after(" ");
             $(progress_bar).after(collaborate_button);
             $(progress_bar).after(" ");
             $(progress_bar).remove();
@@ -550,6 +555,15 @@
             $(collaborate_button).text("Collaborate");
             $(collaborate_button).bind("click", begin_collaboration);
             return collaborate_button;
+        }
+
+        /** ADD A DESCRIPTION */
+        function create_delete_track_button(track_id){
+            var delete_track_button = $("<button></button>").attr("name", track_id);
+            $(delete_track_button).addClass("delete_track_from_server_button");
+            $(delete_track_button).text("X");
+            $(delete_track_button).bind("click", delete_track_confirm_dialog);
+            return delete_track_button;
         }
 
 
@@ -668,6 +682,37 @@
             });
 
             return temp_select_input;
+        }
+
+        $(".delete_track_from_server_button").click(delete_track_confirm_dialog);
+
+        function delete_track_confirm_dialog(){
+            var this_button = this;
+            var dialog_message = "Are you sure you want to permanently delete this track? This process is irreversible!";
+            confirm_dialog(dialog_message, function() { delete_track_from_server(this_button) }, function(){});
+        }
+
+        function delete_track_from_server(html_element){
+            var track_id = get_track1_id(html_element);
+            $.ajax({
+                url: "{{ delete_track_from_server_url }}",
+                type: 'POST',
+                data: {track_id : track_id},
+                success: function (data, textStatus, jqXHR) {
+                    //alert(jqXHR.responseText);
+                    var track = get_tracks_list_item(html_element);
+                    $(track).remove();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(jqXHR.responseText);
+                },
+                async: true
+
+            });
+        }
+
+        function get_tracks_list_item(html_element){
+            return $(html_element).parents(".tracks_list_item");
         }
 
 

@@ -387,3 +387,8 @@ def handleRecord(request):
         #handle error
         pass
 
+@login_required
+def edit(request, collaboration_id):
+    
+    return render(request, 'Tracks/edit.html', {"collaboration": collaboration})
+

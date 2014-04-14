@@ -1,0 +1,35 @@
+
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Edit Collaboration</title>
+
+    {% load staticfiles %}
+    {% load tracks_extras %}
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="{% static "collaboration.js" %}"></script>
+
+</head>
+
+<body>
+	Hi this is collaboration {{ collaboration_id }}.
+
+		<div class="collab_tracks_div">
+	      <a class="collab_toggle_all_tracks" href="javascript:;">hide all tracks</a>
+	      <ul>
+	        {% for track in collaboration.tracks.all %}
+	          <li> {{ track.filename }} by <a href="{% url 'Tracks:userpage' track.user.id %}">{{ track.user.get_name_to_display }}</a>
+	            <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
+	            <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
+	          </li>
+	        {% endfor %}
+	        <li>
+	          <button class="collaborate_button">Collaborate</button>
+	        </li>
+	      </ul>
+	    </div>
+
+
+</body>
+</html>

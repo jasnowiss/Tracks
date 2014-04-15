@@ -389,6 +389,7 @@ def handleRecord(request):
 
 @login_required
 def edit(request, collaboration_id):
-    
+    collaboration = Collaboration.objects.get(id=collaboration_id)
+    print(collaboration.id)
     return render(request, 'Tracks/edit.html', {"collaboration": collaboration})
 

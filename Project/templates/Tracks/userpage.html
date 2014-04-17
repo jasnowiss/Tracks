@@ -154,8 +154,11 @@
         function play_collab() {
             var tracks_buttons = get_buttons_for_tracks_of_collab(this);
             $(tracks_buttons).each(function () {
-                var music_player = get_music_player(this);
-                play_music(music_player);
+                try{
+                    var music_player = get_music_player(this);
+                    play_music(music_player);
+                } catch(e){
+                }
             });
             collab_set_style_to(this, "play");
             $(this).unbind("click");
@@ -167,8 +170,11 @@
         function pause_collab() {
             var tracks_buttons = get_buttons_for_tracks_of_collab(this);
             $(tracks_buttons).each(function () {
-                var music_player = get_music_player(this);
-                pause_music(music_player);
+                try{
+                    var music_player = get_music_player(this);
+                    pause_music(music_player);
+                } catch(e) {
+                }
             });
             collab_set_style_to(this, "pause");
             $(this).unbind("click");
@@ -180,8 +186,11 @@
         function restart_collab() {
             var tracks_buttons = get_buttons_for_tracks_of_collab(this);
             $(tracks_buttons).each(function () {
-                var music_player = get_music_player(this);
-                restart_music(music_player);
+                try {
+                    var music_player = get_music_player(this);
+                    restart_music(music_player);
+                } catch (e){
+                }
             });
         }
 

@@ -172,10 +172,10 @@ class UserProfile(models.Model):
                 list_to_return.append([item.display_name, "Display Name", item])
             profile_list = cls.objects.filter(Q(field3__contains=searchString))
             for item in profile_list:
-                list_to_return.append([item.field3, "Field 3", item])
+                list_to_return.append([item.field3, "Field3", item])
             profile_list = cls.objects.filter(Q(field4__contains=searchString))
             for item in profile_list:
-                list_to_return.append([item.field4, "Field 4", item])
+                list_to_return.append([item.field4, "Field4", item])
         return list_to_return
 
 

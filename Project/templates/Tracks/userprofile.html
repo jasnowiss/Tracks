@@ -24,13 +24,19 @@
 	<div class="container">
     <h2 class="col-sm-offset-2" style="padding-bottom:5px">
     {% if not is_disabled %}
-      hello {{ user.get_name_to_display }}!
+      Hello {{ user.get_name_to_display }}!
     {% else %}
-      you are viewing the profile of {{ user.get_name_to_display }}
+      You are viewing the profile of {{ user.get_name_to_display }}
     {% endif %}
-    
-    {% url 'Tracks:userprofile' as userprofile_url %}
   	</h2>
+    <div class="col-sm-offset-2" style="padding-bottom:5px">
+      {% if not is_disabled %}
+        <a href="{% url 'Tracks:userpage' %}">Edit Collaborations</a>
+      {% else %}
+        <a href="{% url 'Tracks:userpage' user.id %}">View Collaborations</a>
+      {% endif %}
+    </div>
+    {% url 'Tracks:userprofile' as userprofile_url %}
     <form action="{{ userprofile_url }}" class="form-horizontal" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
       {% csrf_token %}
       {% for field in form %}

@@ -255,10 +255,17 @@ class Collaboration(models.Model):
 
     users = models.ManyToManyField(TracksUser) # In future iterations, this may also play a role in add/modify permissions for a collaboration
     tracks = models.ManyToManyField(Track)
+    name = models.CharField(max_length=50)
 
     def __unicode__(self):
         """Returns the default django identifier."""
-        return str(self.id)
+        if (self.name):
+            return self.name
+        return "Collaboration " + str(self.id)
+
+    def handle_change_name(self, new_name):
+        self.name = new_name
+        self.save()
 
     def handle_adding_track(self, temp_track):
         """Adds a track to the list of tracks in this collaboration, and adds the user who added it."""

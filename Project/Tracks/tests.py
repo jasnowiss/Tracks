@@ -203,6 +203,22 @@ class GuiTest(TestCase):
     def setUp(self):
         self.driver = webdriver.Ie()
 
+        self.driver.get('http://localhost:8000/Tracks/register')
+        fname = self.driver.find_element_by_id('id_firstName')
+        lname = self.driver.find_element_by_id('id_lastName')
+        email = self.driver.find_element_by_id('id_email')
+        pword = self.driver.find_element_by_id('id_password')
+        confirm = self.driver.find_element_by_id('id_confirm')
+
+        fname.send_keys("j")
+        lname.send_keys("j")
+        email.send_keys("j@j.com")
+        pword.send_keys("j")
+        confirm.send_keys("j")
+
+        form = self.driver.find_element_by_id("signin")
+        confirm.submit()
+
     """
     This class needs a teardown method added to it
     because selenium uses the local database, not a
@@ -216,7 +232,7 @@ class GuiTest(TestCase):
     """
 
     
-    def test_nav_bar(self):
+    def test_nav_bar_logged_out(self):
         self.driver.get('http://localhost:8000/Tracks')
 
         about_link = self.driver.find_element_by_id("about")
@@ -280,6 +296,46 @@ class GuiTest(TestCase):
         self.assertEqual(was_track_uploaded, True)
 
         self.driver.close()
+
+    def test_nav_bar_logged_in(self):
+        self.driver.get('http://localhost:8000/Tracks')
+        
+        profile_link = self.driver.find_element_by_id("profile")
+        profile_link.click()
+        self.assertEqual(self.driver.current_url, "http://localhost:8000/Tracks/userprofile/")
+
+        collabs_link = self.driver.find_element_by_id("collab")
+        collabs_link.click()
+        self.assertEqual(self.driver.current_url,"http://localhost:8000/Tracks/userpage/")
+
+        upload_link = self.driver.find_element_by_id("upload")
+        upload_link.click()
+        widget = self.driver.find_element_by_class_name("ui-dialog")
+        self.assertNotEqual(widget, "")
+
+        signout_link = self.driver.find_element_by_id("signout")
+        signout_link.click()
+        self.assertEqual(self.driver.current_url, "http://localhost:8000/Tracks/")
+
+        collabs_link = self.driver.find_element_by_id("collab")
+        collabs_link.click()
+        self.assertEqual(self.driver.current_url,"http://localhost:8000/Tracks/signin/?next=/Tracks/userpage/")
+
+        self.driver.close()
+
+    def test_record(self):
+        self.driver.get('http://localhost:8000/Tracks/userpage/')
+
+        record_link = self.driver.find_element_by_id("record")
+        record_link.click()
+        self.assertEqual(self.driver.current_url, "http://localhost:8000/Tracks/record/")
+
+        self.driver.close()
+
+
+
+
+
 
 
 

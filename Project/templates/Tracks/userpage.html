@@ -92,6 +92,7 @@
           <span>{{ track.filename }} </span>
           <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
           <button name="{{ track.id }}" class="collaborate_button">Collaborate</button>
+          <button name="{{ track.id }}" class="edit_button">Edit</button>
           <button name= "{{ track.id }}" class="delete_track_from_server_button">X</button>
         </li>
       {% endfor %}
@@ -539,12 +540,15 @@
         function update_completed_loading_track(progress_bar, server_filename, track_id){
             var show_player_button = create_show_player_button(server_filename);
             var collaborate_button = create_collaborate_button(track_id);
+			var edit_button = create_edit_button(track_id);
             var delete_track_button = create_delete_track_button(track_id);
             $(progress_bar).before(show_player_button);
             $(progress_bar).after(delete_track_button);
             $(progress_bar).after(" ");
             $(progress_bar).after(collaborate_button);
             $(progress_bar).after(" ");
+			$(progress_bar).after(edit_button);
+			$(progress_bar).after(" ");
             $(progress_bar).remove();
         }
 
@@ -565,6 +569,8 @@
             $(collaborate_button).bind("click", begin_collaboration);
             return collaborate_button;
         }
+		
+
 
         /** ADD A DESCRIPTION */
         function create_delete_track_button(track_id){
@@ -577,6 +583,7 @@
 
 
         $(".collaborate_button").click(begin_collaboration);
+		
 
         /** ADD A DESCRIPTION */
         function begin_collaboration(){
@@ -592,6 +599,22 @@
                 }
             });
         }
+
+		function create_edit_button(track_id) {
+			var edit_button = $("<button></button>").attr("name", track_id);
+			$(edit_button).addClass("edit_button");
+			$(edit).tex("Edit");
+			$(edit_button).bind("click",begin_edit);
+			return edit_button;
+		}
+		
+		$(".edit_button").click(begin_edit);
+
+		
+		function begin_edit() {
+			var track_id = $(this).attr("name");
+			window.location = "/Tracks/webAudio/"+track_id;
+		}
 
         /** ADD A DESCRIPTION */
         function finalize_collaboration(html_element, mod_type) {

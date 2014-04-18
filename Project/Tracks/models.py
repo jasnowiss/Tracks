@@ -178,6 +178,14 @@ class UserProfile(models.Model):
                 list_to_return.append([item.field4, "Field4", item])
         return list_to_return
 
+    @classmethod
+    def get_users_from_filter_for_search(cls, search_list):
+        list_of_users = []
+        for temp_list in search_list:
+            obj_index = len(temp_list)-1
+            list_of_users.append(temp_list[obj_index])
+        return list_of_users
+
 
 #list of acceptable extensions. make sure it starts with a dot'
 ACCEPTABLE_MUSIC_FORMATS = ['.mp3','.wav']
@@ -285,10 +293,10 @@ class Track(models.Model):
             return False
 
 
-
+PERMISSION_OPTIONS = { 'true' :'public', 'false' : 'private' }
 class Collaboration(models.Model):
     """A class for managing the layering and editing of Tracks."""
-
+    # master_user = models.ForeignKey(TracksUser) need to fix for future iterations
     users = models.ManyToManyField(TracksUser) # In future iterations, this may also play a role in add/modify permissions for a collaboration
     tracks = models.ManyToManyField(Track)
     is_public = models.BooleanField(default=True)
@@ -296,6 +304,53 @@ class Collaboration(models.Model):
     def __unicode__(self):
         """Returns the default django identifier."""
         return str(self.id)
+
+    def get_permission_level(self):
+        if(self.is_public):
+            return 'true'
+        else:
+            return 'false'
+
+    def set_permission_level(self, level=None, bool_permission=None):
+        if(level != None):
+            if(level == "public"):
+                self.is_public = True
+            else:
+                self.is_public = False
+        if(bool_permission != None):
+            bool_permission = bool_permission.lower()
+            if(bool_permission == 'true'):
+                self.is_public = True
+            elif (bool_permission == 'false'):
+                self.is_public = False
+        self.save()
+        print(self.is_public)
+
+    def set_is_public(self, bool_permission):
+        self.is_public = bool(bool_permission)
+
+    def get_users(self):
+        return self.users.all()
+
+    def add_user_using_searchString(self, searchString): # needs to be updated in a future iteration
+        temp_user = None
+        list_of_users = TracksUser.filter_for_search(searchString)
+        list_of_users = chain(list_of_users, UserProfile.get_users_from_filter_for_search(UserProfile.filter_for_search(searchString)))
+        list_of_users = sorted(list_of_users, key=lambda elem: elem.get_name_to_display())
+        if(len(list_of_users) != 0):
+            temp_user = list_of_users[0]
+            self.users.add(temp_user)
+        return temp_user
+
+    def remove_user(self, user_id):
+        is_removed = False
+        try:
+            temp_user = TracksUser.objects.get(id=user_id)
+            self.users.remove(temp_user)
+            is_removed = True
+        except:
+            is_removed = False
+        return is_removed
 
     def handle_adding_track(self, temp_track):
         """Adds a track to the list of tracks in this collaboration, and adds the user who added it."""
@@ -314,6 +369,19 @@ class Collaboration(models.Model):
 
         if(len(self.tracks.filter(user=temp_track.user)) == 0):
             self.users.remove(temp_track.user)
+
+    def get_settings_list_JSON(self):
+        response_data = {}
+        response_data["permission_level"] = self.get_permission_level()
+        print (self.get_permission_level())
+        response_data["permission_options"] = PERMISSION_OPTIONS
+        authorized_users = self.get_users()
+        users_data = {}
+        for user in authorized_users:
+            #response_data["authorized_user" + "_" + str(user.id) ] = user.email
+            users_data[str(user.id)] = user.get_name_to_display()
+        response_data["authorized_users"] = users_data
+        return response_data
 
     @classmethod
     def handle_finalization(cls, track1_id, track2_id, collab_id, mod_type):

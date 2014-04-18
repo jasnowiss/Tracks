@@ -28,6 +28,10 @@
     {% url 'Tracks:get_tracks_for_current_user_JSON' as get_tracks_for_current_user_JSON_url %}
     {% url 'Tracks:finalize_collaboration' as finalize_collaboration_url %}
     {% url 'Tracks:delete_track_from_server' as delete_track_from_server_url %}
+    {% url 'Tracks:get_collab_settings_JSON' as get_collab_settings_JSON_url %}
+    {% url 'Tracks:change_permission_of_collab' as change_permission_of_collab_url %}
+    {% url 'Tracks:add_user_to_collab' as add_user_to_collab_url %}
+    {% url 'Tracks:remove_user_from_collab' as remove_user_from_collab_url %}
     {% load tracks_extras %}
 
     {% if not is_disabled %}
@@ -48,16 +52,20 @@
         <li>
           <div id="{{ collaboration.id }}" class="collab_div_container collab_pause">
             <div class="collab_info_div">
-              Collaboration {{ collaboration.id }}
-              <button name="collab_{{ collaboration.id }}" class="play_collab_button">Play</button>
-              <button name="collab_{{ collaboration.id }}" class="restart_collab_button">Restart</button>
-              <!-- ADD FUNCTIONALITY -->
-              {% if not is_disabled %}
-                <a href="http://audacity.sourceforge.net/">
+                Collaboration {{ collaboration.id }}
+                <button name="collab_{{ collaboration.id }}" class="play_collab_button">Play</button>
+                <button name="collab_{{ collaboration.id }}" class="restart_collab_button">Restart</button>
+                <!-- may need to change in future iteration  account for a master_user of collab -->
+                {% if collaboration.is_public == False and collaboration|is_user_authorized:session_user.id %}
                     <button>Edit</button>
-                </a>
-                <button class="settings_button">Settings</button>
-              {% endif %}
+                {% elif collaboration.is_public %}
+                    <button>Edit</button>
+                {% endif %}
+
+                <!-- need to change in future iteration to account for a master_user of collab -->
+                {% if collaboration|is_user_authorized:session_user.id %}
+                    <button class="settings_button">Settings</button>
+                {% endif %}
               <!-- REMEMBER TO ADD FUNCTIONALITY -->
             </div>
 
@@ -75,14 +83,19 @@
                 {% for track in collaboration.tracks.all %}
                   <li> {{ track.filename }} by <a href="{% url 'Tracks:userpage' track.user.id %}">{{ track.user.get_name_to_display }}</a>
                     <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
-                    {% if not is_disabled %}
-                      <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
+                    {% if collaboration.is_public == False and track|is_user_authorized:session_user.id %}
+                        <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
+                    {% elif collaboration.is_public and track.user.id == session_user.id %}
+                        <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
                     {% endif %}
                   </li>
                 {% endfor %}
+
+                {% if collaboration.is_public or collaboration|is_user_authorized:session_user.id %}
                 <li>
                   <button class="collaborate_button">Collaborate</button>
                 </li>
+                {% endif %}
               </ul>
             </div>
           </div>
@@ -110,7 +123,7 @@
             <span>Upload</span>
             <input class="upload" type="file" />
           </div> -->
-          <form action="/" method="post" class="fileUpload btn btn-primary">
+          <form action="javascript:;" method="post" class="fileUpload btn btn-primary">
             {% csrf_token %}
             {% for field in form %}
               {{ field.errors }}
@@ -122,11 +135,17 @@
           <button onclick="window.location='{{ user_record }}'" class="btn btn-danger">Record</button>
         </li>
       {% else %}
-        <form action="/" method="post">
+        <form action="javascript:;" method="post">
           {% csrf_token %}
         </form>
       {% endif %}
     </ul>
+
+    <div id="settings_div">
+        <form id="settings_form" action="javascript:;" method="post">
+            {% csrf_token %}
+        </form>
+    </div>
 
 
 
@@ -136,9 +155,159 @@
 
       /********************************** Functions of NISHANT KUMAR ***************************************/
 
+        $(".settings_button").click(open_settings);
+        $("#settings_div").hide();
+
+        /** Opens a pane for settings of a collaboration. */
+        function open_settings() {
+            var prev_collab_style = collab_get_style(this);
+            collab_set_style_to(this, "editing");
+            $("#settings_div").toggle("drop");
+            var collab_id = get_collab_id(this);
+            var this_button = this;
+            $.getJSON("{{ get_collab_settings_JSON_url }}", {collab_id : collab_id}, function (data) {
+                var current_permission_level = data["permission_level"];
+                var permission_options_data = data["permission_options"];
+                var authorized_users_data = data["authorized_users"];
+                var temp_select_input = turn_KV_data_into_select_input(permission_options_data, "collab_permission_level", current_permission_level);
+                var permission_element = $("<div></div>").addClass("collab_permission_div").append($("<span></span>").text("Permission Level: ")).append(temp_select_input);
+                $(temp_select_input).on("change", function(){ change_permission_of_collab(this_button, temp_select_input) });
+                var authorized_users_table = create_authorized_users_table(authorized_users_data, this_button);
+                $("#settings_form").append(permission_element);
+                $("#settings_form").append(authorized_users_table);
+                $("#settings_form").append( $("<button></button>").text("Done").on("click", function() { close_settings(prev_collab_style, this_button); }) );
+            });
+            $(this_button).unbind("click");
+            $(this_button).bind("click", function(){
+                close_settings(prev_collab_style, this_button);
+                });
+        }
+
+        function close_settings(prev_collab_style, settings_button) {
+            collab_set_style_to(settings_button, prev_collab_style);
+            $("#settings_form").empty();
+            $("#settings_div").toggle("drop");
+            $(settings_button).unbind("click");
+            $(settings_button).on("click", open_settings);
+        }
+
+        function change_permission_of_collab(html_element_inside_collab, select_element){ // finish this
+            var selected_value = $(select_element).children(":selected").val();
+            collab_set_style_to(html_element_inside_collab, "processing");
+            var collab_id = get_collab_id(html_element_inside_collab);
+            $.ajax({
+                url: "{{ change_permission_of_collab_url }}",
+                type: 'POST',
+                data: {collab_id : collab_id, bool_permission : selected_value},
+                success: function (data, textStatus, jqXHR) {
+                    //alert(jqXHR.responseText);
+                    collab_set_style_to(html_element_inside_collab, "editing"); // set upon success of ajax
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    //alert(jqXHR.responseText);
+                },
+                async: true
+
+            });
+        }
+
+        function create_authorized_users_table(KV_data, this_button) {
+            var temp_table = $("<table></table>").addClass("authorized_users_table");
+            var first_row = $("<tr></tr>");
+            $(first_row).append( $("<th></th>").text("User") );
+            $(first_row).append( $("<th></th>").text("Can Modify?") );
+            $(temp_table).append(first_row);
+            $.each(KV_data, function (key, val) {
+                var user_id = key;
+                var name_to_display = val;
+                var temp_row = $("<tr></tr>").attr("name", user_id);
+                var remove_button = $("<button></button>").addClass("remove_user_from_collab").attr("name", user_id).text("Remove");
+                $(remove_button).on("click", function(){ remove_user_from_collab(user_id, this_button) });
+                $(temp_row).append( $("<td></td>").text(name_to_display) );
+                $(temp_row).append( $("<td></td>").append(remove_button) );
+                $(temp_table).append(temp_row);
+                });
+            var last_row = $("<tr></tr>");
+            var add_user_text_input = $("<input></input>").attr("type", "text");
+            var add_user_to_collab_button = $("<button></button>").on("click", function(){ add_user_to_collab(add_user_text_input, this_button) }).text("Add User"); // fix this
+            $(last_row).append( $("<td></td>").append(add_user_text_input) );
+            $(last_row).append( $("<td></td>").append(add_user_to_collab_button) );
+            $(temp_table).append(last_row);
+            return temp_table;
+        }
+
+        function add_user_to_collab(add_user_text_input, html_element_inside_collab) { // fix this
+            collab_set_style_to(html_element_inside_collab, "processing");
+            var collab_id = get_collab_id(html_element_inside_collab);
+            var searchString = $(add_user_text_input).val();
+            $.ajax({
+                url: "{{ add_user_to_collab_url }}",
+                type: 'POST',
+                data: {collab_id : collab_id, searchString : searchString},
+                success: function (data, textStatus, jqXHR) {
+                    //alert(jqXHR.responseText);
+                    var user_name_to_display = data["name_to_display"];
+                    var user_id = data["user_id"];
+                    add_row_to_authorized_users_table(user_id, user_name_to_display, html_element_inside_collab); // upon success in ajax
+                    collab_set_style_to(html_element_inside_collab, "editing"); // upon success in ajax
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(jqXHR.responseText);
+                    collab_set_style_to(html_element_inside_collab, "error");
+                },
+                async: true
+            });
+        }
+
+        function remove_user_from_collab(user_id, html_element_inside_collab){ //finish this
+            collab_set_style_to(html_element_inside_collab, "processing");
+            var collab_id = get_collab_id(html_element_inside_collab);
+            // make ajax call with collab_id and user_id
+            $.ajax({
+                url: "{{ remove_user_from_collab_url }}",
+                type: 'POST',
+                data: {collab_id : collab_id, user_id : user_id},
+                success: function (data, textStatus, jqXHR) {
+                    //alert(jqXHR.responseText);
+                    remove_row_from_authorized_users_table(user_id); // upon success in ajax
+                    collab_set_style_to(html_element_inside_collab, "editing"); // upon success in ajax
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    //alert(jqXHR.responseText);
+                    collab_set_style_to(html_element_inside_collab, "error");
+                },
+                async: true
+            });
+        }
+
+        function add_row_to_authorized_users_table(user_id, user_name_to_display, html_element_inside_collab) {
+            var authorized_users_table = $("#settings_form").find(".authorized_users_table").get(0);
+            var temp_row = $("<tr></tr>").attr("name", user_id);
+            var remove_button = $("<button></button>").addClass("remove_user_from_collab").attr("name", user_id).text("Remove");
+            $(remove_button).on("click", function(){ remove_user_from_collab(user_id, html_element_inside_collab) });
+            $(temp_row).append( $("<td></td>").text(user_name_to_display) );
+            $(temp_row).append( $("<td></td>").append(remove_button) );
+            //var list_of_rows = $(authorized_users_table).children("tbody tr:last");
+            var last_row = $(authorized_users_table).children("tbody").children("tr").last(); //$(list_of_rows).last();
+            $(last_row).before(temp_row);
+        }
+
+        function remove_row_from_authorized_users_table(user_id) {
+            var authorized_users_table = $("#settings_form").find(".authorized_users_table").get(0);
+            var temp_row = $(authorized_users_table).find("tr[name=" + stripString(user_id.toString()) + "]").get(0);
+            $(temp_row).remove();
+        }
+
+        function stripString(str) { // need to finish
+            var stripped_string = str;
+            return stripped_string;
+        }
+
         $(".play_collab_button").click(play_collab);
         $(".restart_collab_button").click(restart_collab);
-        $(".settings_button").click(open_settings);
 
         /** ADD A DESCRIPTION */
         $(".remove_track_from_collab_button").click(function () {
@@ -205,22 +374,45 @@
         /** ADD A DESCRIPTION */
         function collab_set_style_to(html_element_inside_collab, style_type) {
             if (is_inside_collab(html_element_inside_collab)){
-                if (style_type.toLowerCase() == "play") {
-                    $(html_element_inside_collab).parents(".collab_div_container")
-                        .removeClass()
-                        .addClass("collab_div_container collab_play");
-                } else if (style_type.toLowerCase() == "processing") {
-                    $(html_element_inside_collab).parents(".collab_div_container")
-                        .removeClass()
-                        .addClass("collab_div_container collab_processing");
-                } else if (style_type.toLowerCase() == "error") {
-                    $(html_element_inside_collab).parents(".collab_div_container")
-                        .removeClass()
-                        .addClass("collab_div_container collab_error");
-                } else { // style_type.toLowerCase() == "pause"
-                    $(html_element_inside_collab).parents(".collab_div_container")
-                        .removeClass()
-                        .addClass("collab_div_container collab_pause");
+                var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+                style_type = style_type.toLowerCase();
+                if (style_type == "play") {
+                    $(container_div).removeClass().addClass("collab_div_container collab_play");
+                }
+                else if (style_type == "processing") {
+                    $(container_div).removeClass().addClass("collab_div_container collab_processing");
+                }
+                else if (style_type == "editing") {
+                    $(container_div).removeClass().addClass("collab_div_container collab_editing");
+                }
+                else if (style_type == "error") {
+                    $(container_div).removeClass().addClass("collab_div_container collab_error");
+                }
+                else { // style_type == "pause"
+                    $(container_div).removeClass().addClass("collab_div_container collab_pause");
+                }
+            }
+        }
+
+        /** ADD A DESCRIPTION */
+        function collab_get_style(html_element_inside_collab) {
+            if (is_inside_collab(html_element_inside_collab)){
+                var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+                var classes = $(container_div).attr("class").toLowerCase();
+                if (classes.indexOf("collab_play") !== -1) {
+                    return "play";
+                }
+                else if (classes.indexOf("collab_processing") !== -1) {
+                    return "processing";
+                }
+                else if (classes.indexOf("collab_editing") !== -1) {
+                    return "editing";
+                }
+                else if (classes.indexOf("collab_error") !== -1) {
+                    return "error";
+                }
+                else { // classes.toLowerCase().index_of("collab_pause") !== -1
+                    return "pause"
                 }
             }
         }
@@ -397,12 +589,6 @@
                     $(this).remove();
                 }
             });
-        }
-
-        /** Opens a dialog box for changing the settings of a collaboration. */
-        function open_settings() {
-            var collab_id = get_collab_id(this);
-
         }
 
         /** ADD A DESCRIPTION */
@@ -647,7 +833,7 @@
         /** ADD A DESCRIPTION */
         function begin_collaboration(){
             this_button = this;
-            var track1_id = $(this_button).attr("name");
+            //var track1_id = $(this_button).attr("name");
             $.getJSON("{{ get_tracks_for_current_user_JSON_url }}", function (data) {
                 var temp_select_input = turn_KV_data_into_select_input(data, "track_select_list");
                 if (temp_select_input != null) {
@@ -743,16 +929,28 @@
         }
 
         /** ADD A DESCRIPTION */
-        function turn_KV_data_into_select_input(data, class_string) {
+        function turn_KV_data_into_select_input(data, class_string, selected_option) {
             if (data == null || data.length == 0 || data == '{}') {
                 return null
             }
             var temp_select_input = $("<select></select>").addClass(class_string);
+            if (typeof selected_option !== "undefined"){
+                selected_option = selected_option.toLowerCase();
+            }
 
+            /* key is value and val is text (as opposed to the more common sense way of key is text and val is value).
+               This counterintuitive method is used because keys need to be unique, which means that they are often id's of objects from the server.
+               However, when submitting a form, it is the value which is processed by the server, so making value an id allows for the server to get
+               an unique identifier. */
             $.each(data, function (key, val) {
+                var temp_value = key.toString().toLowerCase();
+                var temp_text = val.toString();
                 var temp_choice = $("<option></option>");
-                $(temp_choice).attr("value", key.toString());
-                $(temp_choice).text(val.toString());
+                $(temp_choice).attr("value", temp_value);
+                $(temp_choice).text(temp_text);
+                if (temp_value == selected_option){
+                    $(temp_choice).attr("selected", "")
+                }
                 $(temp_select_input).append(temp_choice);
             });
 
@@ -960,6 +1158,16 @@
             -moz-transition: all 0s;
             -o-transition: all 0s;
         }
+        .collab_editing, .collab_editing button
+        {
+            border: 1px solid orange;
+            background-color: orange;
+            color: #FFFFFF;
+            transition: all 1s;
+            -webkit-transition: all 1s;
+            -moz-transition: all 1s;
+            -o-transition: all 1s;
+        }
         .collab_info_div button
         {
             border-left: 1px solid white;
@@ -1058,7 +1266,6 @@
             opacity: 0;
             filter: alpha(opacity=0);
         }
-
         .noindent {
             margin-left: -40px;
             margin-right: 0px;
@@ -1067,6 +1274,19 @@
         }
         #tracks_list li:last-child {
             list-style-type: none;
+        }
+        #settings_div{
+            border: 1px solid orange;
+            height: 550px;
+            width: 700px;
+            position: absolute;
+            left: 600px;
+            top: 80px;
+        }
+        .authorized_users_table {
+            border: none;
+            border-spacing:5px;
+            text-align:center;
         }
     </style>
   </body>

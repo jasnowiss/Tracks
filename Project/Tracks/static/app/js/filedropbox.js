@@ -73,6 +73,6 @@ function FileDropbox()
         // load the file as array buffer
         reader.readAsArrayBuffer(file);
     }
-    
+
     
 };

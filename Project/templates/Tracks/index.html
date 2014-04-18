@@ -80,7 +80,7 @@
         </div>
         <div class="span8">
           <div class="well">
-             <audioLayerControl id="audioLayerControl" title="CloudCompany.mp3" />
+             <audioLayerControl id="audioLayerControl" title="{{ MEDIA_URL }}{{track}}" />
           </div>
           <!--<div id="editor">
                 <div id="editorbox">
@@ -250,6 +250,8 @@
     <script src={% static "bootstrap-3.1.1-dist/js/bootstrap.min.js" %}></script>
     <link href={% static "bootstrap-3.1.1-dist/css/bootstrap.min.css" %} rel="stylesheet">
 
+    <script type="text/javascript" src={% static "app/js/loader.js" %}></script>
+
     <script type="text/javascript" src={% static "app/js/ACFIRFilter.js" %}></script>
     <script type="text/javascript" src={% static "app/js/ACAAFilter.js" %}></script> 
     <script type="text/javascript" src={% static "app/js/ACSpectrum.js" %}></script>    
@@ -267,55 +269,5 @@
     <script type="text/javascript" src={% static "app/js/binarytoolkit.js" %}></script>
     <script type="text/javascript" src={% static "app/js/filesystemutility.js" %}></script>
     <script type="text/javascript" src={% static "app/js/editorapp.js" %}></script>
-
-	<script type="text/javascript">
-		function init() {
-		  // Fix up prefixing
-		  window.AudioContext = window.AudioContext || window.webkitAudioContext;
-		  context = new AudioContext();
-		
-		  bufferLoader = new BufferLoader(
-			context,
-			[
-			  "{{MEDIA_URL}}"+"{{track}}"
-			],
-			finishedLoading
-			);
-		
-		  bufferLoader.load();
-		}
-		
-		function finishedLoading(bufferList) {
-		  // Create two sources and play them both together.
-		  //filedb = new FileDropbox();
-		  //FileDropbox.handleFiles(bufferList,filedb);
-		  var source1 = context.createBufferSource();
-		  source1.buffer = bufferList[0];
-		
-		  source1.connect(context.destination);
-		  source1.start(0);                           // play the source now
-
-		}
-	</script>
-    <script type="text/javascript">
-      $(window).load(function()
-      {
-        var supportLabel =  $('#browser_support')[0];
-
-        if (typeof(webkitAudioContext) === 'undefined')
-        {
-          supportLabel.className = "label label-important";
-          supportLabel.innerHTML = 'no web audio API support. try the latest Google Chrome build.';
-        }
-        else
-        {
-          supportLabel.className = "label label-success";
-          supportLabel.innerHTML = 'you have web audio API support.';
-        }
-		console.log("{{MEDIA_URL}}"+"{{track}}")
-		init();
-        //$('#welcomeAsModal').modal('show');
-      });
-    </script>
   </body>
 </html>

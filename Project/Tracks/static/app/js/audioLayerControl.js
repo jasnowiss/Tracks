@@ -436,7 +436,70 @@ function audioLayerControl(elementContext)
     
     // Drag and Drop
     this.filedb = undefined;
-    
+
+    /*function LoadTracks(){
+        this.buffer = null;
+        this.init = function init() {
+            // Fix up prefixing
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            context = new AudioContext();
+            this.cb = cb;
+
+            bufferLoader = new BufferLoader(
+                context,
+                [
+                    "http://127.0.0.1:8000/Tracks/user_mp3_files/2_04-16-2014_09-48-27.mp3"
+                ],
+                finishedLoading
+            );
+
+            bufferLoader.load();
+
+        }
+
+        function finishedLoading(bufferList) {
+            this.buffer = bufferList[0];
+        }
+    }*/
+
+
+    /*var loader = new LoadTracks();
+    loader.init();
+    this.eventHost.audioPlayback.audioContext.decodeAudioData(loader.buffer, this.eventHost.decodeAudioFinished, this.eventHost.decodeAudioFailed);
+    */
+    /*this.loader = undefined;
+    this.load = function load(){
+        var loader = function() { LoadTracks() };
+        loader.init();
+        loader.eventHost = this;
+
+        loader.onFinish = function()
+        {
+            $('#app-progress')[0].style['width'] = '50%';
+            activeAudioLayerControl = this.eventHost.elementContext;
+            this.eventHost.audioPlayback.audioContext.decodeAudioData(this.buffer, this.eventHost.decodeAudioFinished, this.eventHost.decodeAudioFailed);
+        }
+    }
+
+    this.load();*/
+
+    this.loader = function load(url){
+        var request = new XMLHttpRequest();
+        request.open('GET', url, true);
+        request.responseType = 'arraybuffer';
+        request.eventHost = this;
+
+        // Decode asynchronously
+        request.onload = function() {
+
+            activeAudioLayerControl = this.eventHost.elementContext;
+            this.eventHost.audioPlayback.audioContext.decodeAudioData( request.response, this.eventHost.decodeAudioFinished, this.eventHost.decodeAudioFailed);
+        }
+        request.send();
+    }
+
+    this.loader(this.title);
+
     this.createDropHandler = function createDropHandler()
     {
         var filedb = new FileDropbox();
@@ -507,7 +570,7 @@ function audioLayerControl(elementContext)
         setTimeout(function() { $('#app-progress')[0].style['width'] = '0%'; }, 1000);
     };
     
-    this.createDropHandler();
+    /*this.createDropHandler();*/
     
     this.elementContext.onselectstart = function() { return(false); };
     

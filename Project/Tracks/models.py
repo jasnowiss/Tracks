@@ -79,9 +79,25 @@ class TracksUser(AbstractBaseUser):
         """Returns a list of the user's tracks."""
         return self.track_set.all()
 
+    def get_private_tracks_list(self):
+        """Returns a list of the user's private tracks."""
+        return
+
+    def get_public_tracks_list(self):
+        """Returns a list of the user's public tracks."""
+        return
+
     def get_collaborations_list(self):
         """Returns a list of the user's collaborations."""
         return self.collaboration_set.all()
+
+    def get_private_collaborations_list(self):
+        """Returns a list of the user's private collaborations."""
+        return
+
+    def get_public_collaborations_list(self):
+        """Returns a list of the user's public collaborations."""
+        return
 
     def get_user_profile(self):
         """Returns the user's existing profile, or creates a new one to return."""

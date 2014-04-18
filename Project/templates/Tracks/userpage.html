@@ -52,9 +52,12 @@
               <button name="collab_{{ collaboration.id }}" class="play_collab_button">Play</button>
               <button name="collab_{{ collaboration.id }}" class="restart_collab_button">Restart</button>
               <!-- ADD FUNCTIONALITY -->
-              <a href="http://audacity.sourceforge.net/">
-                <button>Edit</button>
-              </a>
+              {% if not is_disabled %}
+                <a href="http://audacity.sourceforge.net/">
+                    <button>Edit</button>
+                </a>
+                <button>Settings</button>
+              {% endif %}
               <!-- REMEMBER TO ADD FUNCTIONALITY -->
             </div>
 
@@ -72,7 +75,9 @@
                 {% for track in collaboration.tracks.all %}
                   <li> {{ track.filename }} by <a href="{% url 'Tracks:userpage' track.user.id %}">{{ track.user.get_name_to_display }}</a>
                     <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
-                    <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
+                    {% if not is_disabled %}
+                      <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
+                    {% endif %}
                   </li>
                 {% endfor %}
                 <li>
@@ -92,7 +97,9 @@
           <span>{{ track.filename }} </span>
           <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
           <button name="{{ track.id }}" class="collaborate_button">Collaborate</button>
-          <button name= "{{ track.id }}" class="delete_track_from_server_button">X</button>
+          {% if not is_disabled %}
+            <button name= "{{ track.id }}" class="delete_track_from_server_button">X</button>
+          {% endif %}
         </li>
       {% endfor %}
       <!--<h3 class="noindent">Upload Track</h3>-->

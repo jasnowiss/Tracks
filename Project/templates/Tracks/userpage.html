@@ -56,7 +56,7 @@
                 <a href="http://audacity.sourceforge.net/">
                     <button>Edit</button>
                 </a>
-                <button>Settings</button>
+                <button class="settings_button">Settings</button>
               {% endif %}
               <!-- REMEMBER TO ADD FUNCTIONALITY -->
             </div>
@@ -138,6 +138,7 @@
 
         $(".play_collab_button").click(play_collab);
         $(".restart_collab_button").click(restart_collab);
+        $(".settings_button").click(open_settings);
 
         /** ADD A DESCRIPTION */
         $(".remove_track_from_collab_button").click(function () {
@@ -344,6 +345,42 @@
                     $(this).remove();
                 }
             });
+        }
+
+        /** Creates a general dialog box using the parameters. */
+        function create_dialog_box(dialog_html, title, width, height, action1_name, action2_name, action1_funcToExecute, action2_funcToExecute) {
+            var dialog_box = $("<div></div>").appendTo("body").html(dialog_html);
+            $(dialog_box).dialog({
+                modal: true,
+                height: height,
+                width: width,
+                resizable: false,
+                draggable: false,
+                title: title,
+                dialogClass: "confirm_dialog",
+                open: function () {
+                    $(this).siblings('.ui-dialog-buttonpane').find('button:eq(1)').focus();
+                },
+                buttons: {
+                    action1_name: function () {
+                        action1_funcToExecute();
+                        $(this).dialog("close");
+                    },
+                    action2_name: function () {
+                        action2_funcToExecute();
+                        $(this).dialog("close");
+                    }
+                },
+                close: function (event, ui) {
+                    $(this).remove();
+                }
+            });
+        }
+
+        /** Opens a dialog box for changing the settings of a collaboration. */
+        function open_settings() {
+            var collab_id = get_collab_id(this);
+            
         }
 
         /** ADD A DESCRIPTION */

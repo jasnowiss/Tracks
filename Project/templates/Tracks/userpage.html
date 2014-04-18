@@ -226,8 +226,8 @@
         }
 
         /** ADD A DESCRIPTION */
-        function get_buttons_for_tracks_of_collab(play_collab_button_element){
-            var container_div = $(play_collab_button_element).parents(".collab_div_container").get(0);
+        function get_buttons_for_tracks_of_collab(html_element){
+            var container_div = $(html_element).parents(".collab_div_container").get(0);
             var collab_tracks_div = $(container_div).children(".collab_tracks_div").get(0);
             var tracks_buttons = $(collab_tracks_div).find(".show_hide_player_button");
             if (tracks_buttons){
@@ -314,9 +314,31 @@
             var audio_control = $("<audio></audio>").attr("controls", "");
             var source = $("<source></source>").attr("type", "audio/mpeg").attr("src", temp_pathname);
             audio_control.append(source);
-            audio_div.append(audio_control);
-            return audio_div;
-        }
+            $(audio_control).on("play", function(){
+                if (is_inside_collab(audio_control)){
+                     collab_set_style_to(audio_control, "play");
+                }
+             });
+             $(audio_control).on("pause", function(){
+                if (is_inside_collab(audio_control)){
+                    var tracks_buttons = get_buttons_for_tracks_of_collab(audio_control);
+                    var style_to_set = "pause";
+                    $(tracks_buttons).each(function () {
+                        try{
+                            var child_music_player = get_music_player(this);
+                            var child_audio = $(child_music_player).children("audio").get(0);
+                            if (!child_audio.paused){
+                                style_to_set = "play";
+                            }
+                        } catch(e) {
+                        }
+                    });
+                    collab_set_style_to(audio_control, style_to_set);
+                }
+             });
+             audio_div.append(audio_control);
+             return audio_div;
+          }
 
         /** ADD A DESCRIPTION */
         function confirm_dialog(dialog_text, yes_funcToExecute, no_funcToExecute) {
@@ -380,7 +402,7 @@
         /** Opens a dialog box for changing the settings of a collaboration. */
         function open_settings() {
             var collab_id = get_collab_id(this);
-            
+
         }
 
         /** ADD A DESCRIPTION */

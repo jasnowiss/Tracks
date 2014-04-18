@@ -137,6 +137,20 @@ class TracksUser(AbstractBaseUser):
         return list_to_return
 
 
+
+
+class Genre(models.Model):
+    name = models.CharField(max_length=100, blank=True)
+
+    def __unicode__(self):
+        return self.name
+
+class Instrument(models.Model):
+    name = models.CharField(max_length=100, blank=True)
+
+    def __unicode__(self):
+        return self.name
+
 """
 INSTRUMENT_CHOICES = (
     ('BASS', 'Bass'),
@@ -155,6 +169,8 @@ class UserProfile(models.Model):
     display_name = models.CharField(max_length=200)
     years_of_experience = models.PositiveSmallIntegerField()
     favorite_musician = models.CharField(max_length=200)
+    instruments = models.ManyToManyField(Instrument)
+    genres= models.ManyToManyField(Genre)
 
     def __unicode__(self):
         """Returns the user's username (i.e. email address)."""

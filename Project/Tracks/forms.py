@@ -96,27 +96,28 @@ class UploadFileForm(forms.Form):
 
 class UserProfileForm(ModelForm):
 
-    INSTRUMENT_CHOICES = (
-            ('BASS', 'Bass'),
-            ('DRUMS', 'Drums'),
-            ('GUITAR', 'Guitar'),
-            ('VOCALS', 'Vocals')
-    )
-    Instrument = forms.MultipleChoiceField(choices=INSTRUMENT_CHOICES, widget=forms.CheckboxSelectMultiple(), required=True)
-
-    GENRE = (
-        ('CLASSICAL', 'Classical'),
-        ('JAZZ', 'Jazz'),
-        ('HIP-HOP', 'Hip-Hop'),
-        ('FUNK', 'Funk'),
-        ('CONTEMPORARY','Contemporary')
-
-    )
-    Genre = forms.MultipleChoiceField(choices=GENRE, widget=forms.CheckboxSelectMultiple(), required=True)
+##    INSTRUMENT_CHOICES = (
+##            ('BASS', 'Bass'),
+##            ('DRUMS', 'Drums'),
+##            ('GUITAR', 'Guitar'),
+##            ('VOCALS', 'Vocals')
+##    )
+##    Instrument = forms.MultipleChoiceField(choices=INSTRUMENT_CHOICES, widget=forms.CheckboxSelectMultiple(), required=True)
+##
+##    GENRE = (
+##        ('CLASSICAL', 'Classical'),
+##        ('JAZZ', 'Jazz'),
+##        ('HIP-HOP', 'Hip-Hop'),
+##        ('FUNK', 'Funk'),
+##        ('CONTEMPORARY','Contemporary')
+##
+##    )
+##    Genre = forms.MultipleChoiceField(choices=GENRE, widget=forms.CheckboxSelectMultiple(), required=True)
+    instruments = forms.ModelMultipleChoiceField(widget=forms.CheckboxSelectMultiple(), queryset=Instrument.objects.all(), required=True)
+    genres = forms.ModelMultipleChoiceField(widget=forms.CheckboxSelectMultiple(), queryset=Genre.objects.all(), required=True)
     class Meta:
         model = UserProfile
-
-        fields = ['display_name', 'years_of_experience', 'favorite_musician']
+        fields = ('display_name', 'years_of_experience', 'favorite_musician', 'instruments', 'genres')
 
 
 ##    def __init__(self, readonly_form=False, *args, **kwargs):

@@ -54,7 +54,7 @@ class TracksUser(AbstractBaseUser):
     def get_full_name(self):
         """Returns the user's full name."""
         fullName = self.firstName.strip() + " " + self.lastName.strip()
-        return fullName
+        return firstName
 
     def get_short_name(self):
         """Returns the user's first name."""
@@ -131,7 +131,7 @@ class TracksUser(AbstractBaseUser):
         list_to_return = []
 
         # allow only searchString which won't return every user in the database
-        # TODO: Need a better way to guarantee above comment. Current blacklisting might need to be replaced with whitelisting.
+        # TODO: Need a better way to gaurantee above comment. Current blacklisting might need to be replaced with whitelisting.
         if(searchString != None and searchString !='' and (len(searchString)>4 or '.com'.count(searchString) == 0) and '@'.count(searchString) == 0):
             list_to_return = cls.objects.filter(Q(email__contains=searchString) | Q(firstName__contains=searchString) | Q(lastName__contains=searchString))
         return list_to_return
@@ -149,34 +149,13 @@ class UserProfile(models.Model):
     """A class to hold basic information about a user."""
 
     user = models.OneToOneField(TracksUser)
-    instrument = models.CharField(max_length=200, choices=INSTRUMENT_CHOICES)
+    instrument = models.CharField(max_length=200)    
     display_name = models.CharField(max_length=200)
-    field3 = models.CharField(max_length=200)
-    field4 = models.CharField(max_length=200)
-
+    years_of_experience = models.CharField(max_length=200)
+    favorite_musician = models.CharField(max_length=200)
     def __unicode__(self):
         """Returns the user's username (i.e. email address)."""
         return "profile of: " + self.user.email
-
-    @classmethod
-    def filter_for_search(cls, searchString):
-        """ADD A DESCRIPTION"""
-        list_to_return = []
-        profile_list = []
-        if(searchString != None and searchString !=''):
-            profile_list = cls.objects.filter(Q(instrument__contains=searchString))
-            for item in profile_list:
-                list_to_return.append([item.instrument, "Instrument", item])
-            profile_list = cls.objects.filter(Q(display_name__contains=searchString))
-            for item in profile_list:
-                list_to_return.append([item.display_name, "Display Name", item])
-            profile_list = cls.objects.filter(Q(field3__contains=searchString))
-            for item in profile_list:
-                list_to_return.append([item.field3, "Field 3", item])
-            profile_list = cls.objects.filter(Q(field4__contains=searchString))
-            for item in profile_list:
-                list_to_return.append([item.field4, "Field 4", item])
-        return list_to_return
 
 
 #list of acceptable extensions. make sure it starts with a dot'
@@ -268,22 +247,6 @@ class Track(models.Model):
         if(searchString != None and searchString !=''):
             list_to_return = cls.objects.filter(Q(filename__contains=searchString))
         return list_to_return
-
-    @classmethod
-    def handle_delete_track(cls, track_id):
-        """ Returns True if track has been successfully deleted from the database and its corresponding file has been deleted from the server.
-            Otherwise, returns False """
-        track = Track.objects.get(id=track_id)
-        if (track == None):
-            return False
-        temp_filepath = track.filepath
-        if (os.path.isfile(temp_filepath)):
-            os.remove(temp_filepath)
-            track.delete()
-            return True
-        else:
-            return False
-
 
 
 class Collaboration(models.Model):
@@ -430,7 +393,7 @@ def search_relevant_models(searchString):
     TODO: for security purposes, need to make sure that searchString does not contain any malicious code. Check to see if Django provides some help for this
 
     """
-    list_of_relevant_models = [TracksUser, Track, UserProfile] ## ,Collaboration]
+    list_of_relevant_models = [TracksUser, Track] ## ,Collaboration]
     temp_query_set = []
     for model in list_of_relevant_models:
         temp_query_set += model.filter_for_search(searchString)

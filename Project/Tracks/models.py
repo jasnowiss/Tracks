@@ -137,22 +137,24 @@ class TracksUser(AbstractBaseUser):
         return list_to_return
 
 
+"""
 INSTRUMENT_CHOICES = (
     ('BASS', 'Bass'),
     ('DRUMS', 'Drums'),
     ('GUITAR', 'Guitar'),
     ('VOCALS', 'Vocals')
     )
+"""
 
 
 class UserProfile(models.Model):
     """A class to hold basic information about a user."""
 
     user = models.OneToOneField(TracksUser)
-    instrument = models.CharField(max_length=200, choices=INSTRUMENT_CHOICES)
+    #instrument = models.CharField(max_length=200, choices=INSTRUMENT_CHOICES)
     display_name = models.CharField(max_length=200)
-    field3 = models.CharField(max_length=200)
-    field4 = models.CharField(max_length=200)
+    years_of_experience = models.PositiveSmallIntegerField()
+    favorite_musician = models.CharField(max_length=200)
 
     def __unicode__(self):
         """Returns the user's username (i.e. email address)."""
@@ -164,18 +166,18 @@ class UserProfile(models.Model):
         list_to_return = []
         profile_list = []
         if(searchString != None and searchString !=''):
-            profile_list = cls.objects.filter(Q(instrument__contains=searchString))
-            for item in profile_list:
-                list_to_return.append([item.instrument, "Instrument", item])
+            #profile_list = cls.objects.filter(Q(instrument__contains=searchString))
+            #for item in profile_list:
+            #    list_to_return.append([item.instrument, "Instrument", item])
             profile_list = cls.objects.filter(Q(display_name__contains=searchString))
             for item in profile_list:
                 list_to_return.append([item.display_name, "Display Name", item])
-            profile_list = cls.objects.filter(Q(field3__contains=searchString))
+            profile_list = cls.objects.filter(Q(years_of_experience__contains=searchString))
             for item in profile_list:
-                list_to_return.append([item.field3, "Field3", item])
-            profile_list = cls.objects.filter(Q(field4__contains=searchString))
+                list_to_return.append([item.years_of_experience, "Years of Experience", item])
+            profile_list = cls.objects.filter(Q(favorite_musician__contains=searchString))
             for item in profile_list:
-                list_to_return.append([item.field4, "Field4", item])
+                list_to_return.append([item.favorite_musician, "Favorite Musician", item])
         return list_to_return
 
     @classmethod
@@ -324,7 +326,7 @@ class Collaboration(models.Model):
             elif (bool_permission == 'false'):
                 self.is_public = False
         self.save()
-        print(self.is_public)
+        ##print(self.is_public)
 
     def set_is_public(self, bool_permission):
         self.is_public = bool(bool_permission)
@@ -373,7 +375,7 @@ class Collaboration(models.Model):
     def get_settings_list_JSON(self):
         response_data = {}
         response_data["permission_level"] = self.get_permission_level()
-        print (self.get_permission_level())
+        ##print (self.get_permission_level())
         response_data["permission_options"] = PERMISSION_OPTIONS
         authorized_users = self.get_users()
         users_data = {}

@@ -95,9 +95,29 @@ class UploadFileForm(forms.Form):
 
 
 class UserProfileForm(ModelForm):
+
+    INSTRUMENT_CHOICES = (
+            ('BASS', 'Bass'),
+            ('DRUMS', 'Drums'),
+            ('GUITAR', 'Guitar'),
+            ('VOCALS', 'Vocals')
+    )
+    Instrument = forms.MultipleChoiceField(choices=INSTRUMENT_CHOICES, widget=forms.CheckboxSelectMultiple(), required=True)
+
+    GENRE = (
+        ('CLASSICAL', 'Classical'),
+        ('JAZZ', 'Jazz'),
+        ('HIP-HOP', 'Hip-Hop'),
+        ('FUNK', 'Funk'),
+        ('CONTEMPORARY','Contemporary')
+
+    )
+    Genre = forms.MultipleChoiceField(choices=GENRE, widget=forms.CheckboxSelectMultiple(), required=True)
     class Meta:
         model = UserProfile
-        fields = ['display_name', 'instrument', 'field3', 'field4']
+
+        fields = ['display_name', 'years_of_experience', 'favorite_musician']
+
 
 ##    def __init__(self, readonly_form=False, *args, **kwargs):
 ##            super(UserProfileForm, self).__init__(*args, **kwargs)

@@ -504,6 +504,7 @@ function audioLayerControl(elementContext)
     {
         var filedb = new FileDropbox();
         filedb.defineDropHandler(this.elementContext);
+		console.log(this.elementContext);
         filedb.eventHost = this;
         
         filedb.onFinish = function()

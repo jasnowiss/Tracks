@@ -36,24 +36,7 @@
         <input name="new_name" class="text"></input>
         <button type="submit" class="btn btn-default">Save name</button>
     </form>
-    <!--
-    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#change_name">
-        Change name
-    </button>
-    <div class="modal fade bs-example-modal-sm" id="change_name" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">New collaboration title</h4>
-                </div>
-                <div class="modal-body">
-                    <input class="text" id="new_name"></input>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="change_name_button">Save changes</button>
-                </div>-->
+    
 
 
         <li>
@@ -74,7 +57,18 @@
                 {% endfor %}
               </ul>
             </div>
+
+            
+
           </div>
+          <div id="add_track">
+                Add track: 
+                <form id="add_track_form" action="add_name/" method="post">
+                    <input type="text" name="track_to_add" id="track_search"/>
+                    <div id="search_results"></div>
+
+                </form>
+            </div>
         </li>
 
     <h3>Tracks</h3>
@@ -122,7 +116,14 @@
 
         $(".play_collab_button").click(play_collab);
         $(".restart_collab_button").click(restart_collab);
-
+        /*
+        $("track_search").change(function () {
+            results = Tracks.filter_for_search(this.value);
+            for (var track in results) {
+                $("search_results").innerHTML += "<div>" + track + "</div>";
+            }
+        });
+        */
         /** ADD A DESCRIPTION */
         $(".remove_track_from_collab_button").click(function () {
             var this_button = this;

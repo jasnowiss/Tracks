@@ -47,7 +47,7 @@
         <li>
           <div id="{{ collaboration.id }}" class="collab_div_container collab_pause">
             <div class="collab_info_div">
-              Collaboration {{ collaboration.id }}
+              {{ collaboration }}
               <button name="collab_{{ collaboration.id }}" class="play_collab_button">Play</button>
               <button name="collab_{{ collaboration.id }}" class="restart_collab_button">Restart</button>
               <!-- ADD FUNCTIONALITY -->
@@ -110,7 +110,7 @@
             {% endfor %}
           </form>
           {% url 'Tracks:record' as user_record %}
-          <button onclick="window.location='{{ user_record }}'" class="btn btn-danger">Record</button>
+          <button id="record" onclick="window.location='{{ user_record }}'" class="btn btn-danger">Record</button>
         </li>
       {% else %}
         <form action="/" method="post">

@@ -436,11 +436,17 @@ function audioLayerControl(elementContext)
     
     // Drag and Drop
     this.filedb = undefined;
+	
+	/*
+	Create audio source with the <audio>
+	create
+	*/
     
     this.createDropHandler = function createDropHandler()
     {
         var filedb = new FileDropbox();
         filedb.defineDropHandler(this.elementContext);
+		console.log(this.elementContext);
         filedb.eventHost = this;
         
         filedb.onFinish = function()
@@ -506,7 +512,6 @@ function audioLayerControl(elementContext)
         
         setTimeout(function() { $('#app-progress')[0].style['width'] = '0%'; }, 1000);
     };
-    
     this.createDropHandler();
     
     this.elementContext.onselectstart = function() { return(false); };

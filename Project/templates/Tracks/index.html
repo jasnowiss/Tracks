@@ -287,13 +287,7 @@
 		
 		function finishedLoading(bufferList) {
 		  // Create two sources and play them both together.
-		  //filedb = new FileDropbox();
-		  //FileDropbox.handleFiles(bufferList,filedb);
-		  var source1 = context.createBufferSource();
-		  source1.buffer = bufferList[0];
-		
-		  source1.connect(context.destination);
-		  source1.start(0);                           // play the source now
+		  //$("audioLayerControl").masterObj.loader(bufferList[0],$("audioLayerControl").masterObj)
 
 		}
 	</script>

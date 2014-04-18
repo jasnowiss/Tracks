@@ -26,7 +26,19 @@ function FileDropbox()
         evt.stopPropagation();
         evt.preventDefault();
     };
-    
+    this.loader = function loader(arrayBuffer)
+	{
+		masterObj = dropContainerElement.masterObj
+		masterObj.resultArrayBuffer = arrayBuffer;
+            // write into the result array
+            masterObj.result = new Uint8Array(arrayBuffer);
+            
+            // callback
+            if (masterObj.onFinish !== null)
+            {
+                masterObj.onFinish();
+			}
+	}
     this.dropHandler = function dropHandler(evt)
     {
         evt.stopPropagation();

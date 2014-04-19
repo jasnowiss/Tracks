@@ -603,7 +603,7 @@
 		function create_edit_button(track_id) {
 			var edit_button = $("<button></button>").attr("name", track_id);
 			$(edit_button).addClass("edit_button");
-			$(edit).tex("Edit");
+			$(edit_button).text("Edit");
 			$(edit_button).bind("click",begin_edit);
 			return edit_button;
 		}

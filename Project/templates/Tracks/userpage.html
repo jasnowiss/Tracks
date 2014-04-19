@@ -158,12 +158,17 @@
 
         $(".settings_button").click(open_settings);
         $("#settings_div").hide();
+        var button_using_settings_div;
 
         /** Opens a pane for settings of a collaboration. */
         function open_settings() {
             var prev_collab_style = collab_get_style(this);
             collab_set_style_to(this, "editing");
-            $("#settings_div").toggle("drop");
+            if (button_using_settings_div !== this){
+                $(button_using_settings_div).trigger("click");
+                button_using_settings_div = this;
+            }
+            $("#settings_div").show("drop");
             var collab_id = get_collab_id(this);
             var this_button = this;
             $.getJSON("{{ get_collab_settings_JSON_url }}", {collab_id : collab_id}, function (data) {
@@ -187,7 +192,7 @@
         function close_settings(prev_collab_style, settings_button) {
             collab_set_style_to(settings_button, prev_collab_style);
             $("#settings_form").empty();
-            $("#settings_div").toggle("drop");
+            $("#settings_div").hide("drop");
             $(settings_button).unbind("click");
             $(settings_button).on("click", open_settings);
         }
@@ -822,7 +827,7 @@
             $(collaborate_button).bind("click", begin_collaboration);
             return collaborate_button;
         }
-		
+
 
 
         /** ADD A DESCRIPTION */
@@ -836,7 +841,7 @@
 
 
         $(".collaborate_button").click(begin_collaboration);
-		
+
 
         /** ADD A DESCRIPTION */
         function begin_collaboration(){
@@ -860,10 +865,10 @@
 			$(edit_button).bind("click",begin_edit);
 			return edit_button;
 		}
-		
+
 		$(".edit_button").click(begin_edit);
 
-		
+
 		function begin_edit() {
 			var track_id = $(this).attr("name");
 			window.location = "/Tracks/webAudio/"+track_id;
@@ -944,7 +949,7 @@
         function get_selected_value_of_sibling_select_list(html_element, class_of_select_list){
             var select_element;
             if (typeof class_of_select_list === "undefined") {
-                return "undefined";
+                return undefined;
             } else {
                 select_element = $(html_element).siblings("select"+"."+class_of_select_list);
             }

@@ -140,6 +140,7 @@ function uploadFile() {
 				$(this).remove();
 			}
 		});
+		$("#navbar-upload").attr("action","/Tracks/upload_mp3");
 		
 	}
 	

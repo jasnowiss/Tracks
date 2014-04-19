@@ -22,6 +22,8 @@ import json
 import Project.settings
 from django.core.servers.basehttp import FileWrapper
 from django.views.decorators.csrf import ensure_csrf_cookie
+from pydub import AudioSegment
+
 
 """
 TODO:
@@ -31,6 +33,19 @@ TODO:
     - (in userpage.html) need to change the class of collabs which finished playing from "play" to "pause" (and seek audio to 0).
 
 """
+
+def webAudio(request, track_id):
+    if request.method == 'GET':
+        id_int = int(track_id)
+        track = Track.objects.all()[id_int-1]
+        filename = os.path.dirname(__file__) + "\\user_mp3_files\\" +track.get_server_filename()
+        wrapper = FileWrapper(file(filename))
+        response = HttpResponse(wrapper, content_type='text/plain')
+        response['Content-Length'] = os.path.getsize(filename)
+        #print filepath
+        #f = open(filepath, 'w')
+        return render(request, 'Tracks/index.html', {"track":track_id, "track":track.get_server_filename()})
+
 
 def register(request):
     """Registers a user."""

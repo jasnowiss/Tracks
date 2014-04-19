@@ -38,10 +38,11 @@ def webAudio(request, track_id):
     if request.method == 'GET':
         id_int = int(track_id)
         track = Track.objects.all()[id_int-1]
-        filename = os.path.dirname(__file__) + "\\user_mp3_files\\" +track.get_server_filename()
-        wrapper = FileWrapper(file(filename))
-        response = HttpResponse(wrapper, content_type='text/plain')
-        response['Content-Length'] = os.path.getsize(filename)
+        #filename = os.path.dirname(__file__) + "\\user_mp3_files\\" +track.get_server_filename()
+        #os.path.join()
+        #wrapper = FileWrapper(file(filename))
+        #response = HttpResponse(wrapper, content_type='text/plain')
+        #response['Content-Length'] = os.path.getsize(filename)
         #print filepath
         #f = open(filepath, 'w')
         return render(request, 'Tracks/index.html', {"track":track_id, "track":track.get_server_filename()})

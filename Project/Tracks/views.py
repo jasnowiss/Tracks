@@ -25,8 +25,6 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 
 """
 TODO:
-    - (in userpage.html) allow removal of tracks.
-
     - (in nav bar) upload in top nav bar goes to userpage. need to add functionality to nav bar upload so that an upload dialog opens.
          also need a nav bar option to go to userpage (and maybe userprofile page).
 
@@ -150,13 +148,14 @@ def userprofile(request, user_id=None):
 def userpage(request, user_id=None):
     """ADD A DESCRIPTION"""
     try:
-        temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), user_id)
+        session_user = get_session_user(request)
+        temp_user, is_disabled = TracksUser.get_desired_user(session_user, user_id)
 
         if(request.method == "GET"):
             form = UploadFileForm()
             list_of_tracks = temp_user.get_tracks_list()
             list_of_collaborations = temp_user.get_collaborations_list()
-            return render(request, 'Tracks/userpage.html', {'user' : temp_user, 'form' : form, 'is_disabled' : is_disabled,
+            return render(request, 'Tracks/userpage.html', {'user' : temp_user, 'session_user' : session_user, 'form' : form, 'is_disabled' : is_disabled,
                                                                 'list_of_tracks' : list_of_tracks, 'list_of_collaborations' : list_of_collaborations})
 
     except:
@@ -205,6 +204,19 @@ def get_tracks_for_current_user_JSON(request):
         response.status_code = 500;
         return response
 
+# Function for JSON Call
+def get_collab_settings_JSON(request):
+    try:
+        collab_id = int(request.GET.get('collab_id'))
+        collab = Collaboration.objects.get(id=collab_id)
+        response_data = collab.get_settings_list_JSON()
+        response = HttpResponse(json.dumps(response_data), content_type="application/json")
+        return response
+    except:
+        response = HttpResponse('error trying to get settings for collaboration') # May need to change message sent
+        print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
+        response.status_code = 500;
+        return response
 
 # Function for AJAX Call
 def finalize_collaboration(request):
@@ -241,6 +253,69 @@ def delete_track_from_server(request):
             return response
     except:
         response = HttpResponse('error trying to delete track') # May need to change message sent
+        print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
+        response.status_code = 500
+        return response
+
+# Function for AJAX Call
+def change_permission_of_collab(request):
+    try:
+        collab_id = int(request.POST.get('collab_id'))
+        bool_permission = request.POST.get('bool_permission')
+        print(bool_permission)
+        collab = Collaboration.objects.get(id=collab_id)
+        collab.set_permission_level(bool_permission=bool_permission)
+
+        response = HttpResponse('success')
+        response.status_code = 200
+        return response
+    except:
+        response = HttpResponse('error trying to change permission of collaboration') # May need to change message sent
+        print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
+        response.status_code = 500
+        return response
+
+# Function for AJAX Call
+def add_user_to_collab(request):
+    try:
+        collab_id = int(request.POST.get('collab_id'))
+        searchString = request.POST.get('searchString')
+
+        collab = Collaboration.objects.get(id=collab_id)
+        temp_user = collab.add_user_using_searchString(searchString)
+
+        if(temp_user == None):
+            response = HttpResponse("could not find user") # May need to change message sent
+            response.status_code = 400
+        else:
+            response_data = { "user_id" : temp_user.id, "name_to_display" : temp_user.get_name_to_display() }
+            response = HttpResponse(json.dumps(response_data), content_type="application/json")
+            response.status_code = 200
+
+        return response
+    except:
+        response = HttpResponse('error trying to add user to collaboration') # May need to change message sent
+        print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
+        response.status_code = 500
+        return response
+
+# Function for AJAX Call
+def remove_user_from_collab(request):
+    try:
+        user_id = int(request.POST.get('user_id'))
+        collab_id = int(request.POST.get('collab_id'))
+
+        collab = Collaboration.objects.get(id=collab_id)
+        if(collab.remove_user(user_id)):
+            response = HttpResponse('success')
+            response.status_code = 200
+        else:
+            response = HttpResponse("could not find user") # May need to change message sent
+            response.status_code = 400
+
+        return response
+    except:
+        response = HttpResponse('error trying to remove user from collaboration') # May need to change message sent
         print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
         response.status_code = 500
         return response

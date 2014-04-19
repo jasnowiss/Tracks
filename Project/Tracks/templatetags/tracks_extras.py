@@ -51,3 +51,16 @@ def get_formatted_list_of_collab_users(model_object):
             str_of_collab_users += ', ' + user.firstName + ' ' + user.lastName
     return str_of_collab_users
 
+
+# case sensitive
+@register.filter
+def is_user_authorized(model_object, arg):
+    """ADD A DESCRIPTION"""
+    try:
+        if(type(model_object) == Collaboration):
+            model_object.users.get(id=arg)
+            return True
+        else:
+            return model_object.user.id == arg
+    except:
+        return False

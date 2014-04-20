@@ -32,6 +32,9 @@ TODO:
 
     - (in userpage.html) need to change the class of collabs which finished playing from "play" to "pause" (and seek audio to 0).
 
+    - (across entire site) need to change the way permissions work. right now anyone can collaborate with a public collab, turn it private, delete
+                            any track from the collab, and then turn it public again. this effectively undermines the public/private system. need
+                            to keep track of "master user" of a collab.
 """
 
 def webAudio(request, track_id):

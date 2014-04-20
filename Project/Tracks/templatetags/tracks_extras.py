@@ -61,6 +61,6 @@ def is_user_authorized(model_object, arg):
             model_object.users.get(id=arg)
             return True
         else:
-            return model_object.user.id == arg
+            return False
     except:
         return False

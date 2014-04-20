@@ -24,7 +24,7 @@ function addNav(session) {
                     +     '<!--/.nav-collapse -->'
                     +   '</div>')
     // $("#navbar").html('<div class="container"><div class="navbar-header"><button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a id="tracks_home" class="navbar-brand" href="">Tracks</a></div><div class="collapse navbar-collapse"><ul id="navbar_options" class="nav navbar-nav"> </ul><form method="GET" class="navbar-form" role="search"><div class="form-group"><input type="text" name="search" class="form-control" placeholder="search"></div><button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-music"></span></button></form></div><!--/.nav-collapse --></div>')
-	
+
     if (session) {
         $("#navbar_options").html('<li><a id="downbeat">Downbeat</a></li>'
 								+ '<li><a id="profile">Profile</a></li>'
@@ -32,7 +32,7 @@ function addNav(session) {
                                 + '<li><a type="file" id="upload">Upload</a></li>'
                                 + '<li><a id="about">About</a></li>'
                                 + '<li> <a id="signout">Sign out</a></li>')
-    
+
     //if (true) {
         //$("#navbar_options").html('<li><a id="downbeat">Downbeat</a></li><li><a id="about">About</a></li><li><a id="upload">Upload</a></li><li> <a id="signout" href="javascript:signOut()">Sign out</a></li>')
     } else {
@@ -134,16 +134,16 @@ function uploadFile() {
 				"Finish": function () {
 					yes_funcToExecute();
 					$(this).dialog("close");
-				},
+				}
 			},
 			close: function (event, ui) {
 				$(this).remove();
 			}
 		});
 		$("#navbar-upload").attr("action","/Tracks/upload_mp3");
-		
+
 	}
-	
+
 	/** ADD A DESCRIPTION */
 	function navbar_create_music_player(audio_name) {
 		var audio_div = $("<div></div>").addClass("audio_div").attr("name", audio_name);
@@ -156,12 +156,12 @@ function uploadFile() {
 		audio_div.append(audio_control);
 		return audio_div;
 	}
-	
+
 	/** ADD A DESCRIPTION */
 	function navbar_remove_music_player(music_player) {
 		$(music_player).remove();
 	}
-	
+
 	/** ADD A DESCRIPTION */
 	function navbar_does_music_player_exist(html_element) {
 		var music_player = $(html_element).siblings(".audio_div");
@@ -171,7 +171,7 @@ function uploadFile() {
 			return 0;
 		}
 	}
-	
+
 	/** ADD A DESCRIPTION */
 	function navbar_get_music_player(html_element) {
 		var music_player;
@@ -186,7 +186,7 @@ function uploadFile() {
 			return music_player;
 		}
 	}
-	
+
 	/** ADD A DESCRIPTION */
 	function navbar_play_music(music_player) {
 		var audio_control = $(music_player).children("audio").get(0);
@@ -194,8 +194,8 @@ function uploadFile() {
 			audio_control.play();
 		}
 	}
-	
-	
+
+
 	/** ADD A DESCRIPTION */
 	function navbar_pause_music(music_player) {
 		var audio_control = $(music_player).children("audio").get(0);
@@ -203,7 +203,7 @@ function uploadFile() {
 			audio_control.pause();
 		}
 	}
-	
+
 	/** ADD A DESCRIPTION */
 	function navbar_restart_music(music_player) {
 		var audio_control = $(music_player).children("audio").get(0);
@@ -211,7 +211,7 @@ function uploadFile() {
 			audio_control.currentTime = 0;
 		}
 	}
-	
+
 	/**
 	 * FUNCTIONALITY: Creates a new progress bar element.
 	 * INPUTS: 1) html_element: The html element to add the progress bar to.
@@ -219,18 +219,18 @@ function uploadFile() {
 	 */
 	function navbar_add_new_progress_bar(html_element) {
 		var new_bar = $("<div></div>").addClass("progress_bar_container");
-	
+
 		$(html_element).children().last().after(new_bar);
-	
+
 		$(html_element).children(".progress_bar_container").append(
 		$("<div></div>").addClass("progress_bar_outer"));
-	
+
 		$(html_element).children(".progress_bar_container").append(
 		$("<div></div>").addClass("progress_bar_inner"));
-	
+
 		return new_bar;
 	}
-	
+
 	/**
 	 * FUNCTIONALITY: Creates a "track element" - i.e. an li element with text and a progress bar.
 	 * The "track element" represents a file which is in the process of uploading.
@@ -246,8 +246,8 @@ function uploadFile() {
 		$(element_to_add_before_to).before(temp);
 		return new_bar;
 	}
-	
-	/** 
+
+	/**
 	FUNCTIONALITY: Sets the length of the inner filling of the progress bar to visually indicate how much progress has been made.
 	 * INPUTS: 1) progress_bar: The progress bar to set the filling of.
 	 *         2) percent_0_to_100: The percent (range 0 to 100) of the progress bar that should be filled.
@@ -263,12 +263,12 @@ function uploadFile() {
 		progress_bar_width = progress_bar_width.toString() + "px";
 		//alert(progress_bar_width);
 		$(progress_bar).children("div.progress_bar_inner").css("width", progress_bar_width);
-	
+
 		if (percent_0_to_100 == 100) {
 			$(progress_bar).children("div.progress_bar_inner").css("background-color", "#41DD00");
 		}
 	}
-	
+
 	/** FUNCTIONALITY: Sets the inner filling of the progress bar to red in order to visually indicate a failure.
 	 * INPUTS: 1) progress_bar: The progress bar to set the filling of.
 	 * OUTPUT: None
@@ -276,7 +276,7 @@ function uploadFile() {
 	function navbar_progress_bar_Failure(progress_bar) {
 		$(progress_bar).children("div.progress_bar_inner").css("background-color", "red");
 	}
-	
+
 	/** FUNCTIONALITY: An event handler used for the event of a file upload in progress. Updates the progress bar appropriately.
 	 * INPUTS: 1) evt: The event object.
 	 *         2) progress_bar: The progress bar to set the filling of.
@@ -288,16 +288,16 @@ function uploadFile() {
 			navbar_progress_bar_setPercent(progress_bar, percent_done);
 		}
 	}
-	
+
 	/** FUNCTIONALITY: An event handler used for the event of a file upload which failed. Updates the progress bar appropriately.
-	* INPUTS: 1) evt: The event object. 
+	* INPUTS: 1) evt: The event object.
 	*         2) progress_bar: The progress bar to set the filling of.
 	* OUTPUT: None
 	*/
 	function uploadFailedHandler(evt, progress_bar) {
 		progress_bar_Failure(progress_bar);
 	}
-	
+
 	/** FUNCTIONALITY: Handles uploading a file to the server asynchronously.
 	 * This includes:
 	 *    - sending data to the server (and waiting for the response).
@@ -305,7 +305,7 @@ function uploadFile() {
 	 * INPUTS: None
 	 * OUTPUT: None
 	 */
-	
+
 	function file_load(elem) {
 		// gets the file from the file input and prepares it for uploading
 		var form_data = new FormData();
@@ -316,13 +316,13 @@ function uploadFile() {
 		var file = file_input.files[0];
 		form_data.append('file', file);
 		//form_data.append('user_email', '{{ user.email }}');
-	
+
 		// updates the UI to reflect a file which is uploading
-		var new_bar = navbar_add_loading_track(file.name, $(elem).parents("li"));
-	
+		var new_bar = navbar_add_loading_track(file.name, $(elem).parents(".tracks_list_authorized_buttons_item"));
+
 		// updates the UI to allow the user to upload another file while the previous file is uploading
 		$(elem).parents("form").get(0).reset();
-	
+
 		// the ajax request to the server to upload the file
 		$.ajax({
 			url: window.location.origin+"/Tracks/upload_mp3/",
@@ -346,17 +346,17 @@ function uploadFile() {
 				var height = $("#upload_dialog").attr('height') + 50;
 				$("#upload_dialog").attr('height',height);
 				navbar_update_completed_loading_track(new_bar, server_filename, track_id);
-	
+
 			},
 			error: function (jqXHR, textStatus, errorThrown) {
 				navbar_progress_bar_Failure(new_bar);
-				alert(jqXHR.responseText);
+				console.log(jqXHR.responseText);
 			},
 			async: true
-	
+
 		});
-	};
-	
+	}
+
 	/** ADD A DESCRIPTION */
 	function navbar_update_completed_loading_track(progress_bar, server_filename, track_id){
 		var show_player_button = navbar_create_show_player_button(server_filename);
@@ -364,7 +364,7 @@ function uploadFile() {
 		$(progress_bar).after(" ");
 		$(progress_bar).remove();
 	}
-	
+
 	/** ADD A DESCRIPTION */
 	function navbar_create_show_player_button(server_filename){
 		var show_player_button = $("<button></button>").attr("name", server_filename);
@@ -372,7 +372,7 @@ function uploadFile() {
 		$(show_player_button).text("Show Player");
 		$(show_player_button).bind("click", navbar_show_player);
 		return show_player_button;
-	};
+	}
 
         function navbar_show_player() {
             var music_player = navbar_get_music_player(this);
@@ -400,22 +400,36 @@ function uploadFile() {
             }
         }
 
-/** ADD A DESCRIPTION 
-function signOut() {
-    var csrftoken = getCookie('csrftoken');
-    $.ajax({
-        type: 'POST',
-        url: window.location.origin+"/Tracks/logout/",
-        data: {},
-    });
-}
+        /********************** The following methods are not mine, they are from Django. *****************************
+        ******* They allow safe POSTing with Jquery/AJAX (e.g. proper CSRF token, proper origin of request, etc.) *******/
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
 
-function getSession() {
-    var csrftoken = getCookie('csrftoken');
-    $.ajax({
-        type: 'POST',
-        url: window.location.origin+"/Tracks/session/",
-        data: {},
-		success: addNav(),
-    });
-}*/
+        function sameOrigin(url) {
+            // test that a given url is a same-origin URL
+            // url could be relative or scheme relative or absolute
+            var host = document.location.host; // host + port
+            var protocol = document.location.protocol;
+            var sr_origin = '//' + host;
+            var origin = protocol + sr_origin;
+            // Allow absolute or scheme relative URLs to same origin
+            return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+                (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+            // or any other URL that isn't scheme relative or absolute i.e relative.
+                !(/^(\/\/|http:|https:).*/.test(url));
+        }
+
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+                    // Send the token to same-origin, relative URLs only.
+                    // Send the token only if the method warrants CSRF protection
+                    // Using the CSRFToken value acquired earlier
+                    var csrftoken = $('input[name=csrfmiddlewaretoken]').val();
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+

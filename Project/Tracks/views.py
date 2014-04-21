@@ -6,23 +6,22 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.utils import timezone
-## from TracksApp_forms import *
 from Tracks.forms import *
-##from Tracks.forms import UploadFileForm
 from Tracks.models import *
-##from Tracks.models import TracksUser
-##from Tracks.models import Track
+import Tracks
 import os
 ##import sys
 import traceback
 import json
 
+from django.views.decorators.csrf import ensure_csrf_cookie
+from pydub import AudioSegment
+
 # need these for serving mp3 files from this Django server. If another server handles serving mp3 files, these can be removed.
 # see play_mp3 function at bottom of page for more details.
 import Project.settings
 from django.core.servers.basehttp import FileWrapper
-from django.views.decorators.csrf import ensure_csrf_cookie
-from pydub import AudioSegment
+
 
 
 """
@@ -430,3 +429,6 @@ def handleRecord(request):
         #handle error
         pass
 
+def resetFixture(request):
+    reset_fixture()
+    return HttpResponse("Fixture reset")

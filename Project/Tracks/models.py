@@ -6,8 +6,9 @@ from django.db.models import Q
 from itertools import chain
 from operator import attrgetter
 
-# Create your models here.
 
+
+# Create your models here.
 
 class TracksUserManager(BaseUserManager):
     """A class to manage user creation. May not in fact be necessary."""
@@ -524,7 +525,10 @@ def search_relevant_models(searchString):
     return temp_query_set
 
 
-
-
-
-
+def reset_fixture():
+    for model in [TracksUser, UserProfile, Track, Collaboration, History]:
+        if(type(model) != Track):
+            model.objects.all().delete()
+        else:
+            for temp_track in Track.objects.all():
+                Track.handle_delete_track(temp_track.id)

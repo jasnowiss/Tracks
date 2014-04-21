@@ -20,7 +20,7 @@ $(document).ready(function () {
 
     $(".show_hide_player_button").click(show_player);
 
-    $('#id_file').change(upload_file);
+    $('.musicUpload input[name="file"]').change(upload_file);
 
     $(".collaborate_button").click(begin_collaboration);
 

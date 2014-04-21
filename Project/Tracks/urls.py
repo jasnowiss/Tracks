@@ -42,4 +42,5 @@ urlpatterns = patterns('',
 if settings.DEBUG:
     urlpatterns += patterns('',
         url(r'^user_mp3_files/(?P<path>.*)$', views.play_MP3),
+        url(r'^resetFixture/$', views.resetFixture)
    )

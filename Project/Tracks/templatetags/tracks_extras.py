@@ -1,6 +1,7 @@
 from django import template
 import os
 from Tracks.models import *
+from customNodes import *
 
 register = template.Library()
 
@@ -52,7 +53,6 @@ def get_formatted_list_of_collab_users(model_object):
     return str_of_collab_users
 
 
-# case sensitive
 @register.filter
 def is_user_authorized(model_object, arg):
     """ADD A DESCRIPTION"""
@@ -64,3 +64,8 @@ def is_user_authorized(model_object, arg):
             return False
     except:
         return False
+
+
+@register.tag
+def load_head_custom(parser, token):
+    return load_head_custom_Node()

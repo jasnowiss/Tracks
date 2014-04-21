@@ -413,9 +413,18 @@ function confirm_dialog(dialog_text, yes_funcToExecute, no_funcToExecute) {
 }
 
 /** Creates a general dialog box using the parameters. */
-function two_button_dialog_box(dialog_html, title, width, height, action1_name_string, action2_name_string, action1_funcToExecute, action2_funcToExecute) {
-    var dialog_box = $("<div></div>").appendTo("body").html(dialog_html);
-    $(dialog_box).dialog({
+function dialog_box(dialog_html, title, width, height, action_func_kv_obj) { //action1_name_string, action2_name_string, action1_funcToExecute, action2_funcToExecute) {
+    var temp_dialog_box = $("<div></div>").appendTo("body").html(dialog_html);
+    var temp_buttons = {}
+    $.each(action_func_kv_obj, function(key, val){
+        var action_name = key;
+        var action_funcToExecute = val;
+        temp_buttons[action_name] = function(){
+            action_funcToExecute();
+            $(this).dialog("close");
+            };
+    });
+    $(temp_dialog_box).dialog({
         modal: true,
         height: height,
         width: width,
@@ -424,9 +433,10 @@ function two_button_dialog_box(dialog_html, title, width, height, action1_name_s
         title: title,
         dialogClass: "confirm_dialog",
         open: function () {
-            $(this).siblings('.ui-dialog-buttonpane').find('button:eq(1)').focus();
+            $(this).siblings('.ui-dialog-buttonpane').find('button:last').focus();
         },
-        buttons: {
+        buttons: temp_buttons,
+        /*buttons: {
             action1_name_string: function () {
                 action1_funcToExecute();
                 $(this).dialog("close");
@@ -435,7 +445,7 @@ function two_button_dialog_box(dialog_html, title, width, height, action1_name_s
                 action2_funcToExecute();
                 $(this).dialog("close");
             }
-        },
+        },*/
         close: function (event, ui) {
             $(this).remove();
         }
@@ -526,7 +536,7 @@ function add_new_progress_bar(html_element) {
  */
 function add_loading_track(preceding_text, element_to_add_before_to) {
     var temp = $("<li></li>").append(
-    $("<span></span>").text(preceding_text + " "));
+    $("<span></span>").text(preceding_text + " ")).addClass("tracks_list_item");
     var new_bar = add_new_progress_bar(temp);
     $(element_to_add_before_to).before(temp);
     return new_bar;
@@ -639,19 +649,44 @@ function upload_file() {
     });
 }
 
+function create_tracks_authorized_buttons_html(){
+    var authorized_buttons_element = $("<li></li>").addClass("tracks_list_authorized_buttons_item");
+    var music_upload_form = $("<form></form>").attr({
+                                                action : "javascript:;",
+                                                method : "post",
+                                                enctype : "multipart/form-data"
+                                                });
+    $(music_upload_form).addClass("fileUpload btn btn-primary musicUpload");
+
+    var upload_element = $("<input></input>").attr({type : "file", name : "file"});
+    $(music_upload_form).append(upload_element);
+    $(music_upload_form).append("Upload");
+
+    var record_element = $("<button></button>").addClass("btn btn-danger").text("Record").on("click", function(){ window.location = resolve_to_url["record_url"]; });
+
+    authorized_buttons_element.append(music_upload_form);
+    $(authorized_buttons_element).append(record_element);
+    return authorized_buttons_element;
+}
+
 /** ADD A DESCRIPTION */
 function update_completed_loading_track(progress_bar, server_filename, track_id){
     var show_player_button = create_show_player_button(server_filename);
     var collaborate_button = create_collaborate_button(track_id);
 	var edit_button = create_edit_button(track_id);
     var delete_track_button = create_delete_track_button(track_id);
-    $(progress_bar).before(show_player_button);
+
+    $(progress_bar).parent().append(show_player_button).append(" ")
+                            .append(collaborate_button).append(" ")
+                            .append(edit_button).append(" ")
+                            .append(delete_track_button);
+    /* $(progress_bar).before(show_player_button);
     $(progress_bar).after(delete_track_button);
     $(progress_bar).after(" ");
     $(progress_bar).after(collaborate_button);
     $(progress_bar).after(" ");
 	$(progress_bar).after(edit_button);
-	$(progress_bar).after(" ");
+	$(progress_bar).after(" "); */
     $(progress_bar).remove();
 }
 

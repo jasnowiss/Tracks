@@ -261,7 +261,7 @@ function collab_get_style(html_element_inside_collab) {
             return "error";
         }
         else { // classes.toLowerCase().index_of("collab_pause") !== -1
-            return "pause"
+            return "pause";
         }
     }
 }
@@ -512,16 +512,23 @@ function restart_music(music_player) {
  * INPUTS: 1) html_element: The html element to add the progress bar to.
  * OUTPUT: new_bar: The progress bar element.
  */
-function add_new_progress_bar(html_element) {
+function create_progress_bar() { //html_element) {
     var new_bar = $("<div></div>").addClass("progress_bar_container");
 
-    $(html_element).children().last().after(new_bar);
+    // $(html_element).children().last().after(new_bar);
 
-    $(html_element).children(".progress_bar_container").append(
+/*    $(html_element).children(".progress_bar_container").append(
     $("<div></div>").addClass("progress_bar_outer"));
 
     $(html_element).children(".progress_bar_container").append(
     $("<div></div>").addClass("progress_bar_inner"));
+    */
+    $(new_bar).append(
+        $("<div></div>").addClass("progress_bar_outer")
+        );
+    $(new_bar).append(
+        $("<div></div>").addClass("progress_bar_inner")
+        );
 
     return new_bar;
 }
@@ -535,9 +542,15 @@ function add_new_progress_bar(html_element) {
  * OUTPUT: new_bar: The progress bar element of the "track element".
  */
 function add_loading_track(preceding_text, element_to_add_before_to) {
-    var temp = $("<li></li>").append(
-    $("<span></span>").text(preceding_text + " ")).addClass("tracks_list_item");
-    var new_bar = add_new_progress_bar(temp);
+    var temp = $("<tr></tr>").addClass("tracks_list_item");
+    var new_bar = create_progress_bar(); //add_new_progress_bar(temp);
+    $(temp).append(
+        $("<td></td>").addClass("tracks_list_authorized_buttons_item_firstColumn").text(preceding_text)
+        );
+    $(temp).append(
+        $("<td></td>").addClass("tracks_list_authorized_buttons_item_secondColumn").append(new_bar)
+        );
+
     $(element_to_add_before_to).before(temp);
     return new_bar;
 }

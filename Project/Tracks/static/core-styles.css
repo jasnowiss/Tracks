@@ -250,3 +250,21 @@ button.remove_track_from_collab_button:hover
     border-spacing:5px;
     text-align:center;
 }
+.tracks_list_authorized_buttons_item_firstColumn {
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+    text-overflow: ellipsis;
+    width: 200px;
+    min-width: 200px;
+}
+.tracks_list_authorized_buttons_item_secondColumn {
+    width: 300px;
+    min-width: 300px;
+}
+table {
+    border-collapse: collapse;
+}
+td {
+    padding: 5px 5px 5px 5px;
+}

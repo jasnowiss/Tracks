@@ -136,5 +136,3 @@ function upload_dialog(){
 }
 
 
-
-

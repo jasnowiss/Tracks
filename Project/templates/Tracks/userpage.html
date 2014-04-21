@@ -77,42 +77,50 @@
     </ul>
 
     <h3>Tracks</h3>
-    <ul id="tracks_list">
+    <table class="tracks_list">
       {% for track in list_of_tracks %}
-        <li class="tracks_list_item">
-          <span>{{ track.filename }} </span>
+        <tr class="tracks_list_item">
+          <td class="tracks_list_authorized_buttons_item_firstColumn">{{ track.filename }} </td>
+          <td class="tracks_list_authorized_buttons_item_secondColumn">
           <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
           <button name="{{ track.id }}" class="collaborate_button">Collaborate</button>
           {% if not is_disabled %}
             <button name="{{ track.id }}" class="edit_button">Edit</button>
             <button name= "{{ track.id }}" class="delete_track_from_server_button">X</button>
           {% endif %}
-        </li>
+          </td>
+        </tr>
       {% endfor %}
+
       <!--<h3 class="noindent">Upload Track</h3>-->
-      {% if not is_disabled %}
-        <li class="tracks_list_authorized_buttons_item">
+        {% if not is_disabled %}
+        <tr class="tracks_list_authorized_buttons_item">
+        <!--
           <h3 class="noindent">Upload Track</h3>
-          <!--<div class="fileUpload btn btn-default">
+          <div class="fileUpload btn btn-default">
             <span>Upload</span>
             <input class="upload" type="file" />
           </div> -->
-          <form action="javascript:;" method="post" enctype="multipart/form-data" class="fileUpload btn btn-primary musicUpload">
-            {% csrf_token %}
-            {% for field in form %}
-              {{ field.errors }}
-              {{ field }}
-              Upload
-            {% endfor %}
-          </form>
-          <button onclick="window.location='{% url 'Tracks:record' %}'" class="btn btn-danger">Record</button>
-        </li>
-      {% else %}
+            <td class="tracks_list_authorized_buttons_item_firstColumn">
+                <form action="javascript:;" method="post" enctype="multipart/form-data" class="fileUpload btn btn-primary musicUpload">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        {{ field.errors }}
+                        {{ field }}
+                        Upload
+                    {% endfor %}
+                </form>
+                <button onclick="window.location='{% url 'Tracks:record' %}'" class="btn btn-danger">Record</button>
+            </td>
+
+            <td class="tracks_list_authorized_buttons_item_secondColumn"></td>
+        </tr>
+        {% else %}
         <form action="javascript:;" method="post">
-          {% csrf_token %}
+            {% csrf_token %}
         </form>
-      {% endif %}
-    </ul>
+        {% endif %}
+    </table>
 
     <div id="settings_div">
         <form id="settings_form" action="javascript:;" method="post">

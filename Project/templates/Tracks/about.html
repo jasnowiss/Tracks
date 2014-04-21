@@ -37,7 +37,7 @@
 
     </div><!-- /.container -->
 
-    <!-- This is needed by AJAX calls, which need to get a CSRF Token. Make sure to place inside of body, but not contained in anything else -->
+    <!-- This is needed by AJAX calls, which need to get a CSRF Token. Make sure to place inside of <body>, but not contained in anything else -->
     <form action="javascript:;" method="post">
         {% csrf_token %}
     </form>

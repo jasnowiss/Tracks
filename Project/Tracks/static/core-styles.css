@@ -3,7 +3,7 @@
 /* THIS PAGE CONTAINS THE STYLES WHICH WERE PREVIOUSLY A PART OF USERPAGE.HTML
 ** THOSE STYLES HAVE BEEN MOVED INTO THIS FILE */
 
-#collaborations_list li, #tracks_list li
+#collaborations_list li /* , #tracks_list li*/
 {
     position: relative;
     padding: 2px 2px 2px 2px;
@@ -38,6 +38,17 @@
     height: 6px;
     margin: 2px;
 }
+.track_select_list {
+    overflow:hidden;
+    /* text-overflow:ellipsis;  Apparently this doesn't work for select/dropdown elements */
+    white-space:nowrap;
+    display: block;
+    width: 160px;
+    min-width: 160px;
+    padding: 1px 1px 1px 1px;
+    margin: 1px 1px 1px 1px
+
+}
 audio
 {
     width: 266px;
@@ -46,7 +57,8 @@ audio
 }
 .collab_div_container
 {
-    width: 450px;
+    width: 564px; /* .collab_tracks_list_item_firstColumn width + .collab_tracks_list_item_secondColumn width + .collab_tracks_list_item_thirdColumn width + margin_for_error */
+    min-width: 564px;
     color: #FFFFFF;
 }
 .collab_info_div
@@ -234,9 +246,11 @@ button.remove_track_from_collab_button:hover
     padding-left: 0px;
     padding-right: 0px;
 }
+/*
 #tracks_list li:last-child {
     list-style-type: none;
 }
+*/
 #settings_div{
     border: 1px solid orange;
     height: 550px;
@@ -250,7 +264,7 @@ button.remove_track_from_collab_button:hover
     border-spacing:5px;
     text-align:center;
 }
-.tracks_list_authorized_buttons_item_firstColumn {
+.tracks_list_item_firstColumn {
     overflow: hidden;
     white-space: nowrap;
     display: inline-block;
@@ -258,9 +272,29 @@ button.remove_track_from_collab_button:hover
     width: 200px;
     min-width: 200px;
 }
-.tracks_list_authorized_buttons_item_secondColumn {
-    width: 350px;
-    min-width: 350px;
+.tracks_list_item_secondColumn {
+    width: 420px;
+    min-width: 420px;
+}
+.collab_tracks_list_item_firstColumn {
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    display:inline-block;
+    width: 170px; /* if width changes, update .collab_div_container width and .track_select_list width accordingly */
+    min-width: 170px;
+}
+.collab_tracks_list_item_secondColumn {
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    display:inline-block;
+    width: 94px; /* if width changes, update .collab_div_container width accordingly */
+    min-width: 94px;
+}
+.collab_tracks_list_item_thirdColumn {
+    width: 290px; /* if width changes, update .collab_div_container width accordingly */
+    min-width: 290px;
 }
 table {
     border-collapse: collapse;

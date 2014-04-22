@@ -39,7 +39,6 @@
                 {% if collaboration|is_user_authorized:session_user.id %}
                     <button class="settings_button">Settings</button>
                 {% endif %}
-              <!-- REMEMBER TO ADD FUNCTIONALITY -->
             </div>
 
             <div class="collab_users_div">
@@ -51,25 +50,44 @@
             </div>
 
             <div class="collab_tracks_div">
-              <a class="collab_toggle_all_tracks" href="javascript:;">hide all tracks</a>
-              <ul>
+                <table class="tracks_list">
+                    <tr class="colla_tracks_list_item">
+                        <td class="collab_tracks_list_item_firstColumn">
+                            <a class="collab_toggle_all_tracks" href="javascript:;">hide all tracks</a>
+                        </td>
+                        <td class="collab_tracks_list_item_secondColumn"></td>
+                        <td class="collab_tracks_list_item_thirdColumn"></td>
+                    </tr>
+
                 {% for track in collaboration.tracks.all %}
-                  <li> {{ track.filename }} by <a href="{% url 'Tracks:userpage' %}{{ track.user.id }}">{{ track.user.get_name_to_display }}</a>
-                    <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
-                    {% if collaboration.is_public == False and collaboration|is_user_authorized:session_user.id %}
-                        <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
-                    {% elif collaboration.is_public and track.user.id == session_user.id %}
-                        <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
-                    {% endif %}
-                  </li>
+                  <tr class="colla_tracks_list_item">
+                    <td class="collab_tracks_list_item_firstColumn" title="{{ track.filename }}">
+                        {{ track.filename }}
+                    </td>
+                    <td class="collab_tracks_list_item_secondColumn">
+                        by <a href="{% url 'Tracks:userpage' %}{{ track.user.id }}">{{ track.user.get_name_to_display }}</a>
+                    </td>
+                    <td class="collab_tracks_list_item_thirdColumn">
+                        <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
+                        {% if collaboration.is_public == False and collaboration|is_user_authorized:session_user.id %}
+                            <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
+                        {% elif collaboration.is_public and track.user.id == session_user.id %}
+                            <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
+                        {% endif %}
+                    </td>
+                  </tr>
                 {% endfor %}
 
                 {% if collaboration.is_public or collaboration|is_user_authorized:session_user.id %}
-                <li>
-                  <button class="collaborate_button">Collaborate</button>
-                </li>
+                <tr class="colla_tracks_list_item">
+                    <td class="collab_tracks_list_item_firstColumn">
+                        <button class="collaborate_button">Collaborate</button>
+                    </td>
+                    <td class="collab_tracks_list_item_secondColumn"></td>
+                    <td class="collab_tracks_list_item_thirdColumn"></td>
+                </tr>
                 {% endif %}
-              </ul>
+              </table>
             </div>
           </div>
         </li>
@@ -80,8 +98,8 @@
     <table class="tracks_list">
       {% for track in list_of_tracks %}
         <tr class="tracks_list_item">
-          <td class="tracks_list_authorized_buttons_item_firstColumn">{{ track.filename }} </td>
-          <td class="tracks_list_authorized_buttons_item_secondColumn">
+          <td class="tracks_list_item_firstColumn">{{ track.filename }} </td>
+          <td class="tracks_list_item_secondColumn">
           <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
           <button name="{{ track.id }}" class="collaborate_button">Collaborate</button>
           {% if not is_disabled %}
@@ -95,8 +113,8 @@
 
         {% if not is_disabled %}
         <!-- IF THE FOLLOWING <TR> CHANGES, UPDATE THE CHANGES CORRESPONDINGLY IN create_tracks_authorized_buttons_html() OF CORE-FUNCTION.JS -->
-        <tr class="tracks_list_authorized_buttons_item">
-            <td class="tracks_list_authorized_buttons_item_firstColumn">
+        <tr class="tracks_list_item">
+            <td class="tracks_list_item_firstColumn">
                 <form action="javascript:;" method="post" enctype="multipart/form-data" class="fileUpload btn btn-primary musicUpload">
                     {% csrf_token %}
                     {% for field in form %}
@@ -108,7 +126,7 @@
                 <button onclick="window.location='{% url 'Tracks:record' %}'" class="btn btn-danger">Record</button>
             </td>
 
-            <td class="tracks_list_authorized_buttons_item_secondColumn"></td>
+            <td class="tracks_list_secondColumn"></td>
         </tr>
         {% else %}
         <form action="javascript:;" method="post">

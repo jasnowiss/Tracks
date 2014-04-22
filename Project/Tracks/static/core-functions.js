@@ -12,7 +12,7 @@ var button_using_settings_div;
 /** Opens a pane for settings of a collaboration. */
 function open_settings() {
     var prev_collab_style = collab_get_style(this);
-    collab_set_style_to(this, "editing");
+    set_collab_to(this, "editing");
     if (button_using_settings_div !== this){
         if (typeof button_using_settings_div !== "undefined"){
             $(button_using_settings_div).trigger("click");
@@ -41,7 +41,7 @@ function open_settings() {
 }
 
 function close_settings(prev_collab_style, settings_button) {
-    collab_set_style_to(settings_button, prev_collab_style);
+    set_collab_to(settings_button, prev_collab_style);
     $("#settings_form").empty();
     $("#settings_div").hide("drop");
     $(settings_button).off("click");
@@ -50,7 +50,7 @@ function close_settings(prev_collab_style, settings_button) {
 
 function change_permission_of_collab(html_element_inside_collab, select_element){ // finish this
     var selected_value = $(select_element).children(":selected").val();
-    collab_set_style_to(html_element_inside_collab, "processing");
+    set_collab_to(html_element_inside_collab, "processing");
     var collab_id = get_collab_id(html_element_inside_collab);
     $.ajax({
         url: resolve_to_url["change_permission_of_collab_url"],
@@ -58,7 +58,7 @@ function change_permission_of_collab(html_element_inside_collab, select_element)
         data: {collab_id : collab_id, bool_permission : selected_value},
         success: function (data, textStatus, jqXHR) {
             //alert(jqXHR.responseText);
-            collab_set_style_to(html_element_inside_collab, "editing"); // set upon success of ajax
+            set_collab_to(html_element_inside_collab, "editing"); // set upon success of ajax
 
         },
         error: function (jqXHR, textStatus, errorThrown) {
@@ -95,7 +95,7 @@ function create_authorized_users_table(KV_data, this_button) {
 }
 
 function add_user_to_collab(add_user_text_input, html_element_inside_collab) { // fix this
-    collab_set_style_to(html_element_inside_collab, "processing");
+    set_collab_to(html_element_inside_collab, "processing");
     var collab_id = get_collab_id(html_element_inside_collab);
     var searchString = $(add_user_text_input).val();
     $.ajax({
@@ -107,19 +107,19 @@ function add_user_to_collab(add_user_text_input, html_element_inside_collab) { /
             var user_name_to_display = data["name_to_display"];
             var user_id = data["user_id"];
             add_row_to_authorized_users_table(user_id, user_name_to_display, html_element_inside_collab); // upon success in ajax
-            collab_set_style_to(html_element_inside_collab, "editing"); // upon success in ajax
+            set_collab_to(html_element_inside_collab, "editing"); // upon success in ajax
 
         },
         error: function (jqXHR, textStatus, errorThrown) {
             alert(jqXHR.responseText);
-            collab_set_style_to(html_element_inside_collab, "error");
+            set_collab_to(html_element_inside_collab, "error");
         },
         async: true
     });
 }
 
 function remove_user_from_collab(user_id, html_element_inside_collab){ //finish this
-    collab_set_style_to(html_element_inside_collab, "processing");
+    set_collab_to(html_element_inside_collab, "processing");
     var collab_id = get_collab_id(html_element_inside_collab);
     // make ajax call with collab_id and user_id
     $.ajax({
@@ -129,12 +129,12 @@ function remove_user_from_collab(user_id, html_element_inside_collab){ //finish 
         success: function (data, textStatus, jqXHR) {
             //alert(jqXHR.responseText);
             remove_row_from_authorized_users_table(user_id); // upon success in ajax
-            collab_set_style_to(html_element_inside_collab, "editing"); // upon success in ajax
+            set_collab_to(html_element_inside_collab, "editing"); // upon success in ajax
 
         },
         error: function (jqXHR, textStatus, errorThrown) {
             //alert(jqXHR.responseText);
-            collab_set_style_to(html_element_inside_collab, "error");
+            set_collab_to(html_element_inside_collab, "error");
         },
         async: true
     });
@@ -176,6 +176,22 @@ function remove_track_from_collab() {
     confirm_dialog(dialog_text, yes_func, no_func);
 }
 
+function collab_play_button_bind_as(play_button_inside_collab, type){
+    if (is_inside_collab(play_button_inside_collab)){
+        type = type.toLowerCase();
+        if (type == "play") {
+            $(play_button_inside_collab).off("click", pause_collab);
+            $(play_button_inside_collab).on("click", play_collab);
+            $(play_button_inside_collab).text("Play");
+        }
+        else { // type == "pause"
+            $(play_button_inside_collab).off("click", play_collab);
+            $(play_button_inside_collab).on("click", pause_collab);
+            $(play_button_inside_collab).text("Pause");
+        }
+    }
+}
+
 /** ADD A DESCRIPTION */
 function play_collab() {
     var tracks_buttons = get_buttons_for_tracks_of_collab(this);
@@ -186,10 +202,10 @@ function play_collab() {
         } catch(e){
         }
     });
-    collab_set_style_to(this, "play");
-    $(this).off("click");
+    set_collab_to(this, "play");
+    /*$(this).off("click", play_collab);
     $(this).on("click", pause_collab);
-    $(this).text("Pause");
+    $(this).text("Pause"); */
 }
 
 /** ADD A DESCRIPTION */
@@ -202,10 +218,10 @@ function pause_collab() {
         } catch(e) {
         }
     });
-    collab_set_style_to(this, "pause");
-    $(this).off("click");
+    set_collab_to(this, "pause");
+   /* $(this).off("click", pause_collab);
     $(this).on("click", play_collab);
-    $(this).text("Play");
+    $(this).text("Play");*/
 }
 
 /** ADD A DESCRIPTION */
@@ -221,24 +237,29 @@ function restart_collab() {
 }
 
 /** ADD A DESCRIPTION */
-function collab_set_style_to(html_element_inside_collab, style_type) {
+function set_collab_to(html_element_inside_collab, style_type) {
     if (is_inside_collab(html_element_inside_collab)){
         var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+        var collab_play_button = $(container_div).find(".play_collab_button");
         style_type = style_type.toLowerCase();
-        if (style_type == "play") {
-            $(container_div).removeClass().addClass("collab_div_container collab_play");
-        }
-        else if (style_type == "processing") {
-            $(container_div).removeClass().addClass("collab_div_container collab_processing");
-        }
-        else if (style_type == "editing") {
-            $(container_div).removeClass().addClass("collab_div_container collab_editing");
-        }
-        else if (style_type == "error") {
-            $(container_div).removeClass().addClass("collab_div_container collab_error");
-        }
-        else { // style_type == "pause"
-            $(container_div).removeClass().addClass("collab_div_container collab_pause");
+        if( ! $(container_div).hasClass("collab_" + style_type)){
+            if (style_type == "play") {
+                $(container_div).removeClass().addClass("collab_div_container collab_play");
+                collab_play_button_bind_as(collab_play_button, "pause"); // since collab is set as playing, collab_play_button needs to be bound to the opposite (pause)
+            }
+            else if (style_type == "processing") {
+                $(container_div).removeClass().addClass("collab_div_container collab_processing");
+            }
+            else if (style_type == "editing") {
+                $(container_div).removeClass().addClass("collab_div_container collab_editing");
+            }
+            else if (style_type == "error") {
+                $(container_div).removeClass().addClass("collab_div_container collab_error");
+            }
+            else { // style_type == "pause"
+                $(container_div).removeClass().addClass("collab_div_container collab_pause");
+                collab_play_button_bind_as(collab_play_button, "play"); // since collab is set as paused, collab_play_button needs to be bound to the opposite (play)
+            }
         }
     }
 }
@@ -285,8 +306,8 @@ function toggle_all_tracks(){
         var collab_users_div = $(container_div)
             .children(".collab_users_div").get(0);
         if (collab_tracks_div) {
-            $(collab_users_div).toggle(500);
-            $(collab_tracks_div).toggle(500);
+            $(collab_users_div).slideToggle(500);
+            $(collab_tracks_div).slideToggle(500);
         }
     }
 }
@@ -299,7 +320,7 @@ function show_player() {
     }
     $(music_player).show(500);
 
-    $(this).off("click");
+    $(this).off("click", show_player);
     $(this).on("click", hide_player);
     $(this).text("Hide Player");
 }
@@ -317,7 +338,7 @@ function hide_player() {
         });
         //$(music_player).hide(500, function (){ remove_music_player(music_player);});
 
-        $(this).off("click");
+        $(this).off("click", hide_player);
         $(this).on("click", show_player);
         $(this).text("Show Player");
     }
@@ -351,7 +372,7 @@ function create_music_player(audio_server_name) {
     audio_control.append(source);
     $(audio_control).on("play", function(){
         if (is_inside_collab(this)){
-            collab_set_style_to(this, "play");
+            set_collab_to(this, "play");
         }
     });
     $(audio_control).on("pause ended", function(event){
@@ -376,7 +397,7 @@ function create_music_player(audio_server_name) {
                 } catch(e) {
                 }
             });
-            collab_set_style_to(this, style_to_set);
+            set_collab_to(this, style_to_set);
         }
     });
     audio_div.append(audio_control);
@@ -477,7 +498,7 @@ function get_music_player(html_element) {
         var parent = $(html_element).parent();
         music_player = create_music_player(html_element.name);
         $(music_player).hide();
-        parent.append(music_player);
+        $(parent).append(music_player);
         return music_player;
     }
 }
@@ -545,10 +566,10 @@ function add_loading_track(preceding_text, element_to_add_before_to) {
     var temp = $("<tr></tr>").addClass("tracks_list_item");
     var new_bar = create_progress_bar(); //add_new_progress_bar(temp);
     $(temp).append(
-        $("<td></td>").addClass("tracks_list_authorized_buttons_item_firstColumn").text(preceding_text)
+        $("<td></td>").addClass("tracks_list_item_firstColumn").text(preceding_text).title(preceding_text)
         );
     $(temp).append(
-        $("<td></td>").addClass("tracks_list_authorized_buttons_item_secondColumn").append(new_bar)
+        $("<td></td>").addClass("tracks_list_item_secondColumn").append(new_bar)
         );
 
     $(element_to_add_before_to).before(temp);
@@ -625,7 +646,7 @@ function upload_file() {
     //form_data.append('user_email', '{{ user.email }}');
 
     // updates the UI to reflect a file which is uploading
-    var new_bar = add_loading_track(file.name, $(this).parents(".tracks_list_authorized_buttons_item"));
+    var new_bar = add_loading_track(file.name, $(this).parents(".tracks_list_item"));
 
     // updates the UI to allow the user to upload another file while the previous file is uploading
     $(this).parents("form").get(0).reset();
@@ -663,10 +684,10 @@ function upload_file() {
 }
 
 function create_tracks_authorized_buttons_html(){
-    var authorized_buttons_element = $("<tr></tr>").addClass("tracks_list_authorized_buttons_item");
+    var authorized_buttons_element = $("<tr></tr>").addClass("tracks_list_item");
 
-    var firstColumn = $("<td></td>").addClass("tracks_list_authorized_buttons_item_firstColumn");
-    var secondColumn = $("<td></td>").addClass("tracks_list_authorized_buttons_item_secondColumn"); // this is used, do not remove
+    var firstColumn = $("<td></td>").addClass("tracks_list_item_firstColumn");
+    var secondColumn = $("<td></td>").addClass("tracks_list_item_secondColumn"); // this is used, do not remove
 
     var music_upload_form = $("<form></form>").attr({
                                                 action : "javascript:;",
@@ -743,7 +764,8 @@ function begin_collaboration(){
     $.getJSON(resolve_to_url["get_tracks_for_current_user_JSON_url"], function (data) {
         var temp_select_input = turn_KV_data_into_select_input(data, "track_select_list");
         if (temp_select_input != null) {
-            $(this_button).before(temp_select_input);
+            $(this_button).parent().append(temp_select_input); //$(this_button).before(temp_select_input);
+            $(temp_select_input).hide().show(250);
             $(this_button).text("Finalize Collaboration!");
             $(this_button).off("click");
             $(this_button).on("click", function(){ finalize_collaboration(this_button, "added") });
@@ -773,7 +795,7 @@ function finalize_collaboration(html_element, mod_type) {
     var track2_id = get_track2_id(html_element);
     var collab_id = get_collab_id(html_element);
     //alert("track1_id: " + track1_id + "track2_id: " + track2_id + "collab_id: " + collab_id + "mod_type: " + mod_type);
-    collab_set_style_to(html_element, "processing");
+    set_collab_to(html_element, "processing");
 
     $.ajax({
         url: resolve_to_url["finalize_collaboration_url"],
@@ -783,12 +805,12 @@ function finalize_collaboration(html_element, mod_type) {
             //alert(jqXHR.responseText);
             location.reload();
             //update_collab(html_element, jqXHR.responseText);
-            //collab_set_style_to(html_element, "pause");
+            //set_collab_to(html_element, "pause");
 
         },
         error: function (jqXHR, textStatus, errorThrown) {
             alert(jqXHR.responseText);
-            collab_set_style_to(html_element, "error");
+            set_collab_to(html_element, "error");
         },
         async: true
 
@@ -815,7 +837,7 @@ function update_collab(html_element, new_collab_html){
             $(next_sibling_list_element).before(new_collab_list_element);
         }
     } else {
-        collab_set_style_to(html_element, "error");
+        set_collab_to(html_element, "error");
     }
 }
 
@@ -903,6 +925,10 @@ function delete_track_from_server(html_element){
 
 function get_tracks_list_item(html_element){
     return $(html_element).parents(".tracks_list_item");
+}
+
+function get_collab_tracks_list_item(html_element){
+    return $(html_element).parents(".colla_tracks_list_item");
 }
 
 /********************** The following methods are not mine, they are from Django. *****************************

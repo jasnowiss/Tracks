@@ -120,7 +120,7 @@ function uploadFile() {
 */
 
 function upload_dialog(){
-    var dialog_html = $("<ul></ul>").addClass("tracks_list").append(create_tracks_authorized_buttons_html());
+    var dialog_html = $("<table></table>").addClass("tracks_list").append(create_tracks_authorized_buttons_html());
     var title = "Add New Track";
     var width = 600;
     var height = 250;

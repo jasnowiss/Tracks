@@ -92,15 +92,10 @@
         </tr>
       {% endfor %}
 
-      <!--<h3 class="noindent">Upload Track</h3>-->
+
         {% if not is_disabled %}
+        <!-- IF THE FOLLOWING <TR> CHANGES, UPDATE THE CHANGES CORRESPONDINGLY IN create_tracks_authorized_buttons_html() OF CORE-FUNCTION.JS -->
         <tr class="tracks_list_authorized_buttons_item">
-        <!--
-          <h3 class="noindent">Upload Track</h3>
-          <div class="fileUpload btn btn-default">
-            <span>Upload</span>
-            <input class="upload" type="file" />
-          </div> -->
             <td class="tracks_list_authorized_buttons_item_firstColumn">
                 <form action="javascript:;" method="post" enctype="multipart/form-data" class="fileUpload btn btn-primary musicUpload">
                     {% csrf_token %}

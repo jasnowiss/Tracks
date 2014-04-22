@@ -663,22 +663,28 @@ function upload_file() {
 }
 
 function create_tracks_authorized_buttons_html(){
-    var authorized_buttons_element = $("<li></li>").addClass("tracks_list_authorized_buttons_item");
+    var authorized_buttons_element = $("<tr></tr>").addClass("tracks_list_authorized_buttons_item");
+
+    var firstColumn = $("<td></td>").addClass("tracks_list_authorized_buttons_item_firstColumn");
+    var secondColumn = $("<td></td>").addClass("tracks_list_authorized_buttons_item_secondColumn"); // this is used, do not remove
+
     var music_upload_form = $("<form></form>").attr({
                                                 action : "javascript:;",
                                                 method : "post",
                                                 enctype : "multipart/form-data"
                                                 });
     $(music_upload_form).addClass("fileUpload btn btn-primary musicUpload");
-
     var upload_element = $("<input></input>").attr({type : "file", name : "file"});
     $(music_upload_form).append(upload_element);
     $(music_upload_form).append("Upload");
-
     var record_element = $("<button></button>").addClass("btn btn-danger").text("Record").on("click", function(){ window.location = resolve_to_url["record_url"]; });
 
-    authorized_buttons_element.append(music_upload_form);
-    $(authorized_buttons_element).append(record_element);
+    $(firstColumn).append(music_upload_form)
+                  .append(record_element);
+
+    $(authorized_buttons_element).append(firstColumn)
+                                 .append(secondColumn); // this is used, do not remove
+
     return authorized_buttons_element;
 }
 

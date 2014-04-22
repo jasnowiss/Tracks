@@ -259,12 +259,15 @@ button.remove_track_from_collab_button:hover
     min-width: 200px;
 }
 .tracks_list_authorized_buttons_item_secondColumn {
-    width: 300px;
-    min-width: 300px;
+    width: 350px;
+    min-width: 350px;
 }
 table {
     border-collapse: collapse;
 }
 td {
     padding: 5px 5px 5px 5px;
+}
+tr:hover{
+    background-color: #F0F0F0;
 }

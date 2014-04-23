@@ -2,7 +2,10 @@
 
 /* THIS PAGE CONTAINS THE STYLES WHICH WERE PREVIOUSLY A PART OF USERPAGE.HTML
 ** THOSE STYLES HAVE BEEN MOVED INTO THIS FILE */
-
+#collaborations_list
+{
+    display: inline-block;
+}
 #collaborations_list li /* , #tracks_list li*/
 {
     position: relative;
@@ -254,10 +257,11 @@ button.remove_track_from_collab_button:hover
 #settings_div{
     border: 1px solid orange;
     height: 550px;
-    width: 700px;
+    width: 500px;
     position: absolute;
-    left: 600px;
+    left: 620px;
     top: 80px;
+    padding: 2px 2px 2px 2px;
 }
 .authorized_users_table {
     border: none;

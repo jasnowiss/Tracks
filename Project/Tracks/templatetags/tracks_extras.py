@@ -37,31 +37,31 @@ def get_server_filename(model_object):
     return server_filename
 
 
-@register.filter
-def get_formatted_list_of_collab_users(model_object):
-    """ADD A DESCRIPTION"""
-    if(type(model_object) != Collaboration):
-        return "could not get list of collaboration users"
-    str_of_collab_users = ''
-    is_first = True;
-    for user in model_object.users.all():
-        if (is_first):
-            str_of_collab_users += user.firstName + ' ' + user.lastName
-            is_first = False
-        else:
-            str_of_collab_users += ', ' + user.firstName + ' ' + user.lastName
-    return str_of_collab_users
+##@register.filter
+##def get_formatted_list_of_collab_users(model_object):
+##    """ADD A DESCRIPTION"""
+##    if(type(model_object) != Collaboration):
+##        return "could not get list of collaboration users"
+##    str_of_collab_users = ''
+##    is_first = True;
+##    for user in model_object.users.all():
+##        if (is_first):
+##            str_of_collab_users += user.firstName + ' ' + user.lastName
+##            is_first = False
+##        else:
+##            str_of_collab_users += ', ' + user.firstName + ' ' + user.lastName
+##    return str_of_collab_users
 
 
 @register.filter
-def is_user_authorized(model_object, arg):
+def is_user_authorized(model_object, user_obj):
     """ADD A DESCRIPTION"""
     try:
+        bool_to_return = False
         if(type(model_object) == Collaboration):
-            model_object.users.get(id=arg)
-            return True
-        else:
-            return False
+            model_object.users.get(id=user_obj.id)
+            bool_to_return = True
+        return bool_to_return
     except:
         return False
 

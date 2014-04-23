@@ -323,7 +323,8 @@ def remove_user_from_collab(request):
             response = HttpResponse('success')
             response.status_code = 200
         else:
-            response = HttpResponse("could not find user") # May need to change message sent
+            response = HttpResponse("could not remove user") # May need to change message sent
+            print("could not remove user. either user does not exist or user is the last user remaining(and therefore can not be removed)") # for debugging purposes only. DO NOT USE IN PRODUCTION
             response.status_code = 400
 
         return response

@@ -315,8 +315,7 @@ class Track(models.Model):
 PERMISSION_OPTIONS = { 'true' :'public', 'false' : 'private' }
 class Collaboration(models.Model):
     """A class for managing the layering and editing of Tracks."""
-    # master_user = models.ForeignKey(TracksUser) need to fix for future iterations
-    users = models.ManyToManyField(TracksUser) # In future iterations, this may also play a role in add/modify permissions for a collaboration
+    users = models.ManyToManyField(TracksUser) # This now represents the set of "master" users
     tracks = models.ManyToManyField(Track)
     is_public = models.BooleanField(default=True)
 
@@ -345,11 +344,35 @@ class Collaboration(models.Model):
         self.save()
         ##print(self.is_public)
 
-    def set_is_public(self, bool_permission):
-        self.is_public = bool(bool_permission)
+##    def set_is_public(self, bool_permission):
+##        self.is_public = bool(bool_permission)
+
+    def get_formatted_list_of_collab_users(self):
+        str_of_collab_users = ''
+        is_first = True;
+        for user in self.get_users_of_tracks():
+            if (is_first):
+                str_of_collab_users += user.firstName + ' ' + user.lastName
+                is_first = False
+            else:
+                str_of_collab_users += ', ' + user.firstName + ' ' + user.lastName
+        return str_of_collab_users
 
     def get_users(self):
         return self.users.all()
+
+    def get_users_of_tracks(self):
+        users_list = []
+        encountered = {}
+        for track in self.get_tracks():
+            track_user = track.user
+            if(not encountered.has_key(track_user.id)):
+                encountered[track_user.id] = 1
+                users_list.append(track_user)
+        return users_list
+
+    def get_tracks(self):
+        return self.tracks.all().order_by("id")
 
     def add_user_using_searchString(self, searchString): # needs to be updated in a future iteration
         temp_user = None
@@ -358,23 +381,41 @@ class Collaboration(models.Model):
         list_of_users = sorted(list_of_users, key=lambda elem: elem.get_name_to_display())
         if(len(list_of_users) != 0):
             temp_user = list_of_users[0]
-            self.users.add(temp_user)
+            self.add_user(temp_user)
         return temp_user
 
     def remove_user(self, user_id):
         is_removed = False
         try:
             temp_user = TracksUser.objects.get(id=user_id)
-            self.users.remove(temp_user)
-            is_removed = True
+
+            # A collaboration must have at least 1 "master" user.
+            if(self.users.count() > 1):
+                self.users.remove(temp_user)
+                is_removed = True
+            else:
+                is_removed = False
         except:
             is_removed = False
         return is_removed
 
+    def add_user(self, arg):
+        is_added = False
+        try:
+            if(type(arg) != TracksUser):
+                temp_user = TracksUser.objects.get(id=user_id)
+            else:
+                temp_user = arg
+            self.users.add(temp_user)
+            is_added = True
+        except:
+            is_added = False
+        return is_added
+
     def handle_adding_track(self, temp_track):
         """Adds a track to the list of tracks in this collaboration, and adds the user who added it."""
         self.tracks.add(temp_track)
-        self.users.add(temp_track.user)
+        ##self.users.add(temp_track.user)
 
     def handle_removing_track(self, temp_track):
         """Removes a track from the collaboration.
@@ -386,8 +427,8 @@ class Collaboration(models.Model):
         """
         self.tracks.remove(temp_track)
 
-        if(len(self.tracks.filter(user=temp_track.user)) == 0):
-            self.users.remove(temp_track.user)
+##        if(len(self.tracks.filter(user=temp_track.user)) == 0):
+##            self.users.remove(temp_track.user)
 
     def get_settings_list_JSON(self):
         response_data = {}
@@ -444,6 +485,8 @@ class Collaboration(models.Model):
                 if (not temp_dict.has_key(temp_track.user.id)):
                     temp_dict[temp_track.user.id] = 1
                     History.add_history(temp_track.user, temp_collab, history_type)
+                    if(history_type == ADDED_HISTORY):
+                        temp_collab.add_user(temp_track.user)
 
 
             temp_collab.save()
@@ -526,9 +569,8 @@ def search_relevant_models(searchString):
 
 
 def reset_fixture():
-    for model in [TracksUser, UserProfile, Track, Collaboration, History]:
-        if(type(model) != Track):
-            model.objects.all().delete()
-        else:
-            for temp_track in Track.objects.all():
+    # Make sure Track deletion occurs first
+    for temp_track in Track.objects.all():
                 Track.handle_delete_track(temp_track.id)
+    for model in [Collaboration, UserProfile, TracksUser, History]:
+        model.objects.all().delete()

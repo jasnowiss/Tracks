@@ -566,7 +566,7 @@ function add_loading_track(preceding_text, element_to_add_before_to) {
     var temp = $("<tr></tr>").addClass("tracks_list_item");
     var new_bar = create_progress_bar(); //add_new_progress_bar(temp);
     $(temp).append(
-        $("<td></td>").addClass("tracks_list_item_firstColumn").text(preceding_text).title(preceding_text)
+        $("<td></td>").addClass("tracks_list_item_firstColumn").text(preceding_text).attr("title", preceding_text)
         );
     $(temp).append(
         $("<td></td>").addClass("tracks_list_item_secondColumn").append(new_bar)

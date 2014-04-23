@@ -6,6 +6,7 @@ $(document).ready(function () {
 
   /********************************** Functions of NISHANT KUMAR ***************************************/
 
+    //$(document).tooltip();
     $(".settings_button").click(open_settings);
     $("#settings_div").hide();
 

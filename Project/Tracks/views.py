@@ -15,7 +15,6 @@ import traceback
 import json
 
 from django.views.decorators.csrf import ensure_csrf_cookie
-from pydub import AudioSegment
 
 # need these for serving mp3 files from this Django server. If another server handles serving mp3 files, these can be removed.
 # see play_mp3 function at bottom of page for more details.

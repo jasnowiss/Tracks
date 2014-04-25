@@ -41,6 +41,9 @@ function open_settings() {
 }
 
 function close_settings(prev_collab_style, settings_button) {
+    if (settings_button == button_using_settings_div){
+        button_using_settings_div = undefined;
+    }
     set_collab_to(settings_button, prev_collab_style);
     $("#settings_form").empty();
     $("#settings_div").hide("drop");

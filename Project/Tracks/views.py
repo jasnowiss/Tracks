@@ -25,9 +25,7 @@ from django.core.servers.basehttp import FileWrapper
 
 """
 TODO:
-    - (across entire site) need to change the way permissions work. right now anyone can collaborate with a public collab, turn it private, delete
-                            any track from the collab, and then turn it public again. this effectively undermines the public/private system. need
-                            to keep track of "master user" of a collab.
+
 """
 
 def webAudio(request, track_id):
@@ -387,6 +385,7 @@ def play_MP3(request, path):
     response['Content-Length'] = os.path.getsize(filepath)
     response['Content-Disposition'] = 'attachment; filename=%s' % path
     return response
+
 
 @login_required
 @ensure_csrf_cookie

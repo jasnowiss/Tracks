@@ -175,9 +175,9 @@ class UserProfile(models.Model):
 
     user = models.OneToOneField(TracksUser)
     #instrument = models.CharField(max_length=200, choices=INSTRUMENT_CHOICES)
-    display_name = models.CharField(max_length=200)
-    years_of_experience = models.PositiveSmallIntegerField()
-    favorite_musician = models.CharField(max_length=200)
+    display_name = models.CharField(max_length=200, blank=True)
+    years_of_experience = models.PositiveSmallIntegerField(default=0)
+    favorite_musician = models.CharField(max_length=200, blank=True)
     instruments = models.ManyToManyField(Instrument)
     genres= models.ManyToManyField(Genre)
 
@@ -434,13 +434,11 @@ class Collaboration(models.Model):
 
     def handle_removing_track(self, temp_track):
         """Removes a track from the collaboration.
-
-        Note: if temp_track.user has no more tracks in this collaboration,
-              then remove him/her from the collaboration.
-              Subject to change, depending on how users field ends up being used (in regard to permissions)
-
+           If a collaboration has no more tracks in it, then delete the collaboration.
         """
         self.tracks.remove(temp_track)
+        if (self.tracks.all().count() == 0):
+            self.delete()
 
 ##        if(len(self.tracks.filter(user=temp_track.user)) == 0):
 ##            self.users.remove(temp_track.user)

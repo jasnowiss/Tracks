@@ -259,7 +259,7 @@ button.remove_track_from_collab_button:hover
     height: 550px;
     width: 500px;
     position: absolute;
-    left: 620px;
+    left: 700px;
     top: 80px;
     padding: 2px 2px 2px 2px;
 }
@@ -308,4 +308,32 @@ td {
 }
 tr:hover{
     background-color: #F0F0F0;
+}
+button.settings_button {
+    float: right;
+    padding: 0px 0px 0px 0px;
+    border: none;
+    margin-right: 3px;
+}
+
+.inline {
+    display: inline;
+}
+
+.unindent {
+    margin-left: -37.5px;
+}
+
+.no-bullets {
+    list-style-type: none;
+}
+
+.ml-zero {
+    margin-left: 0px;
+}
+
+.music-pic {
+    text-align: center;
+    width: 450px;
+    height: 300px;
 }

@@ -31,12 +31,18 @@
     </div>
 
     <div class="container" style="width:50%">
+    	{% if haserror %}
+		<div id="error" class="alert alert-danger">
+    		Error: Please retry user registration.
+    	</div>
+    	{% endif %}
       {% load myfilters %}
       <form id="signin" action="" class="form-horizontal" role="form" method="post">
         {% csrf_token %}
         <div class="form-group" >
           <label for="firstname" class="col-sm-2 control-label">First Name:</label>
           <div class="col-sm-10">
+          	{{form.errors}}
             {{ form.firstName|addattr:"class: form-control,placeholder: First Name" }}
           </div>
         </div>
@@ -62,7 +68,7 @@
           </div>
         </div>
 
-        <div class="form-group" >
+        <div class="form-group" id="email-group">
           <label for="email" class="col-sm-2 control-label">Email Address:</label>
           <div class="col-sm-10">
             {{ form.email|addattr:"class: form-control,placeholder: Email" }}
@@ -82,10 +88,10 @@
           </div>
         </div>
 
-        <div class="form-group" >
+        <div class="form-group" id="confirm-group">
           <label for="confirm" class="col-sm-2 control-label">Confirm Password:</label>
           <div class="col-sm-10">
-            {{ form.confirm|addattr:"class: form-control,placeholder: Confirm Password" }}
+            {{ form.confirm|addattr:"class: form-control,placeholder: Confirm Password, onforminput: errorcheck()" }}
           </div>
         </div>
 
@@ -123,21 +129,23 @@
     {% endif %}
     <script type="text/javascript">
         /** ADD A DESCRIPTION */
-        function json_request(page, dict, success, failure) {
-            alert(page);
-            $.ajax({
-                type: 'POST',
-                url: page,
-                data: dict,
-                success: success,
-                error: failure
-            });
-        }
-        /** ADD A DESCRIPTION */
-        function createAccount() {
-            json_request(window.location, {email:$("#email").val(), firstname:$("#firstname").val(),lastname:$("#lastname").val(),password:$("#password").val(),confirm:$("#confirm").val()}, function(data) {
-                alert(JSON.stringify(data));}, function(err) { alert("An error was encountered. " + err);});
-        }
+		function errorcheck() {
+			haserror = false;
+			if ($("#id_password").val() != $("#id_confirm").val()) {
+				$("#confirm-group").addClass("has-error");
+				$("#confirm-group").addClass("has-feedback");
+				haserror = true;
+			}
+			if ($("id_email").val() == "") {
+				$("#email-group").addClass("has-error");
+				$("#email-group").addClass("has-feedback")
+				haserror = true;
+			}
+			if (haserror) {
+				$("button").attr("disabled");
+			}
+		}
+
     </script>
   </body>
 </html>

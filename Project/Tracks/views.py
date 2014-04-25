@@ -46,23 +46,29 @@ def register(request):
     """Registers a user."""
     email = password = ''
     if request.method == 'POST':
-        #form = TracksUserCreationForm(request.POST)
+        form = TracksUserCreationForm(request.POST)
         #perhaps need to log in the user as well?
         #Need error handling
         email = request.POST.get('email')
         password = request.POST.get('password')
-        firstName = request.POST.get('firstName')
-        lastName = request.POST.get('lastName')
-        confirm = request.POST.get('confirm')
-        user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
-        user = authenticate(username=email, password=password)
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                return HttpResponseRedirect('/Tracks/userpage/')
+        #firstName = request.POST.get('firstName')
+        #lastName = request.POST.get('lastName')
+        #confirm = request.POST.get('confirm')
+        #user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
+        try:
+            user = form.save()
+            user = authenticate(username=email, password=password)
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return HttpResponseRedirect('/Tracks/userpage/')
+        except ValueError:
+            form = TracksUserCreationForm()
+            return render(request, 'Tracks/signup.html', {'form': form, 'session':request.user.is_authenticated(), 'haserror': True})
+
     #else:
     form = TracksUserCreationForm()
-    return render(request, 'Tracks/signup.html', {'form': form, 'session':request.user.is_authenticated()})
+    return render(request, 'Tracks/signup.html', {'form': form, 'session':request.user.is_authenticated(),'has_error':False})
 
 
 def signIn(request):

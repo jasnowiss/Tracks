@@ -257,9 +257,9 @@ button.remove_track_from_collab_button:hover
 #settings_div{
     border: 1px solid orange;
     height: 550px;
-    width: 450px;
+    width: 500px;
     position: absolute;
-    left: 670px;
+    left: 700px;
     top: 80px;
     padding: 2px 2px 2px 2px;
 }

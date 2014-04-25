@@ -28,7 +28,7 @@
               <div class="collab_info_div">
                   Collaboration {{ collaboration.id }}
                   <button name="collab_{{ collaboration.id }}" class="play_collab_button">Play</button>
-                  <button name="collab_{{ collaboration.id }}" class="restart_collab_button">Restart</button>
+                  <button name="collab_{{ collaboration.id }}" class="restart_collab_button">Reset</button>
                   <!-- may need to change in future iteration  account for a master_user of collab -->
                   {% if collaboration|is_user_authorized:session_user %}
                       <button>Edit</button>

@@ -22,7 +22,13 @@ function WaveTrack()
         this.sampleRate = sampleRateCheck;
         this.audioSequences = sequences;
     };
-    
+
+    this.toBlob = function toBlob(encoding){
+        var encodedWave = this.encodeWaveFile();
+        var blob = new Blob([encodedWave], {type: encoding});
+        return blob;
+    }
+
     this.toBlobUrlAsync = function toBlobUrlAsync(encoding, asyncMethod, host)
     {
         

@@ -363,9 +363,47 @@ function audioLayerControl(elementContext)
         this.playLoop = !this.playLoop;
     };
 
+    function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie != '') {
+          var cookies = document.cookie.split(';');
+          for (var i = 0; i < cookies.length; i++) {
+              var cookie = jQuery.trim(cookies[i]);
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+    }
+    var csrf_token = getCookie('csrftoken');
+
     this.save = function save(saveLink)
     {
-        var url = this.toWave().toBlobUrlAsync("application/octet-stream");
+        var blob = this.toWave().toBlob("application/octet-stream");
+        var filename = this.title.substring((this.title.lastIndexOf('/')) + 1);
+        var data = new FormData();
+        data.append('csrfmiddlewaretoken', csrf_token);
+        data.append('filename', filename);
+        data.append("audio", blob);
+        $.ajax({
+          url :  "/Tracks/handleRecord",
+          type: 'POST',
+            data: data,
+            contentType: false,
+            processData: false,
+            success: function(data) {
+                //Redirect? Modify UI in place? Notify User?
+                console.log("Saved.");
+            },
+            error: function() {
+                //Notify User, or ignore if no recording?
+                console.log("Failed.");
+            }
+        });
+        /*var url = this.toWave().toBlobUrlAsync("application/octet-stream");
         saveLink.href = url;
         saveLink.className = "btn btn-large btn-success";
         /*this.toWave().toBlobUrlAsync(function(url, host)
@@ -506,19 +544,19 @@ function audioLayerControl(elementContext)
         filedb.defineDropHandler(this.elementContext);
 		console.log(this.elementContext);
         filedb.eventHost = this;
-        
+
         filedb.onFinish = function()
         {
             $('#app-progress')[0].style['width'] = '50%';
             activeAudioLayerControl = this.eventHost.elementContext;
-            this.eventHost.audioPlayback.audioContext.decodeAudioData(this.resultArrayBuffer, this.eventHost.decodeAudioFinished, this.eventHost.decodeAudioFailed);  
+            this.eventHost.audioPlayback.audioContext.decodeAudioData(this.resultArrayBuffer, this.eventHost.decodeAudioFinished, this.eventHost.decodeAudioFailed);
         }
-        
+
         filedb.onFail = function(e)
         {
             var msg = '';
-          
-          
+
+
             switch (e.target.error.code) {
               case FileError.QUOTA_EXCEEDED_ERR:
                 msg = 'QUOTA_EXCEEDED_ERR';
@@ -539,9 +577,9 @@ function audioLayerControl(elementContext)
                 msg = 'Unknown Error ' + e.code;
                 break;
             };
-          
+
             console.log('Error: ' + msg);
-        }  
+        }
     };
     
     this.decodeAudioFinished = function decodeAudioFinished(audioBuffer)
@@ -570,7 +608,7 @@ function audioLayerControl(elementContext)
         
         setTimeout(function() { $('#app-progress')[0].style['width'] = '0%'; }, 1000);
     };
-    
+
     /*this.createDropHandler();*/
     
     this.elementContext.onselectstart = function() { return(false); };

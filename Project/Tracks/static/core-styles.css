@@ -331,3 +331,9 @@ button.settings_button {
 .ml-zero {
     margin-left: 0px;
 }
+
+.music-pic {
+    text-align: center;
+    width: 450px;
+    height: 300px;
+}

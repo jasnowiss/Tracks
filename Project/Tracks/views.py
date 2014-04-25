@@ -362,6 +362,36 @@ def record(request):
         return render(request, 'Tracks/disabled')
  
 @login_required
+def handleRecordFromEdit(request, collaboration_id):
+    """
+    Saves a user-recorded blob as an .mp3.
+    """
+    if not request.method == 'POST' or not request.is_ajax():
+        raise Http404
+    file_name = request.POST.get('filename')
+    audio = request.FILES.get('audio')
+    SIZE_LIMIT = 5242880 #Should probably be made global, currently same as upload_mp3's SIZE_LIMIT
+    try:
+        if audio.size > SIZE_LIMIT:
+            #handle size error
+            pass
+        #need to convert from WAV to MP3
+        temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), None)
+        new_track = Track(user=temp_user, filename=file_name)
+        new_track.handle_upload_file(audio)
+        History.add_history(new_track.user, new_track, ADDED_HISTORY)
+        
+
+        collab = Collaboration.handle_finalization(new_track.id, 0, collaboration_id, "add")
+
+        response = HttpResponse('success')
+        response.status_code = 200;
+        return response
+    except:
+        #handle error
+        pass
+
+@login_required
 def handleRecord(request):
     """
     Saves a user-recorded blob as an .mp3.

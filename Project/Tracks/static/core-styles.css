@@ -257,9 +257,9 @@ button.remove_track_from_collab_button:hover
 #settings_div{
     border: 1px solid orange;
     height: 550px;
-    width: 500px;
+    width: 450px;
     position: absolute;
-    left: 620px;
+    left: 670px;
     top: 80px;
     padding: 2px 2px 2px 2px;
 }
@@ -314,4 +314,20 @@ button.settings_button {
     padding: 0px 0px 0px 0px;
     border: none;
     margin-right: 3px;
+}
+
+.inline {
+    display: inline;
+}
+
+.unindent {
+    margin-left: -37.5px;
+}
+
+.no-bullets {
+    list-style-type: none;
+}
+
+.ml-zero {
+    margin-left: 0px;
 }

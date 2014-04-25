@@ -326,10 +326,17 @@ class Collaboration(models.Model):
     users = models.ManyToManyField(TracksUser) # This now represents the set of "master" users
     tracks = models.ManyToManyField(Track)
     is_public = models.BooleanField(default=True)
+    name = models.CharField(max_length=50)
 
     def __unicode__(self):
         """Returns the default django identifier."""
-        return str(self.id)
+        if (self.name):
+            return self.name
+        return "Collaboration " + str(self.id)
+
+    def handle_change_name(self, new_name):
+        self.name = new_name
+        self.save()
 
     def get_permission_level(self):
         if(self.is_public):

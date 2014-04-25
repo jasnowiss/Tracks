@@ -51,6 +51,9 @@ function doneEncoding( blob ) {
 }
 
 function toggleRecording( e ) {
+    setTimeout(function() {continueRecording(e) }, 150);
+}
+function continueRecording(e) {
     if (e.classList.contains("recording")) {
         // stop recording
         audioRecorder.stop();

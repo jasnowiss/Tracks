@@ -94,6 +94,7 @@
                     </td>
                     <td class="collab_tracks_list_item_thirdColumn">
                         <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
+                        <button name="{{ track.id }}" class="edit_button">Edit</button>
                         {% if collaboration|is_user_authorized:session_user %}
                             <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
                         {% elif track.user.id == session_user.id %}

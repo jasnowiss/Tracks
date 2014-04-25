@@ -65,10 +65,9 @@ def register(request):
         except ValueError:
             form = TracksUserCreationForm()
             return render(request, 'Tracks/signup.html', {'form': form, 'session':request.user.is_authenticated(), 'haserror': True})
-
-    #else:
-    form = TracksUserCreationForm()
-    return render(request, 'Tracks/signup.html', {'form': form, 'session':request.user.is_authenticated(),'has_error':False})
+    else:
+        form = TracksUserCreationForm()
+        return render(request, 'Tracks/signup.html', {'form': form, 'session':request.user.is_authenticated(),'has_error':False})
 
 
 def signIn(request):

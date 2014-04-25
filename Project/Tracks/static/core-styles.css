@@ -309,3 +309,9 @@ td {
 tr:hover{
     background-color: #F0F0F0;
 }
+button.settings_button {
+    float: right;
+    padding: 0px 0px 0px 0px;
+    border: none;
+    margin-right: 3px;
+}

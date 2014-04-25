@@ -35,7 +35,7 @@ class TracksUserCreationForm(forms.ModelForm):
     class Meta:
         # Point to TracksUser here instead of default `User`
         model = TracksUser
-        fields = ("email", "firstName", "lastName")
+        fields = ("email", "firstName", "lastName","password","confirm")
 
     def clean_username(self):
         # Since User.username is unique, this check is redundant,

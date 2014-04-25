@@ -127,6 +127,14 @@ class TracksUser(AbstractBaseUser):
         return temp_user, is_disabled
 
     @classmethod
+    def email_exists(cls, email):
+        num_of_users = cls.objects.filter(email=email).count()
+        if (num_of_users != 0):
+            return True
+        else:
+            return False
+
+    @classmethod
     def filter_for_search(cls, searchString):
         """ADD A DESCRIPTION"""
         list_to_return = []

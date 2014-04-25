@@ -54,12 +54,14 @@ def register(request):
         firstName = request.POST.get('firstName')
         lastName = request.POST.get('lastName')
         confirm = request.POST.get('confirm')
-        user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
-        user = authenticate(username=email, password=password)
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                return HttpResponseRedirect('/Tracks/userpage/')
+        if(not TracksUser.email_exists(email)):
+            if(password == confirm):
+                user = TracksUser.objects.create_user(email, firstName, lastName, confirm, password)
+                user = authenticate(username=email, password=password)
+                if user is not None:
+                    if user.is_active:
+                        login(request, user)
+                        return HttpResponseRedirect('/Tracks/userpage/')
     #else:
     form = TracksUserCreationForm()
     return render(request, 'Tracks/signup.html', {'form': form, 'session':request.user.is_authenticated()})

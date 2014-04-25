@@ -342,7 +342,7 @@ function AudioLayerSequenceEditor(elementContext)
                 this.eventHost.selectionEnd = temp;
             }
             
-            // reset the selction mouse states for the selection
+            // reset the selection mouse states for the selection
             this.eventHost.mouseInsideOfSelection = false;
             this.eventHost.mouseSelectionOfStart = false;
             this.eventHost.mouseSelectionOfEnd = false;
@@ -435,7 +435,7 @@ function AudioLayerSequenceEditor(elementContext)
         canvasContext.font = 'italic 40px Calibri';
         canvasContext.textAlign = 'center';
         canvasContext.textBaseline = "middle"
-        this.paintTextWithShadow("Drag audio file here to edit", canvasContext.canvas.clientWidth / 2.0, canvasContext.canvas.clientHeight / 2.0, "rgba(0,0,0,1)", canvasContext);
+        this.paintTextWithShadow("Loading...", canvasContext.canvas.clientWidth / 2.0, canvasContext.canvas.clientHeight / 2.0, "rgba(0,0,0,1)", canvasContext);
         
         canvasContext.font = oldFont;
         canvasContext.textAlign = 'left';

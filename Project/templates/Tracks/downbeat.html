@@ -42,19 +42,21 @@
 
               {% if history_obj.added %}
                 {% if history_obj.track != None %}
-                  added a new Track: <a href="javascript:;">{{history_obj.track.filename}}</a>
+                    added a new Track: <a href="javascript:;">{{history_obj.track.filename}}</a>
 
-                {% elif history_obj.collaboration != None %}
-                  started a new Collaboration: <a href="javascript:;">Collaboration {{history_obj.collaboration.id}}</a>
+                    {% if history_obj.collaboration != None %}
+                        to Collaboration: <a href="javascript:;">Collaboration {{history_obj.collaboration.id}}</a>
+                    {% endif %}
 
                 {% endif %}
 
               {% elif history_obj.modified %}
                 {% if history_obj.track != None %}
-                  modified Track: <a href="javascript:;">{{history_obj.track.filename}}</a>
+                    modified Track: <a href="javascript:;">{{history_obj.track.filename}}</a>
 
-                {% elif history_obj.collaboration != None %}
-                  modified Collaboration: <a href="javascript:;">Collaboration {{history_obj.collaboration.id}}</a>
+                    {% if history_obj.collaboration != None %}
+                        in Collaboration: <a href="javascript:;">Collaboration {{history_obj.collaboration.id}}</a>
+                    {% endif %}
 
                 {% endif %}
 

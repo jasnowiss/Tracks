@@ -20,12 +20,15 @@
 {% url 'Tracks:remove_user_from_collab' as remove_user_from_collab_url %}
 {% url 'Tracks:webAudio' as webAudio_url %}
 {% url 'Tracks:record' as record_url %}
+{% url 'Tracks:get_update_collab_JSON' as get_update_collab_JSON_url %}
 
 {% load staticfiles %}
 
 <!-- Script to setup url usage in .js files -->
 <script type="text/javascript">
     resolve_to_url = [];
+    resolve_to_url["MEDIA_URL"] = "{{ MEDIA_URL }}";
+
     resolve_to_url["upload_mp3_url"] = "{{ upload_mp3_url }}";
     resolve_to_url["userprofile_url"] = "{{ userprofile_url }}";
     resolve_to_url["userpage_url"] = "{{ userpage_url }}";
@@ -38,7 +41,7 @@
     resolve_to_url["remove_user_from_collab_url"] = "{{ remove_user_from_collab_url }}";
     resolve_to_url["webAudio_url"] = "{{ webAudio_url }}";
     resolve_to_url["record_url"] = "{{ record_url }}";
-    resolve_to_url["MEDIA_URL"] = "{{ MEDIA_URL }}";
+    resolve_to_url["get_update_collab_JSON_url"] = "{{ get_update_collab_JSON_url }}";
  </script>
 
 <link href={% static "bootstrap-3.1.1-dist/css/bootstrap.min.css" %} rel="stylesheet">

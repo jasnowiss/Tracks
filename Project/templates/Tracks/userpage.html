@@ -24,13 +24,14 @@
         {% for collaboration in list_of_collaborations %}
           <li class="no-bullets unindent">
             <div id="{{ collaboration.id }}" class="collab_div_container collab_pause">
+            <input type="hidden" name="collab_last_known_update" value="{{ collaboration.last_updated }}"/>
               <div class="collab_info_div">
                   {{ collaboration }}
                   <button name="collab_{{ collaboration.id }}" class="play_collab_button">Play</button>
                   <button name="collab_{{ collaboration.id }}" class="restart_collab_button">Reset</button>
                   <!-- may need to change in future iteration  account for a master_user of collab -->
                   {% if collaboration|is_user_authorized:session_user %}
-                    <a href="/Tracks/edit/{{ collaboration.id }}">
+                    <a href="{% url 'Tracks:edit' %}{{ collaboration.id }}">
                       <button>Edit</button>
                     </a>
                   {% endif %}
@@ -61,7 +62,7 @@
                       </tr>
 
                   {% for track in collaboration.get_tracks %}
-                    <tr class="colla_tracks_list_item">
+                    <tr name= "{{ track.id }}" class="colla_tracks_list_item">
                       <td class="collab_tracks_list_item_firstColumn" title="{{ track.filename }}">
                           {{ track.filename }}
                       </td>
@@ -69,7 +70,7 @@
                           by <a href="{% url 'Tracks:userpage' %}{{ track.user.id }}">{{ track.user.get_name_to_display }}</a>
                       </td>
                       <td class="collab_tracks_list_item_thirdColumn">
-                          <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
+                          <button name="{{ track.get_server_filename }}" class="show_hide_player_button">Show Player</button>
                           {% if collaboration|is_user_authorized:session_user %}
                               <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
                           {% elif track.user.id == session_user.id %}
@@ -101,7 +102,7 @@
           <tr class="tracks_list_item">
             <td class="tracks_list_item_firstColumn">{{ track.filename }} </td>
             <td class="tracks_list_item_secondColumn">
-            <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
+            <button name="{{ track.get_server_filename }}" class="show_hide_player_button">Show Player</button>
             <button name="{{ track.id }}" class="collaborate_button">Collaborate</button>
             {% if not is_disabled %}
               <button name="{{ track.id }}" class="edit_button">Edit</button>

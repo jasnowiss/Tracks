@@ -25,16 +25,16 @@ def model_is_of_type_i(model_object, arg):
     return (model_object.__class__.__name__.lower() == arg.lower())
 
 
-@register.filter
-def get_server_filename(model_object):
-    """ADD A DESCRIPTION"""
-    if (type(model_object) != Track):
-        return "could not get server filename"
-    server_filename = '#'
-    temp_filepath = model_object.filepath
-    if(os.path.exists(temp_filepath)):
-        server_filename = os.path.basename(temp_filepath)
-    return server_filename
+##@register.filter
+##def get_server_filename(model_object):
+##    """ADD A DESCRIPTION"""
+##    if (type(model_object) != Track):
+##        return "could not get server filename"
+##    server_filename = '#'
+##    temp_filepath = model_object.filepath
+##    if(os.path.exists(temp_filepath)):
+##        server_filename = os.path.basename(temp_filepath)
+##    return server_filename
 
 
 ##@register.filter

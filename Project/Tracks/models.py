@@ -217,6 +217,17 @@ class UserProfile(models.Model):
 #list of acceptable extensions. make sure it starts with a dot'
 ACCEPTABLE_MUSIC_FORMATS = ['.mp3','.wav']
 
+#currently the size of the file is a static final, however we should consider having a quota per user, in case a user wishes to extend their quota.
+# 2.5MB - 2621440
+# 5MB - 5242880
+# 10MB - 10485760
+# 20MB - 20971520
+# 50MB - 52428800
+# 100MB 104857600
+# 250MB - 214958080
+# 500MB - 429916160
+SIZE_LIMIT = 52428800
+
 class Track(models.Model):
     """A class to manage sound files."""
 
@@ -249,21 +260,19 @@ class Track(models.Model):
 
         self.filepath = temp_dest
         self.save()
+        #Don't need this, as handle_music_file_upload already does this ##History.add_history(self.user, self, ADDED_HISTORY)
         return temp_dest
+
+    def get_server_filename(self):
+        server_filename = '#'
+        temp_filepath = self.filepath
+        if(os.path.exists(temp_filepath)):
+            server_filename = os.path.basename(temp_filepath)
+        return server_filename
 
     @classmethod
     def is_music_file_valid(cls, temp_file):
         """Returns whether the file is of appropriate size and ends with a valid extension."""
-        #currently the size of the file is a static final, however we should consider having a quota per user, in case a user wishes to extend their quota.
-        # 2.5MB - 2621440
-        # 5MB - 5242880
-        # 10MB - 10485760
-        # 20MB - 20971520
-        # 50MB - 52428800
-        # 100MB 104857600
-        # 250MB - 214958080
-        # 500MB - 429916160
-        SIZE_LIMIT = 52428800
 
         #check the size of the file
         sizeOfFile = temp_file._size
@@ -290,7 +299,7 @@ class Track(models.Model):
         if(error == None):
             new_track = Track(user = temp_user, filename=temp_file.name)
             new_track.handle_upload_file(temp_file)
-            History.add_history(new_track.user, new_track, ADDED_HISTORY)
+            History.add_history(temp_user, ADDED_HISTORY, collab=None, track=new_track) ##History.add_history(new_track.user, new_track, ADDED_HISTORY)
             server_filename = new_track.get_server_filename()
             track_id = new_track.id
 
@@ -427,9 +436,17 @@ class Collaboration(models.Model):
             is_added = False
         return is_added
 
+    def has_track(self, temp_track):
+        try:
+            self.tracks.get(id=temp_track.id)
+            return True
+        except:
+            return False
+
     def handle_adding_track(self, temp_track):
-        """Adds a track to the list of tracks in this collaboration, and adds the user who added it."""
-        self.tracks.add(temp_track)
+        """Adds a track to the list of tracks of this collaboration, but only if the track does not already exist in the collaboration."""
+        if (not self.has_track(temp_track)):
+            self.tracks.add(temp_track)
         ##self.users.add(temp_track.user)
 
     def handle_removing_track(self, temp_track):
@@ -456,8 +473,56 @@ class Collaboration(models.Model):
         response_data["authorized_users"] = users_data
         return response_data
 
+    def get_update_data_JSON(self, session_user, collab_last_known_update):
+        response_data = {}
+        history_list = self.get_collab_update_history_since(collab_last_known_update, session_user)
+        if(len(history_list) != 0):
+            response_data["permission_level"] = self.get_permission_level()
+            response_data["collab_users"] = self.get_formatted_list_of_collab_users()
+            response_data["update_timestamp"] = history_list[0].timestamp.strftime(DATETIME_FORMAT) # assumed history list is sorted by most recent to least recent
+            tracks_data = {}
+            for history in history_list:
+                temp_data = {}
+                track = history.track
+                temp_data["update_type"] = history.get_update_type()
+                if(history.added or history.modified):
+                    temp_data["track_filename"] = track.filename
+
+                    temp_data["track_user_id"] = track.user.id
+                    temp_data["track_user_display_name"] = track.user.get_name_to_display
+
+                    temp_data["track_server_filename"] = track.get_server_filename()
+
+                    # need to stringify so client can handle it; python True/False is not understood by client
+                    temp_data["track_is_user_authorized"] = str(self.is_user_authorized(session_user, track))
+
+                    tracks_data[str(track.id)] = temp_data
+                elif (history.removed):
+                    tracks_data[str(track.id)] = temp_data
+            response_data["tracks_data"] = tracks_data
+        return response_data
+
+
+    def is_user_authorized(self, session_user, track):
+        try:
+            self.users.get(id=session_user.id)
+            return True
+        except:
+            return track.user.id == session_user.id
+
+
+    def last_updated(self):
+        latest_history = History.get_history_for(self).order_by("-timestamp")[0]
+        return latest_history.timestamp.strftime(DATETIME_FORMAT)
+
+    def get_collab_update_history_since(datetime_string, session_user):
+        history_list = History.get_update_history_for(self, session_user, datetime_string)
+        return history_list
+
+
+
     @classmethod
-    def handle_finalization(cls, track1_id, track2_id, collab_id, mod_type):
+    def handle_finalization(cls, session_user, track1_id, track2_id, collab_id, mod_type):
         """ADD A DESCRIPTION"""
         filtered_track1 = Track.objects.filter(id=track1_id)
         filtered_track2 = Track.objects.filter(id=track2_id)
@@ -470,11 +535,14 @@ class Collaboration(models.Model):
             track1 = None
             track2 = None
             list_of_valid_tracks = []
-            if(len(filtered_collab) == 0):
+            if(len(filtered_collab) == 0): # mod_type.lower().count("add") != 0
                 temp_collab = Collaboration()
                 temp_collab.save()
                 history_type = ADDED_HISTORY
-            else:
+            elif(mod_type.lower().count("remove") != 0):
+                temp_collab = filtered_collab[0]
+                history_type = REMOVED_HISTORY
+            else: # mod_type.lower().count("modif") != 0
                 temp_collab = filtered_collab[0]
                 history_type = MODIFIED_HISTORY
 
@@ -495,11 +563,15 @@ class Collaboration(models.Model):
                 else: # default action is to add
                     temp_collab.handle_adding_track(temp_track)
 
-                if (not temp_dict.has_key(temp_track.user.id)):
-                    temp_dict[temp_track.user.id] = 1
-                    History.add_history(temp_track.user, temp_collab, history_type)
-                    if(history_type == ADDED_HISTORY):
-                        temp_collab.add_user(temp_track.user)
+##                if (not temp_dict.has_key(temp_track.user.id)):
+##                    temp_dict[temp_track.user.id] = 1
+##                    History.add_history(session_user, temp_collab, history_type)
+##                    if(history_type == ADDED_HISTORY):
+##                        temp_collab.add_user(temp_track.user)
+
+                History.add_history(session_user, history_type, collab=temp_collab, track=temp_track)
+                if(history_type == ADDED_HISTORY):
+                    temp_collab.add_user(temp_track.user)
 
 
             temp_collab.save()
@@ -516,19 +588,30 @@ class Collaboration(models.Model):
 
 ADDED_HISTORY = 'added'
 MODIFIED_HISTORY = 'modified'
+REMOVED_HISTORY = 'removed'
+DATETIME_FORMAT = '%m/%d/%Y %H:%M:%S'
 
 class History(models.Model):
     """ADD A DESCRIPTION"""
     user = models.ForeignKey(TracksUser)
     added = models.BooleanField(default=False)
     modified = models.BooleanField(default=False)
+    removed = models.BooleanField(default=False)
     track = models.ForeignKey(Track, null=True)
     collaboration = models.ForeignKey(Collaboration, null=True)
     timestamp = models.DateTimeField()
 
     def __unicode__(self):
         """ADD A DESCRIPTION"""
-        return "id:" + str(self.id) + " " + "timestamp:" + self.timestamp.strftime('%m/%d/%Y %H:%M:%S')
+        return "id:" + str(self.id) + " " + "timestamp:" + self.timestamp.strftime(DATETIME_FORMAT)
+
+    def get_update_type(self):
+        if(self.added):
+            return ADDED_HISTORY
+        elif (self.modified):
+            return MODIFIED_HISTORY
+        elif (self.removed):
+            return REMOVED_HISTORY
 
     @classmethod
     def get_downbeat_for(cls, temp_user):
@@ -554,17 +637,35 @@ class History(models.Model):
         return model_object.history_set.all()
 
     @classmethod
-    def add_history(cls, temp_user, model_object, added_or_modified):
+    def get_update_history_for(cls, collab, temp_user, datetime_string):
+        try:
+            temp_datetime = time.strptime(datetime_string, DATETIME_FORMAT)
+            return History.objects.filter(timestamp__gte=temp_datetime).exclude(user=temp_user).order_by("-timestamp")
+        except:
+            return []
+
+
+    @classmethod
+    def add_history(cls, temp_user, type_of_history, collab=None, track=None):
         """ADD A DESCRIPTION"""
         temp_history = History(user=temp_user, timestamp=timezone.datetime.now())
-        temp_history.added = True if (added_or_modified == ADDED_HISTORY) else False
-        temp_history.modified = True if (added_or_modified == MODIFIED_HISTORY) else False
-        if(type(model_object) == Track):
-            temp_history.track = model_object
-            temp_history.save()
-        elif(type(model_object) == Collaboration):
-            temp_history.collaboration = model_object
-            temp_history.save()
+        temp_history.added = True if (type_of_history == ADDED_HISTORY) else False
+        temp_history.modified = True if (type_of_history == MODIFIED_HISTORY) else False
+        temp_history.removed = True if (type_of_history == REMOVED_HISTORY) else False
+
+##        if(type(model_object) == Track):
+##            temp_history.track = model_object
+##            temp_history.save()
+##        elif(type(model_object) == Collaboration):
+##            temp_history.collaboration = model_object
+##            temp_history.save()
+
+        if(collab != None and type(collab) == Collaboration):
+            temp_history.collaboration = collab
+        if(track != None and type(track) == Track):
+            temp_history.track = track
+
+        temp_history.save()
 
 
 def search_relevant_models(searchString):

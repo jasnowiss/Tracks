@@ -230,6 +230,21 @@ def get_collab_settings_JSON(request):
         response.status_code = 500;
         return response
 
+def get_update_collab_JSON(request):
+    try:
+        collab_id = int(request.GET.get('collab_id'))
+        collab_last_known_update = request.GET.get('collab_last_known_update')
+        session_user = get_session_user(request)
+        collab = Collaboration.objects.get(id=collab_id)
+        response_data = collab.get_update_data_JSON(session_user, collab_last_known_update)
+        response = HttpResponse(json.dumps(response_data), content_type="application/json")
+        return response
+    except:
+        response = HttpResponse('error trying to update collaboration') # May need to change message sent
+        print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
+        response.status_code = 500;
+        return response
+
 # Function for AJAX Call
 def finalize_collaboration(request):
     """ADD A DESCRIPTION"""
@@ -239,7 +254,8 @@ def finalize_collaboration(request):
         collab_id = int(request.POST.get('collab_id', 0))
         mod_type = request.POST['mod_type']
 
-        collab = Collaboration.handle_finalization(track1_id, track2_id, collab_id, mod_type)
+        temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), None)
+        collab = Collaboration.handle_finalization(temp_user, track1_id, track2_id, collab_id, mod_type)
 
         response = HttpResponse('success') ## render(request, 'Tracks/collaboration_for_AJAX.html', {'collaboration' : collab})
         response.status_code = 200
@@ -408,23 +424,26 @@ def handleRecordFromEdit(request, collaboration_id):
         raise Http404
     file_name = request.POST.get('filename')
     audio = request.FILES.get('audio')
-    SIZE_LIMIT = 5242880 #Should probably be made global, currently same as upload_mp3's SIZE_LIMIT
+    ##SIZE_LIMIT = 5242880 #Should probably be made global, currently same as upload_mp3's SIZE_LIMIT
     try:
-        if audio.size > SIZE_LIMIT:
-            #handle size error
-            pass
+##        if audio.size > SIZE_LIMIT:
+##            #handle size error
+##            pass
         #need to convert from WAV to MP3
         temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), None)
-        new_track = Track(user=temp_user, filename=file_name)
-        new_track.handle_upload_file(audio)
-        History.add_history(new_track.user, new_track, ADDED_HISTORY)
-        
-
-        collab = Collaboration.handle_finalization(new_track.id, 0, collaboration_id, "add")
-
-        response = HttpResponse('success')
-        response.status_code = 200;
-        return response
+##        new_track = Track(user=temp_user, filename=file_name)
+##        new_track.handle_upload_file(audio)
+        server_filename, track_id, error = Track.handle_music_file_upload(temp_user, audio)
+##        History.add_history(new_track.user, new_track, ADDED_HISTORY)
+        if(error == None):
+            collab = Collaboration.handle_finalization(temp_user, track_id, 0, collaboration_id, "add")
+            response = HttpResponse('success')
+            response.status_code = 200;
+            return response
+        else:
+            response = HttpResponse(error)
+            response.status_code = 500;
+            return response
     except:
         #handle error
         pass
@@ -438,19 +457,25 @@ def handleRecord(request):
         raise Http404
     file_name = request.POST.get('filename')
     audio = request.FILES.get('audio')
-    SIZE_LIMIT = 5242880 #Should probably be made global, currently same as upload_mp3's SIZE_LIMIT
+    ##SIZE_LIMIT = 5242880 #Should probably be made global, currently same as upload_mp3's SIZE_LIMIT
     try:
-        if audio.size > SIZE_LIMIT:
-            #handle size error
-            pass
+##        if audio.size > SIZE_LIMIT:
+##            #handle size error
+##            pass
         #need to convert from WAV to MP3
         temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), None)
-        new_track = Track(user=temp_user, filename=file_name)
-        new_track.handle_upload_file(audio)
-        History.add_history(new_track.user, new_track, ADDED_HISTORY)
-        response = HttpResponse('success')
-        response.status_code = 200;
-        return response
+##        new_track = Track(user=temp_user, filename=file_name)
+##        new_track.handle_upload_file(audio)
+        server_filename, track_id, error = Track.handle_music_file_upload(temp_user, audio)
+        ##History.add_history(new_track.user, new_track, ADDED_HISTORY)
+        if(error == None):
+            response = HttpResponse('success')
+            response.status_code = 200
+            return response
+        else:
+            response = HttpResponse(error)
+            response.status_code = 500;
+            return response
     except:
         #handle error
         pass

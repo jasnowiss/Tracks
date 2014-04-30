@@ -158,7 +158,8 @@ function add_row_to_authorized_users_table(user_id, user_name_to_display, html_e
 function remove_row_from_authorized_users_table(user_id) {
     var authorized_users_table = $("#settings_form").find(".authorized_users_table").get(0);
     var temp_row = $(authorized_users_table).find("tr[name=" + stripString(user_id.toString()) + "]").get(0);
-    $(temp_row).remove();
+    //$(temp_row).remove();
+    animated_remove(temp_row);
 }
 
 function stripString(str) { // need to finish
@@ -916,7 +917,8 @@ function delete_track_from_server(html_element){
         success: function (data, textStatus, jqXHR) {
             //alert(jqXHR.responseText);
             var track = get_tracks_list_item(html_element);
-            $(track).remove();
+            //$(track).remove();
+            animated_remove(track);
         },
         error: function (jqXHR, textStatus, errorThrown) {
             alert(jqXHR.responseText);
@@ -933,6 +935,13 @@ function get_tracks_list_item(html_element){
 function get_collab_tracks_list_item(html_element){
     return $(html_element).parents(".colla_tracks_list_item");
 }
+
+function animated_remove(html_element){
+    $(html_element).hide(500, function(){
+                                $(this).remove();
+                                });
+}
+
 
 /********************** The following methods are not mine, they are from Django. *****************************
 ******* They allow safe POSTing with Jquery/AJAX (e.g. proper CSRF token, proper origin of request, etc.) *******/

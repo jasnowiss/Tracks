@@ -83,7 +83,7 @@ class TracksUser(AbstractBaseUser):
     def get_collaborations_list(self):
         """Returns a list of the user's collaborations."""
         ##return self.collaboration_set.all()
-        return Collaboration.objects.filter(tracks__user__id=self.id)
+        return Collaboration.objects.filter(Q(tracks__user__id=self.id) | Q(users__id=self.id)).distinct()
 
     def get_user_profile(self):
         """Returns the user's existing profile, or creates a new one to return."""
@@ -481,32 +481,34 @@ class Collaboration(models.Model):
         ##import pdb; pdb.set_trace()
         # need to stringify booleans so client can handle it; python True/False is not understood by client
         response_data = {}
-        history_list = self.get_collab_update_history_since(collab_last_history_id, session_user)
-        if(len(history_list) != 0):
+        history_list, history_list_length = self.get_collab_update_history_since(collab_last_history_id, session_user)
+        if(history_list_length != 0):
             #response_data["permission_level"] = self.get_permission_level()
             response_data["can_user_collaborate"] = str(self.can_user_collaborate(session_user))
             response_data["can_user_modify"] = str(self.is_user_authorized(session_user))
             response_data["collab_users"] = self.get_formatted_list_of_collab_users()
-            response_data["new_history_id"] = history_list[0].id # assumed history list is sorted by most recent to least recent
+            response_data["new_history_id"] = history_list[history_list_length-1].id # assumed history list is sorted by least recent to most recent
             tracks_data = {}
             for history in history_list:
                 temp_data = {}
                 track = history.track
                 if(track != None):
                     temp_data["update_type"] = history.get_update_type()
+                    temp_data["track_id"] = track.id
                     if(history.added or history.modified):
                         temp_data["track_filename"] = track.filename
-
                         temp_data["track_user_id"] = track.user.id
                         temp_data["track_user_display_name"] = track.user.get_name_to_display()
-
                         temp_data["track_server_filename"] = track.get_server_filename()
                         temp_data["track_is_user_authorized"] = str(self.is_user_authorized(session_user, track=track))
 
-                        tracks_data[str(track.id)] = temp_data
+                        tracks_data[str(history.id)] = temp_data
                     elif (history.removed):
-                        tracks_data[str(track.id)] = temp_data
-                response_data["tracks_data"] = tracks_data
+                        tracks_data[str(history.id)] = temp_data
+                    else:
+                        tracks_data[str(history.id)] = temp_data
+
+            response_data["tracks_data"] = tracks_data
         return response_data
 
 
@@ -537,8 +539,8 @@ class Collaboration(models.Model):
         return latest_history.id
 
     def get_collab_update_history_since(self, history_id, session_user):
-        history_list = History.get_update_history_for(self, session_user, history_id)
-        return history_list
+        history_list, length = History.get_update_history_for(self, session_user, history_id)
+        return history_list, length
 
 
 
@@ -669,15 +671,11 @@ class History(models.Model):
     @classmethod
     def get_update_history_for(cls, collab, temp_user, history_id): #datetime_string):
         try:
-            #import pdb; pdb.set_trace()
-            #import datetime
-            #temp_datetime = datetime.datetime.strptime(datetime_string, DATETIME_FORMAT)
             temp_timestamp = History.objects.get(id=history_id).timestamp
-            collab_history = History.objects.filter(collaboration=collab)
-            collab_update_history = collab_history.filter(timestamp__gt=temp_timestamp).order_by("-timestamp")
-            return collab_update_history ##.exclude(user=temp_user)
+            collab_update_history = History.objects.filter(collaboration=collab).filter(timestamp__gt=temp_timestamp).order_by("timestamp")
+            return collab_update_history, collab_update_history.count() ##.exclude(user=temp_user)
         except:
-            return []
+            return [], 0
 
 
     @classmethod

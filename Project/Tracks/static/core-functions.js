@@ -864,9 +864,10 @@ function collab_update_track_info(html_element_inside_collab, collab_tracks_data
     bool_to_return = 1;
     try{
         $.each(collab_tracks_data, function(key, val){
-            track_id = key;
-            temp_data = val;
+            //track_id = key;
+            var temp_data = val;
             var update_type = temp_data["update_type"];
+            var track_id = temp_data["track_id"];
             if (update_type.toLowerCase().indexOf("remove") >= 0){
                 remove_track_from_collab_UI(html_element_inside_collab, track_id);
             } else {
@@ -925,6 +926,7 @@ function add_track_to_collab_UI(html_element_inside_collab, track_id, track_row)
                 $(last_child).after(track_row);
             }
         }
+        $(track_row).hide();
         $(track_row).show(500);
     }
 }

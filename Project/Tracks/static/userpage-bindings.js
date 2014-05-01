@@ -29,4 +29,6 @@ $(document).ready(function () {
 
     $(".delete_track_from_server_button").click(delete_track_confirm_dialog);
 
+    $("#test").click(function(){ update_collab(this); });
+
 });

@@ -309,11 +309,17 @@ td {
 tr:hover{
     background-color: #F0F0F0;
 }
-button.settings_button {
+.collab_authorized_only_buttons{/*button.settings_button {*/
+    display: inline-block;
     float: right;
     padding: 0px 0px 0px 0px;
     border: none;
-    margin-right: 3px;
+    /*margin-right: 3px;*/
+}
+.collab_authorized_only_buttons button{
+    padding: 0px 0px 0px 0px;
+    padding-right: 5px;
+    border: none;
 }
 
 .inline {

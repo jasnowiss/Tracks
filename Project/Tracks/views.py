@@ -230,13 +230,15 @@ def get_collab_settings_JSON(request):
         response.status_code = 500;
         return response
 
+# Function for JSON Call
 def get_update_collab_JSON(request):
     try:
         collab_id = int(request.GET.get('collab_id'))
-        collab_last_known_update = request.GET.get('collab_last_known_update')
+        collab_last_history_id = request.GET.get('collab_last_history_id')
         session_user = get_session_user(request)
         collab = Collaboration.objects.get(id=collab_id)
-        response_data = collab.get_update_data_JSON(session_user, collab_last_known_update)
+        response_data = collab.get_update_data_JSON(session_user, collab_last_history_id)
+        print(response_data)
         response = HttpResponse(json.dumps(response_data), content_type="application/json")
         return response
     except:
@@ -290,9 +292,11 @@ def change_permission_of_collab(request):
     try:
         collab_id = int(request.POST.get('collab_id'))
         bool_permission = request.POST.get('bool_permission')
-        print(bool_permission)
+        ##print(bool_permission)
+        temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), None)
+
         collab = Collaboration.objects.get(id=collab_id)
-        collab.set_permission_level(bool_permission=bool_permission)
+        collab.set_permission_level(temp_user, bool_permission=bool_permission)
 
         response = HttpResponse('success')
         response.status_code = 200
@@ -309,8 +313,10 @@ def add_user_to_collab(request):
         collab_id = int(request.POST.get('collab_id'))
         searchString = request.POST.get('searchString')
 
+        session_user = get_session_user(request)
+
         collab = Collaboration.objects.get(id=collab_id)
-        temp_user = collab.add_user_using_searchString(searchString)
+        temp_user = collab.add_user_using_searchString(session_user, searchString)
 
         if(temp_user == None):
             response = HttpResponse("could not find user") # May need to change message sent
@@ -333,8 +339,9 @@ def remove_user_from_collab(request):
         user_id = int(request.POST.get('user_id'))
         collab_id = int(request.POST.get('collab_id'))
 
+        temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), None)
         collab = Collaboration.objects.get(id=collab_id)
-        if(collab.remove_user(user_id)):
+        if(collab.remove_user(temp_user, user_id)):
             response = HttpResponse('success')
             response.status_code = 200
         else:

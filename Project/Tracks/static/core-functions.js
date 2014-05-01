@@ -11,7 +11,7 @@ var button_using_settings_div;
 
 /** Opens a pane for settings of a collaboration. */
 function open_settings() {
-    var prev_collab_style = collab_get_style(this);
+    var prev_collab_style = get_collab_style(this);
     set_collab_to(this, "editing");
     if (button_using_settings_div !== this){
         if (typeof button_using_settings_div !== "undefined"){
@@ -244,7 +244,7 @@ function restart_collab() {
 function set_collab_to(html_element_inside_collab, style_type) {
     if (is_inside_collab(html_element_inside_collab)){
         var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
-        var collab_play_button = $(container_div).find(".play_collab_button");
+        var collab_play_button = $(container_div).find(".play_collab_button").get(0);
         style_type = style_type.toLowerCase();
         if( ! $(container_div).hasClass("collab_" + style_type)){
             if (style_type == "play") {
@@ -269,7 +269,7 @@ function set_collab_to(html_element_inside_collab, style_type) {
 }
 
 /** ADD A DESCRIPTION */
-function collab_get_style(html_element_inside_collab) {
+function get_collab_style(html_element_inside_collab) {
     if (is_inside_collab(html_element_inside_collab)){
         var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
         var classes = $(container_div).attr("class").toLowerCase();
@@ -822,34 +822,123 @@ function finalize_collaboration(html_element, mod_type) {
 
 }
 
-/*
-function update_collab(html_element, new_collab_html){
-    var new_collab_list_element = $("<li></li>").html(new_collab_html);
-    //collab_bind_all(new_collab_list_element);
 
-    var old_container_div = $(html_element).parents(".collab_div_container").get(0);
-    var old_collab_list_element = $(old_container_div).parent();
-
-    if (typeof old_container_div != "undefined"){
-        var next_sibling_list_element = $(old_collab_list_element).next()[0];
-        if (typeof next_sibling_list_element == "undefined"){
-            //$(old_collab_list_element).remove();
-            var ul_element = $(old_collab_list_element).parents();
-            $(ul_element).append(new_collab_list_element);
-        } else {
-            $(old_collab_list_element).remove();
-            $(next_sibling_list_element).before(new_collab_list_element);
-        }
-    } else {
-        set_collab_to(html_element, "error");
+function update_collab(html_element_inside_collab){
+    if (get_collab_style(html_element_inside_collab) != "play"){
+        var collab_id = get_collab_id(html_element_inside_collab);
+        var collab_last_history_id = get_collab_last_known_update(html_element_inside_collab);
+        $.getJSON(resolve_to_url["get_update_collab_JSON_url"], { collab_id : collab_id, collab_last_history_id : collab_last_history_id } , function (data) {
+            if( ! $.isEmptyObject(data)){
+                var prev_style = get_collab_style(html_element_inside_collab);
+                set_collab_to(html_element_inside_collab, "processing");
+                var can_user_collaborate = data["can_user_collaborate"]
+                var can_user_modify = data["can_user_modify"]
+                var collab_users = data["collab_users"];
+                var collab_new_history_id = data["new_history_id"];
+                var collab_tracks_data = data["tracks_data"]
+                if (collab_update_track_info(html_element_inside_collab, collab_tracks_data)) {
+                    collab_update_nontrack_info(html_element_inside_collab, can_user_collaborate, can_user_modify, collab_users, collab_new_history_id);
+                }
+                set_collab_to(html_element_inside_collab, prev_style);
+            }
+        });
     }
 }
 
+function collab_update_nontrack_info(html_element_inside_collab, can_user_collaborate, can_user_modify, collab_users, collab_new_history_id){
+    if (can_user_collaborate.toLowerCase() == "true"){
+        collab_modify_collaborate_item(html_element_inside_collab, "add");
+    } else {
+        collab_modify_collaborate_item(html_element_inside_collab, "remove");
+    }
+    if (can_user_modify.toLowerCase() == "true"){
+        collab_modify_authorized_only_item(html_element_inside_collab, "add");
+    } else {
+        collab_modify_authorized_only_item(html_element_inside_collab, "remove");
+    }
+    set_collab_users(html_element_inside_collab, collab_users);
+    set_collab_last_known_update(html_element_inside_collab, collab_new_history_id)
+}
 
+function collab_update_track_info(html_element_inside_collab, collab_tracks_data) {
+    bool_to_return = 1;
+    // finish
+    return bool_to_return;
+}
+
+function collab_modify_collaborate_item(html_element_inside_collab, mod_type){
+    var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+    mod_type = mod_type.toLowerCase();
+    if (mod_type == "remove"){
+        animated_remove( $(container_div).find(".collaborate_item").get(0) );
+    } else { // mod_type == "add"
+        if ($(container_div).find(".collaborate_item").length === 0){
+            var tracks_table = $(container_div).find(".tracks_list").get(0);
+
+            var first_column = $("<td></td>").addClass("collab_tracks_list_item_firstColumn")
+                                             .append( $("<button></button>").addClass("collaborate_button")
+                                                                            .text("Collaborate")
+                                                                            .on("click", begin_collaboration)
+                                                                            );
+            var second_column = $("<td></td>").addClass("collab_tracks_list_item_secondColumn");
+            var third_column = $("<td></td>").addClass("collab_tracks_list_item_thirdColumn");
+
+            var temp_row = $("<tr></tr>").addClass("colla_tracks_list_item collaborate_item")
+                                         .append(first_column)
+                                         .append(second_column)
+                                         .append(third_column)
+
+            $(tracks_table).append(temp_row);
+            $(temp_row).show(500);
+        }
+    }
+}
+
+function collab_modify_authorized_only_item(html_element_inside_collab, mod_type){
+    var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+    mod_type = mod_type.toLowerCase();
+    if (mod_type == "remove"){
+        animated_remove( $(container_div).find(".collab_authorized_only_buttons").get(0) );
+    } else { // mod_type == "add"
+        if ($(container_div).find(".collab_authorized_only_buttons").length === 0){
+            var authorized_buttons_div = '<div class="collab_authorized_only_buttons">'
+                                        + '<a href="' + stripString(resolve_to_url["edit_url"] + get_collab_id(html_element_inside_collab)) + '">'
+                                        + '<button class="collab_edit_button" title="Edit">'
+                                        + '<img style="width: 18px; height: 18px;" src="/static/wrench-icon.png" />'
+                                        + '</button>'
+                                        + '</a>'
+                                        + '<button class="settings_button" onclick="open_settings()" title="Settings">'
+                                        + '<img src="/static/settings-icon.png" />'
+                                        + '</button>'
+                                        + '</div>';
+            authorized_buttons_div = $.parseHTML(authorized_buttons_div);
+            $(container_div).find(".collab_info_div").append(authorized_buttons_div);
+            $(authorized_buttons_div).show(500);
+        }
+    }
+}
+
+function set_collab_users(html_element_inside_collab, collab_users){
+    var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+    $(container_div).find(".collab_users_div_inner_left").text("ft. " + collab_users.toString());
+}
+
+/*
 function collab_bind_all(new_collab_list_element){
 
 }
 */
+
+function get_collab_last_known_update(html_element_inside_collab){
+    var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+    var collab_last_known_update = $(container_div).find("input[name=collab_last_known_update]").val();
+    return collab_last_known_update;
+}
+
+function set_collab_last_known_update(html_element_inside_collab, val_to_set){
+    var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+    $(container_div).find("input[name=collab_last_known_update]").val(val_to_set);
+}
 
 /** ADD A DESCRIPTION */
 function get_track1_id(html_element){

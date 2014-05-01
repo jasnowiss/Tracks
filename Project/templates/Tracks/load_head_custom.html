@@ -21,6 +21,7 @@
 {% url 'Tracks:webAudio' as webAudio_url %}
 {% url 'Tracks:record' as record_url %}
 {% url 'Tracks:get_update_collab_JSON' as get_update_collab_JSON_url %}
+{% url 'Tracks:edit' as edit_url %}
 
 {% load staticfiles %}
 
@@ -42,6 +43,7 @@
     resolve_to_url["webAudio_url"] = "{{ webAudio_url }}";
     resolve_to_url["record_url"] = "{{ record_url }}";
     resolve_to_url["get_update_collab_JSON_url"] = "{{ get_update_collab_JSON_url }}";
+    resolve_to_url["edit_url"] = "{{ edit_url }}";
  </script>
 
 <link href={% static "bootstrap-3.1.1-dist/css/bootstrap.min.css" %} rel="stylesheet">

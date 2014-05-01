@@ -82,7 +82,8 @@ class TracksUser(AbstractBaseUser):
 
     def get_collaborations_list(self):
         """Returns a list of the user's collaborations."""
-        return self.collaboration_set.all()
+        ##return self.collaboration_set.all()
+        return Collaboration.objects.filter(tracks__user__id=self.id)
 
     def get_user_profile(self):
         """Returns the user's existing profile, or creates a new one to return."""
@@ -353,7 +354,7 @@ class Collaboration(models.Model):
         else:
             return 'false'
 
-    def set_permission_level(self, level=None, bool_permission=None):
+    def set_permission_level(self, session_user, level=None, bool_permission=None):
         if(level != None):
             if(level == "public"):
                 self.is_public = True
@@ -365,6 +366,7 @@ class Collaboration(models.Model):
                 self.is_public = True
             elif (bool_permission == 'false'):
                 self.is_public = False
+        History.add_history(session_user,MODIFIED_HISTORY,collab=self)
         self.save()
         ##print(self.is_public)
 
@@ -398,7 +400,7 @@ class Collaboration(models.Model):
     def get_tracks(self):
         return self.tracks.all().order_by("id")
 
-    def add_user_using_searchString(self, searchString): # needs to be updated in a future iteration
+    def add_user_using_searchString(self, session_user, searchString): # needs to be updated in a future iteration
         temp_user = None
         list_of_users = TracksUser.filter_for_search(searchString)
         list_of_users = chain(list_of_users, UserProfile.get_users_from_filter_for_search(UserProfile.filter_for_search(searchString)))
@@ -406,9 +408,10 @@ class Collaboration(models.Model):
         if(len(list_of_users) != 0):
             temp_user = list_of_users[0]
             self.add_user(temp_user)
+            History.add_history(session_user, ADDED_HISTORY, collab=self)
         return temp_user
 
-    def remove_user(self, user_id):
+    def remove_user(self, session_user, user_id):
         is_removed = False
         try:
             temp_user = TracksUser.objects.get(id=user_id)
@@ -416,6 +419,7 @@ class Collaboration(models.Model):
             # A collaboration must have at least 1 "master" user.
             if(self.users.count() > 1):
                 self.users.remove(temp_user)
+                History.add_history(session_user, ADDED_HISTORY, collab=self)
                 is_removed = True
             else:
                 is_removed = False
@@ -423,7 +427,7 @@ class Collaboration(models.Model):
             is_removed = False
         return is_removed
 
-    def add_user(self, arg):
+    def add_user(self, arg): # does not need a history; history is added by whichever function calls this
         is_added = False
         try:
             if(type(arg) != TracksUser):
@@ -473,50 +477,67 @@ class Collaboration(models.Model):
         response_data["authorized_users"] = users_data
         return response_data
 
-    def get_update_data_JSON(self, session_user, collab_last_known_update):
+    def get_update_data_JSON(self, session_user, collab_last_history_id):
+        ##import pdb; pdb.set_trace()
+        # need to stringify booleans so client can handle it; python True/False is not understood by client
         response_data = {}
-        history_list = self.get_collab_update_history_since(collab_last_known_update, session_user)
+        history_list = self.get_collab_update_history_since(collab_last_history_id, session_user)
         if(len(history_list) != 0):
-            response_data["permission_level"] = self.get_permission_level()
+            #response_data["permission_level"] = self.get_permission_level()
+            response_data["can_user_collaborate"] = str(self.can_user_collaborate(session_user))
+            response_data["can_user_modify"] = str(self.is_user_authorized(session_user))
             response_data["collab_users"] = self.get_formatted_list_of_collab_users()
-            response_data["update_timestamp"] = history_list[0].timestamp.strftime(DATETIME_FORMAT) # assumed history list is sorted by most recent to least recent
+            response_data["new_history_id"] = history_list[0].id # assumed history list is sorted by most recent to least recent
             tracks_data = {}
             for history in history_list:
                 temp_data = {}
                 track = history.track
-                temp_data["update_type"] = history.get_update_type()
-                if(history.added or history.modified):
-                    temp_data["track_filename"] = track.filename
+                if(track != None):
+                    temp_data["update_type"] = history.get_update_type()
+                    if(history.added or history.modified):
+                        temp_data["track_filename"] = track.filename
 
-                    temp_data["track_user_id"] = track.user.id
-                    temp_data["track_user_display_name"] = track.user.get_name_to_display
+                        temp_data["track_user_id"] = track.user.id
+                        temp_data["track_user_display_name"] = track.user.get_name_to_display()
 
-                    temp_data["track_server_filename"] = track.get_server_filename()
+                        temp_data["track_server_filename"] = track.get_server_filename()
+                        temp_data["track_is_user_authorized"] = str(self.is_user_authorized(session_user, track=track))
 
-                    # need to stringify so client can handle it; python True/False is not understood by client
-                    temp_data["track_is_user_authorized"] = str(self.is_user_authorized(session_user, track))
-
-                    tracks_data[str(track.id)] = temp_data
-                elif (history.removed):
-                    tracks_data[str(track.id)] = temp_data
-            response_data["tracks_data"] = tracks_data
+                        tracks_data[str(track.id)] = temp_data
+                    elif (history.removed):
+                        tracks_data[str(track.id)] = temp_data
+                response_data["tracks_data"] = tracks_data
         return response_data
 
 
-    def is_user_authorized(self, session_user, track):
+    def is_user_authorized(self, session_user, track=None):
         try:
             self.users.get(id=session_user.id)
             return True
         except:
-            return track.user.id == session_user.id
+            if(track != None):
+                return track.user.id == session_user.id
+            else:
+                return False
+
+    def can_user_collaborate(self, session_user):
+        return self.is_public or self.is_user_authorized(session_user)
+
+##    def can_user_modify(self, session_user):
+##        try:
+##            self.users.get(id=session_user.id)
+##            return True
+##        except:
+##            return False
 
 
     def last_updated(self):
         latest_history = History.get_history_for(self).order_by("-timestamp")[0]
-        return latest_history.timestamp.strftime(DATETIME_FORMAT)
+        # using id instead of timestamp because timestamp is too unreliable (unreliable in get_update_history_for). will take id and search DB for correct history entry.
+        return latest_history.id
 
-    def get_collab_update_history_since(datetime_string, session_user):
-        history_list = History.get_update_history_for(self, session_user, datetime_string)
+    def get_collab_update_history_since(self, history_id, session_user):
+        history_list = History.get_update_history_for(self, session_user, history_id)
         return history_list
 
 
@@ -535,16 +556,24 @@ class Collaboration(models.Model):
             track1 = None
             track2 = None
             list_of_valid_tracks = []
-            if(len(filtered_collab) == 0): # mod_type.lower().count("add") != 0
+            if(len(filtered_collab) == 0): ## mod_type.lower().count("add") != 0
                 temp_collab = Collaboration()
                 temp_collab.save()
+##                history_type = ADDED_HISTORY
+##            elif(mod_type.lower().count("remove") != 0):
+##                temp_collab = filtered_collab[0]
+##                history_type = REMOVED_HISTORY
+            else: ## mod_type.lower().count("modif") != 0
+                temp_collab = filtered_collab[0]
+##                history_type = MODIFIED_HISTORY
+
+            if(mod_type.lower().count("add") != 0):
                 history_type = ADDED_HISTORY
             elif(mod_type.lower().count("remove") != 0):
-                temp_collab = filtered_collab[0]
                 history_type = REMOVED_HISTORY
             else: # mod_type.lower().count("modif") != 0
-                temp_collab = filtered_collab[0]
                 history_type = MODIFIED_HISTORY
+
 
             if (len(filtered_track1) != 0):
                 track1 = filtered_track1[0]
@@ -590,6 +619,7 @@ ADDED_HISTORY = 'added'
 MODIFIED_HISTORY = 'modified'
 REMOVED_HISTORY = 'removed'
 DATETIME_FORMAT = '%m/%d/%Y %H:%M:%S'
+#DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S%f+%Z'
 
 class History(models.Model):
     """ADD A DESCRIPTION"""
@@ -599,7 +629,7 @@ class History(models.Model):
     removed = models.BooleanField(default=False)
     track = models.ForeignKey(Track, null=True)
     collaboration = models.ForeignKey(Collaboration, null=True)
-    timestamp = models.DateTimeField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
         """ADD A DESCRIPTION"""
@@ -637,10 +667,15 @@ class History(models.Model):
         return model_object.history_set.all()
 
     @classmethod
-    def get_update_history_for(cls, collab, temp_user, datetime_string):
+    def get_update_history_for(cls, collab, temp_user, history_id): #datetime_string):
         try:
-            temp_datetime = time.strptime(datetime_string, DATETIME_FORMAT)
-            return History.objects.filter(timestamp__gte=temp_datetime).exclude(user=temp_user).order_by("-timestamp")
+            #import pdb; pdb.set_trace()
+            #import datetime
+            #temp_datetime = datetime.datetime.strptime(datetime_string, DATETIME_FORMAT)
+            temp_timestamp = History.objects.get(id=history_id).timestamp
+            collab_history = History.objects.filter(collaboration=collab)
+            collab_update_history = collab_history.filter(timestamp__gt=temp_timestamp).order_by("-timestamp")
+            return collab_update_history ##.exclude(user=temp_user)
         except:
             return []
 
@@ -648,7 +683,7 @@ class History(models.Model):
     @classmethod
     def add_history(cls, temp_user, type_of_history, collab=None, track=None):
         """ADD A DESCRIPTION"""
-        temp_history = History(user=temp_user, timestamp=timezone.datetime.now())
+        temp_history = History(user=temp_user) # ,timestamp=timezone.datetime.now())
         temp_history.added = True if (type_of_history == ADDED_HISTORY) else False
         temp_history.modified = True if (type_of_history == MODIFIED_HISTORY) else False
         temp_history.removed = True if (type_of_history == REMOVED_HISTORY) else False

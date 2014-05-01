@@ -44,10 +44,10 @@
         <input name="new_name" class="text"></input>
         <button type="submit" class="btn btn-default">Save name</button>
     </form>
-    
 
 
-       
+
+
     <div id="{{ collaboration.id }}" class="collab_div_container collab_pause">
             <div class="collab_info_div">
                 {{ collaboration }}
@@ -93,7 +93,7 @@
                         by <a href="{% url 'Tracks:userpage' %}{{ track.user.id }}">{{ track.user.get_name_to_display }}</a>
                     </td>
                     <td class="collab_tracks_list_item_thirdColumn">
-                        <button name="{{ track|get_server_filename }}" class="show_hide_player_button">Show Player</button>
+                        <button name="{{ track.get_server_filename }}" class="show_hide_player_button">Show Player</button>
                         <button name="{{ track.id }}" class="edit_button">Edit</button>
                         {% if collaboration|is_user_authorized:session_user %}
                             <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
@@ -118,13 +118,13 @@
 
     </div>
     <div id="add_track">
-        Add track: 
+        Add track:
         <form id="add_track_form" action="add_name/" method="post">
             <input type="text" name="track_to_add" id="track_search"/>
             <div id="search_results"></div>
         </form>
     </div>
-        
+
     <audio id="audio" controls autoplay></audio>
     <fieldset><legend>RECORD AUDIO</legend>
         <input onclick="toggleRecording(this)" type="button" name="Rec" class="record"/>

@@ -31,17 +31,19 @@
                   <button name="collab_{{ collaboration.id }}" class="restart_collab_button">Reset</button>
                   <!-- may need to change in future iteration  account for a master_user of collab -->
                   {% if collaboration|is_user_authorized:session_user %}
+                  <div class="collab_authorized_only_buttons">
                     <a href="{% url 'Tracks:edit' %}{{ collaboration.id }}">
-                      <button>Edit</button>
-                    </a>
-                  {% endif %}
-
-                  <!-- need to change in future iteration to account for a master_user of collab -->
-                  {% if collaboration|is_user_authorized:session_user %}
-                      <button class="settings_button">
-                          <img src="{% static "settings-icon.png" %}" />
+                      <button class="collab_edit_button" title="Edit">
+                        <img style="width: 18px; height: 18px;" src="{% static "wrench-icon.png" %}" />
                       </button>
+                    </a>
+                    <button class="settings_button" title="Settings">
+                        <img src="{% static "settings-icon.png" %}" />
+                    </button>
+                  </div>
                   {% endif %}
+                  <button id="test">test</button>
+
               </div>
               <div class="collab_users_div">
                 <div class="collab_users_div_inner_left">
@@ -81,7 +83,7 @@
                   {% endfor %}
 
                   {% if collaboration.is_public or collaboration|is_user_authorized:session_user %}
-                  <tr class="colla_tracks_list_item">
+                  <tr class="colla_tracks_list_item collaborate_item">
                       <td class="collab_tracks_list_item_firstColumn">
                           <button class="collaborate_button">Collaborate</button>
                       </td>

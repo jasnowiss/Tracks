@@ -396,7 +396,7 @@ function create_music_player(audio_server_name) {
                     var child_audio = $(child_music_player).children("audio").get(0);
                     if (!child_audio.paused && !child_audio.ended){
                         style_to_set = "play";
-                        false; // does what "break;" does in OOP for/while loops
+                        return false; // does what "break;" does in OOP for/while loops
                     }
                 } catch(e) {
                 }
@@ -862,8 +862,79 @@ function collab_update_nontrack_info(html_element_inside_collab, can_user_collab
 
 function collab_update_track_info(html_element_inside_collab, collab_tracks_data) {
     bool_to_return = 1;
-    // finish
+    try{
+        $.each(collab_tracks_data, function(key, val){
+            track_id = key;
+            temp_data = val;
+            var update_type = temp_data["update_type"];
+            if (update_type.toLowerCase().indexOf("remove") >= 0){
+                remove_track_from_collab_UI(html_element_inside_collab, track_id);
+            } else {
+                var track_filename = stripString(temp_data["track_filename"]);
+                var track_user_id = stripString(temp_data["track_user_id"]);
+                var track_user_display_name = stripString(temp_data["track_user_display_name"]);
+                var track_server_filename = stripString(temp_data["track_server_filename"]);
+                var track_is_user_authorized = stripString(temp_data["track_is_user_authorized"]);
+
+                var track_row = '<tr name= "' + track_id + '" class="colla_tracks_list_item">'
+                                + '<td class="collab_tracks_list_item_firstColumn" title="' + track_filename + '">'
+                                + track_filename
+                                + '</td>'
+                                + '<td class="collab_tracks_list_item_secondColumn">'
+                                + 'by <a href="' + resolve_to_url["userpage_url"] +  track_user_id + '">' + track_user_display_name + '</a>'
+                                + '</td>'
+                                + '<td class="collab_tracks_list_item_thirdColumn">'
+                                + '<button name="' + track_server_filename + '" onclick="show_player()" class="show_hide_player_button">Show Player</button>';
+                if (track_is_user_authorized.toLowerCase() === "true"){
+                    track_row = track_row + ' ' + '<button name="' + track_id + '" onclick="remove_track_from_collab()" class="remove_track_from_collab_button">X</button>';
+                }
+                track_row = track_row + '</td>' + '</tr>';
+                track_row = $.parseHTML(track_row);
+                remove_track_from_collab_UI(html_element_inside_collab, track_id); // remove the element, if it exists. then re-add a new row with the updated info.
+                add_track_to_collab_UI(html_element_inside_collab, track_id, track_row);
+            }
+        });
+    } catch(e){
+        bool_to_return = 0;
+    }
     return bool_to_return;
+}
+
+function add_track_to_collab_UI(html_element_inside_collab, track_id, track_row){
+    track_id = parseInt(track_id, 10);
+    if ( !isNaN(track_id) ){
+        var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+        var rows = $(container_div).find(".colla_tracks_list_item");
+        var has_been_added = 0;
+        $.each(rows, function(index, value){
+            temp_track_row = value;
+            temp_track_row_id = parseInt( $(temp_track_row).attr("name"), 10);
+            if ( !isNaN(temp_track_row_id) ){
+                if (temp_track_row_id > track_id){
+                    $(temp_track_row).before(track_row);
+                    has_been_added = 1;
+                    return false;
+                }
+            }
+        });
+        if ( !has_been_added ){
+            var last_child = $(rows).last();
+            if ($(last_child).hasClass("collaborate_item")){
+                $(last_child).before(track_row);
+            } else {
+                $(last_child).after(track_row);
+            }
+        }
+        $(track_row).show(500);
+    }
+}
+
+function remove_track_from_collab_UI(html_element_inside_collab, track_id){
+    var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+    var track_row = $(container_div).find("tr[name="+stripString(track_id)+"]").get(0);
+    if (typeof track_row !== "undefined"){
+        animated_remove(track_row);
+    }
 }
 
 function collab_modify_collaborate_item(html_element_inside_collab, mod_type){

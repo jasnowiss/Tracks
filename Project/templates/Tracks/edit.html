@@ -39,7 +39,7 @@
 
     <h3>{{ collaboration }}</h3>
 
-    <form id="change_name_form" action="change_name/" method="post">
+    <form id="change_name_form" action="change_name/" method="post" onsubmit="checkEmpty()">
         {% csrf_token %}
         <input name="new_name" class="text"></input>
         <button type="submit" class="btn btn-default">Save name</button>
@@ -167,6 +167,10 @@
                 pause_collab();
             }
             setTimeout(function() {continueRecording(e) }, 150);
+        }
+
+        function checkEmpty() {
+            
         }
 
 

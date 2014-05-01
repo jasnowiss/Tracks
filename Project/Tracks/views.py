@@ -497,8 +497,13 @@ def edit(request, collaboration_id):
     return render(request, 'Tracks/edit.html', {"collaboration": collaboration})
 
 def change_name(request, collaboration_id):
-    collaboration = Collaboration.objects.get(id=collaboration_id)
-    new_name = request.POST['new_name']
-    collaboration.handle_change_name(new_name)
-    return render(request, 'Tracks/edit.html', {"collaboration": collaboration})
+    if request.method != 'POST':
+        return HttpResponseRedirect('/Tracks/edit/' + collaboration_id +'/')
+    try:
+        collaboration = Collaboration.objects.get(id=collaboration_id)
+        new_name = request.POST['new_name']
+        collaboration.handle_change_name(new_name)
+    except:
+        return HttpResponseRedirect('/Tracks/edit/' + collaboration_id +'/')
+    return HttpResponseRedirect('/Tracks/edit/' + collaboration_id +'/')
 

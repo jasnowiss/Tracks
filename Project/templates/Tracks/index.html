@@ -57,16 +57,16 @@
 
     <div id="navbar" class="navbar navbar-inverse navbar-fixed-top" role="navigation"></div>
 
-    <br>
-    <div class="navbar navbar-fixed-top">
+    <!--<div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
           <ul class="nav pull-right">
-            <!--li><a data-toggle="modal" data-target="#helpAsModal">Help</a></li-->
+            <li><a data-toggle="modal" data-target="#helpAsModal">Help</a></li
           </ul>
         </div>
       </div>
-    </div>
+    </div>-->
+    <br>
     <div class="container">
       <div class="row">
         <div class="span12">
@@ -134,7 +134,7 @@
       </div>
       <br>
       <div class="row" style="display:inline-flex">
-        <div>
+        <div class="inline">
            <div class="btn-group" >
 
                     <button class="btn btn-success" onclick="decrease_db()"><i class="glyphicon glyphicon-minus"></i></button>
@@ -180,16 +180,16 @@
                   update_db_gain_btn();
                 }
                 </script>
-          <div>
+          <div class="inline">
             <a class="btn btn-primary" onclick="$('#audioLayerControl')[0].filterNormalize();" data-toggle="tooltip" data-placement="bottom" title="Adjust the volume to the maximum of the selected audio sequence.">Normalize</a>
         </div>
-          <div>
+          <div class="inline">
             <a class="btn btn-primary" onclick="$('#audioLayerControl')[0].filterSilence();" data-toggle="tooltip" data-placement="bottom" title="Silence the selected audio sequence">Silence</a>
         </div>
-          <div>
+          <div class="inline">
             <a class="btn btn-primary" onclick="$('#audioLayerControl')[0].filterFadeIn();" data-toggle="tooltip" data-placement="bottom" title="Create a linear fade int of the selected audio sequence">Fade In</a>
         </div>
-          <div>
+          <div class="inline">
             <a class="btn btn-primary" onclick="$('#audioLayerControl')[0].filterFadeOut();" data-toggle="tooltip" data-placement="bottom" title="Create a linear fade out of the selected audio sequence">Fade Out</a>
         </div>
         <div class="span1">
@@ -269,6 +269,8 @@
     <script type="text/javascript" src={% static "editor/js/filesystemutility.js" %}></script>
     <script type="text/javascript" src={% static "editor/js/editorapp.js" %}></script>
 
+    {% load staticfiles %}
+    <script src={% static "bootstrap-3.1.1-dist/js/bootstrap.min.js" %}></script>
     <script type="text/javascript">
         addNav(true);
     </script>

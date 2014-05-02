@@ -45,10 +45,9 @@
         {% csrf_token %}
         <input name="new_name" class="text"></input>
         <button type="submit" class="btn btn-primary">Save name</button>
-        <a href="{% url 'Tracks:userpage' %}" class="btn btn-default">Done</a>
       </form>
 
-      <br>
+      <br><br>
       <div id="{{ collaboration.id }}" class="collab_div_container collab_pause">
 
         <div class="collab_info_div">
@@ -128,16 +127,19 @@
           <div id="search_results"></div>
         </form>
       </div>
-
+      -->
+      <br><br>
       <audio id="audio" controls autoplay></audio>
       <fieldset><legend>RECORD AUDIO</legend>
-        <input onclick="toggleRecording(this)" type="button" name="Rec" class="record"/>
+        <input onclick="toggleRecording(this)" type="button" name="Rec" class="record" style="margin-right: 5px"/>
         <input onclick="play()" type="button" name="Play" class="play"/>
         <input onclick="saveAudio()" type="submit" name="Save" class="btn btn-primary" value="Save"></input>
-        <a href="{% url 'Tracks:userpage' %}" class="btn btn-default">Done</a>
+        <!--<a href="{% url 'Tracks:userpage' %}" class="btn btn-default">Done</a>-->
         <a href="http://www.metronomeonline.com/" class="btn btn-warning">Metronome</a>
       </fieldset>
-      -->
+
+      <br><br>
+      <a href="{% url 'Tracks:userpage' %}" class="btn btn-default">Done</a>
 
     <div>
 

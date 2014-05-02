@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Audio Recorder</title>
 
+    {% load tracks_extras %}
     {% load staticfiles %}
+    {% load_head_custom %}
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="{% static "Recorder/recorder.js" %}"></script>
     <script src="{% static "Recorder/recorderMain.js" %}"></script>
@@ -33,14 +35,23 @@
     </style>
 </head>
     <body>
-        <audio id="audio" controls autoplay></audio>
-        <fieldset><legend>RECORD AUDIO</legend>
-            <input onclick="toggleRecording(this)" type="button" name="Rec" class="record"/>
-            <input onclick="play()" type="button" name="Play" class="play"/>
-            <input onclick="saveAudio()" type="submit" name="Save" class="btn btn-primary" value="Save"></input>
-            <a href="{% url 'Tracks:userpage' %}" class="btn btn-default">Done</a>
-            <a href="http://www.metronomeonline.com/" class="btn btn-warning">Metronome</a>
-        </fieldset>
+        <div id="navbar" class="navbar navbar-inverse navbar-fixed-top" role="navigation"></div>
+
+        <br><br>
+        <div class="container bs-docs-container">
+            <audio id="audio" controls autoplay></audio>
+            <fieldset><legend>RECORD AUDIO</legend>
+                <input onclick="toggleRecording(this)" type="button" name="Rec" class="record" style="margin-right: 5px" />
+                <input onclick="play()" type="button" name="Play" class="play" />
+                <input onclick="saveAudio()" type="submit" name="Save" class="btn btn-primary" value="Save"></input>
+                <a href="{% url 'Tracks:userpage' %}" class="btn btn-default">Done</a>
+                <a href="http://www.metronomeonline.com/" class="btn btn-warning">Metronome</a>
+            </fieldset>
+        </div>
         <!--<a id="save" href="#">save</a>-->
+        <script type="text/javascript">
+            addNav(true);
+        </script>
+
     </body>
 </html>

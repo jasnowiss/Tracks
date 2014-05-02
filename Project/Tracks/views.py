@@ -32,7 +32,6 @@ def editTrack(request, track_id):
     if request.method == 'GET':
         id_int = int(track_id)
         try:
-            if 
             track = Track.objects.get(id=id_int)
             return render(request, 'Tracks/index.html', {"track":track_id, "track":track.get_server_filename()})
         except:

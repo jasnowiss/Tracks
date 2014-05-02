@@ -717,6 +717,22 @@ def search_relevant_models(searchString):
         temp_query_set += model.filter_for_search(searchString)
     return temp_query_set
 
+def get_all_search_terms():
+    """
+    for search dropdown menu
+
+    """
+    list_of_relevant_models = [TracksUser, Track, UserProfile] ## ,Collaboration]
+    temp_query_set = []
+    for track in Track.objects.all():
+        temp_query_set += [track.filename]
+    for user in TracksUser.objects.all():
+        temp_query_set += [user.email]
+    for prof in UserProfile.objects.all():
+        temp_query_set += [prof.display_name]
+    return temp_query_set
+
+
 
 def reset_fixture():
     # Make sure Track deletion occurs first

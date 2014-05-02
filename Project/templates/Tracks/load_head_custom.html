@@ -22,6 +22,7 @@
 {% url 'Tracks:record' as record_url %}
 {% url 'Tracks:get_update_collab_JSON' as get_update_collab_JSON_url %}
 {% url 'Tracks:edit' as edit_url %}
+{% url 'Tracks:get_JSON_for_search' as get_JSON_for_search_url %}
 
 {% load staticfiles %}
 
@@ -44,6 +45,7 @@
     resolve_to_url["record_url"] = "{{ record_url }}";
     resolve_to_url["get_update_collab_JSON_url"] = "{{ get_update_collab_JSON_url }}";
     resolve_to_url["edit_url"] = "{{ edit_url }}";
+	resolve_to_url["get_JSON_for_search_url"] = "{{get_JSON_for_search_url}}";
  </script>
 
 <link href={% static "bootstrap-3.1.1-dist/css/bootstrap.min.css" %} rel="stylesheet">

@@ -4,8 +4,8 @@
     {% load tracks_extras %}
     {% load staticfiles %}
     {% load_head_custom %}
-    <!--<script src="{% static "Recorder/recorder.js" %}"></script>
-    <script src="{% static "Recorder/recorderMain.js" %}"></script>-->
+    <script src="{% static "Recorder/recorder.js" %}"></script>
+    <script src="{% static "Recorder/recorderMain.js" %}"></script>
     <!-- Should be moved to a .css file -->
     <style>
         .record{
@@ -135,7 +135,6 @@
         <input onclick="play()" type="button" name="Play" class="play"/>
         <input onclick="saveAudio()" type="submit" name="Save" class="btn btn-primary" value="Save"></input>
         <!--<a href="{% url 'Tracks:userpage' %}" class="btn btn-default">Done</a>-->
-        <a href="http://www.metronomeonline.com/" class="btn btn-warning">Metronome</a>
       </fieldset>
 
       <br><br>

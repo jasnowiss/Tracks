@@ -216,7 +216,7 @@ class UserProfile(models.Model):
 
 
 #list of acceptable extensions. make sure it starts with a dot'
-ACCEPTABLE_MUSIC_FORMATS = ['.mp3','.wav', 'blob']
+ACCEPTABLE_MUSIC_FORMATS = ['.mp3','.wav']
 
 #currently the size of the file is a static final, however we should consider having a quota per user, in case a user wishes to extend their quota.
 # 2.5MB - 2621440
@@ -280,7 +280,8 @@ class Track(models.Model):
         error = None
         notSupported = True
 
-        ##import pdb; pdb.set_trace()
+        if temp_file.name == 'blob' and temp_file.content_type == 'application/octet-stream':
+            notSupported = False
 
         for name in ACCEPTABLE_MUSIC_FORMATS:
             if temp_file.name.endswith(name):

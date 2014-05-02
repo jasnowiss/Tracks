@@ -5,4 +5,5 @@ benchmarks/db-benchmark/runs/*
 benchmarks/db-benchmark/sql/*
 *.pyc
 .idea
-*.pyc
+venv
+staticfiles

@@ -493,13 +493,33 @@ def resetFixture(request):
 
 @login_required
 def edit(request, collaboration_id):
-    collaboration = Collaboration.objects.get(id=collaboration_id)
-    return render(request, 'Tracks/edit.html', {"collaboration": collaboration})
+    if request.method == 'GET':
+        collaboration = Collaboration.objects.get(id=collaboration_id)
+        return render(request, 'Tracks/edit.html', {"collaboration": collaboration})
+    else:
+        collaboration = Collaboration.objects.get(id=collaboration_id)
+        new_name = request.POST['new_name']
+        collaboration.handle_change_name(new_name)
+        return render(request, 'Tracks/edit.html', {"collaboration": collaboration})
 
+## unused
 def change_name(request, collaboration_id):
     collaboration = Collaboration.objects.get(id=collaboration_id)
     new_name = request.POST['new_name']
     collaboration.handle_change_name(new_name)
     return render(request, 'Tracks/edit.html', {"collaboration": collaboration})
 
+# function for JSON call
+def get_JSON_for_search(request):
+    try:
+        response_data = get_all_search_terms();
+        response = HttpResponse(json.dumps(response_data), content_type="application/json")
+        return response
+    except:
+        response = HttpResponse('error trying to update collaboration') # May need to change message sent
+        print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
+        response.status_code = 500;
+        return response
+    
 
+    

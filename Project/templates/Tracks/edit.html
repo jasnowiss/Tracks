@@ -41,7 +41,7 @@
 
       <h3>{{ collaboration }}</h3>
 
-      <form id="change_name_form" action="change_name/" method="post">
+      <form id="change_name_form" action="." method="post">
         {% csrf_token %}
         <input name="new_name" class="text"></input>
         <button type="submit" class="btn btn-primary">Save name</button>

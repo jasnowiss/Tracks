@@ -4,8 +4,8 @@
     {% load tracks_extras %}
     {% load staticfiles %}
     {% load_head_custom %}
-    <script src="{% static "Recorder/recorder.js" %}"></script>
-    <script src="{% static "Recorder/recorderMain.js" %}"></script>
+    <!--<script src="{% static "Recorder/recorder.js" %}"></script>
+    <script src="{% static "Recorder/recorderMain.js" %}"></script>-->
     <!-- Should be moved to a .css file -->
     <style>
         .record{
@@ -37,102 +37,109 @@
     {% url 'Tracks:finalize_collaboration' as finalize_collaboration_url %}
     {% load tracks_extras %}
 
-    <h3>{{ collaboration }}</h3>
+    <div class="container bs-docs-container">
 
-    <form id="change_name_form" action="change_name/" method="post">
+      <h3>{{ collaboration }}</h3>
+
+      <form id="change_name_form" action="change_name/" method="post">
         {% csrf_token %}
         <input name="new_name" class="text"></input>
-        <button type="submit" class="btn btn-default">Save name</button>
-    </form>
+        <button type="submit" class="btn btn-primary">Save name</button>
+        <a href="{% url 'Tracks:userpage' %}" class="btn btn-default">Done</a>
+      </form>
 
+      <br>
+      <div id="{{ collaboration.id }}" class="collab_div_container collab_pause">
 
+        <div class="collab_info_div">
+          {{ collaboration }}
+          <button name="collab_{{ collaboration.id }}" class="play_collab_button">Play</button>
+          <button name="collab_{{ collaboration.id }}" class="restart_collab_button">Restart</button>
+          <!-- may need to change in future iteration  account for a master_user of collab -->
+          {% if collaboration|is_user_authorized:session_user %}
+            <a href="/Tracks/edit/{{ collaboration.id }}">
+              <button>Edit</button>
+            </a>
+          {% endif %}
 
+          <!-- need to change in future iteration to account for a master_user of collab -->
+          {% if collaboration|is_user_authorized:session_user %}
+            <button class="settings_button">Settings</button>
+          {% endif %}
+        </div>
 
-    <div id="{{ collaboration.id }}" class="collab_div_container collab_pause">
-            <div class="collab_info_div">
-                {{ collaboration }}
-                <button name="collab_{{ collaboration.id }}" class="play_collab_button">Play</button>
-                <button name="collab_{{ collaboration.id }}" class="restart_collab_button">Restart</button>
-                <!-- may need to change in future iteration  account for a master_user of collab -->
-                {% if collaboration|is_user_authorized:session_user %}
-                  <a href="/Tracks/edit/{{ collaboration.id }}">
-                    <button>Edit</button>
-                  </a>
-                {% endif %}
-
-                <!-- need to change in future iteration to account for a master_user of collab -->
-                {% if collaboration|is_user_authorized:session_user %}
-                    <button class="settings_button">Settings</button>
-                {% endif %}
-            </div>
-
-            <div class="collab_users_div">
-              <div class="collab_users_div_inner_left">
-                ft. {{ collaboration.get_formatted_list_of_collab_users }}
-              </div>
-              <a class="collab_toggle_all_tracks" href="javascript:;">see all tracks</a>
-              <span></span>
-            </div>
+        <div class="collab_users_div">
+          <div class="collab_users_div_inner_left">
+            ft. {{ collaboration.get_formatted_list_of_collab_users }}
+          </div>
+          <a class="collab_toggle_all_tracks" href="javascript:;">see all tracks</a>
+          <span></span>
+        </div>
 
         <div class="collab_tracks_div">
-                <table class="tracks_list">
-                    <tr class="colla_tracks_list_item">
-                        <td class="collab_tracks_list_item_firstColumn">
-                            <a class="collab_toggle_all_tracks" href="javascript:;">hide all tracks</a>
-                        </td>
-                        <td class="collab_tracks_list_item_secondColumn"></td>
-                        <td class="collab_tracks_list_item_thirdColumn"></td>
-                    </tr>
+          <table class="tracks_list">
+            <tr class="colla_tracks_list_item">
+              <td class="collab_tracks_list_item_firstColumn">
+                <a class="collab_toggle_all_tracks" href="javascript:;">hide all tracks</a>
+              </td>
+              <td class="collab_tracks_list_item_secondColumn"></td>
+              <td class="collab_tracks_list_item_thirdColumn"></td>
+            </tr>
 
-                {% for track in collaboration.get_tracks %}
-                  <tr class="colla_tracks_list_item">
-                    <td class="collab_tracks_list_item_firstColumn" title="{{ track.filename }}">
-                        {{ track.filename }}
-                    </td>
-                    <td class="collab_tracks_list_item_secondColumn">
-                        by <a href="{% url 'Tracks:userpage' %}{{ track.user.id }}">{{ track.user.get_name_to_display }}</a>
-                    </td>
-                    <td class="collab_tracks_list_item_thirdColumn">
-                        <button name="{{ track.get_server_filename }}" class="show_hide_player_button">Show Player</button>
-                        <button name="{{ track.id }}" class="edit_button">Edit</button>
-                        {% if collaboration|is_user_authorized:session_user %}
-                            <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
-                        {% elif track.user.id == session_user.id %}
-                            <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
-                        {% endif %}
-                    </td>
-                  </tr>
-                {% endfor %}
+            {% for track in collaboration.get_tracks %}
+              <tr class="colla_tracks_list_item">
+                <td class="collab_tracks_list_item_firstColumn" title="{{ track.filename }}">
+                  {{ track.filename }}
+                </td>
+                <td class="collab_tracks_list_item_secondColumn">
+                  by <a href="{% url 'Tracks:userpage' %}{{ track.user.id }}">{{ track.user.get_name_to_display }}</a>
+                </td>
+                <td class="collab_tracks_list_item_thirdColumn">
+                  <button name="{{ track.get_server_filename }}" class="show_hide_player_button">Show Player</button>
+                  <button name="{{ track.id }}" class="edit_button">Edit</button>
+                  {% if collaboration|is_user_authorized:session_user %}
+                    <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
+                  {% elif track.user.id == session_user.id %}
+                    <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
 
-                {% if collaboration.is_public or collaboration|is_user_authorized:session_user %}
-                <tr class="colla_tracks_list_item">
-                    <td class="collab_tracks_list_item_firstColumn">
-                        <button class="collaborate_button">Collaborate</button>
-                    </td>
-                    <td class="collab_tracks_list_item_secondColumn"></td>
-                    <td class="collab_tracks_list_item_thirdColumn"></td>
-                </tr>
-                {% endif %}
-              </table>
-            </div>
+            {% if collaboration.is_public or collaboration|is_user_authorized:session_user %}
+              <tr class="colla_tracks_list_item">
+                <!-- <td class="collab_tracks_list_item_firstColumn">
+                  <button class="collaborate_button">Collaborate</button>
+                </td> -->
+                <td class="collab_tracks_list_item_secondColumn"></td>
+                <td class="collab_tracks_list_item_thirdColumn"></td>
+              </tr>
+            {% endif %}
+          </table> 
+        </div>
 
-    </div>
-    <div id="add_track">
+      </div>
+
+      <!--
+      <div id="add_track">
         Add track:
         <form id="add_track_form" action="add_name/" method="post">
-            <input type="text" name="track_to_add" id="track_search"/>
-            <div id="search_results"></div>
+          <input type="text" name="track_to_add" id="track_search"/>
+          <div id="search_results"></div>
         </form>
-    </div>
+      </div>
 
-    <audio id="audio" controls autoplay></audio>
-    <fieldset><legend>RECORD AUDIO</legend>
+      <audio id="audio" controls autoplay></audio>
+      <fieldset><legend>RECORD AUDIO</legend>
         <input onclick="toggleRecording(this)" type="button" name="Rec" class="record"/>
         <input onclick="play()" type="button" name="Play" class="play"/>
         <input onclick="saveAudio()" type="submit" name="Save" class="btn btn-primary" value="Save"></input>
         <a href="{% url 'Tracks:userpage' %}" class="btn btn-default">Done</a>
         <a href="http://www.metronomeonline.com/" class="btn btn-warning">Metronome</a>
-    </fieldset>
+      </fieldset>
+      -->
+
+    <div>
 
     <!-- JS file containing function bindings for the events that can be triggered on this page -->
     <script src={% static "userpage-bindings.js" %} type="text/javascript"></script>

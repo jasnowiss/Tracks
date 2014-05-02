@@ -2,6 +2,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    {% load tracks_extras %}
+    {% load staticfiles %}
+    {% load_head_custom %}
+
     <meta charset="utf-8">
     <title>HTML5 Audio Editor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,6 +54,10 @@
   </head>
 
   <body onload="onDocumentLoaded()">
+
+    <div id="navbar" class="navbar navbar-inverse navbar-fixed-top" role="navigation"></div>
+
+    <br>
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -109,8 +117,9 @@
                 <a id="btn_loop" class="btn btn-warning btn-large" data-toggle="button" onclick="$('#audioLayerControl')[0].toggleLoop();"><i class="glyphicon glyphicon-repeat"></i></a>
               </div>
               <div class="btn-group">
-                <a class="btn btn-large btn-primary" onclick="$('#audioLayerControl')[0].save($('#savelink')[0]);"><i class="glyphicon glyphicon-fire"></i> Render</a>
-                <a class="btn btn-large btn-success disabled" id="savelink" download="export.wav"><i class="glyphicon glyphicon-download"></i> Save</a>
+                <a class="btn btn-large btn-primary" onclick="$('#audioLayerControl')[0].save($('#savelink')[0]);"><i class="glyphicon glyphicon-fire"></i> Save</a>
+                <a href="{% url 'Tracks:userpage' %}" class="btn btn-large btn-success"><i class="glyphicon glyphicon-ok"></i> Done</a>
+                <!--<a class="btn btn-large btn-success disabled" id="savelink" download="export.wav"><i class="glyphicon glyphicon-download"></i> Save</a>-->
               </div>
             </div>
           </center>
@@ -259,5 +268,10 @@
     <script type="text/javascript" src={% static "editor/js/binarytoolkit.js" %}></script>
     <script type="text/javascript" src={% static "editor/js/filesystemutility.js" %}></script>
     <script type="text/javascript" src={% static "editor/js/editorapp.js" %}></script>
+
+    <script type="text/javascript">
+        addNav(true);
+    </script>
+
   </body>
 </html>

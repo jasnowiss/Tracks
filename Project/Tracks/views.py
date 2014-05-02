@@ -502,3 +502,4 @@ def change_name(request, collaboration_id):
     collaboration.handle_change_name(new_name)
     return render(request, 'Tracks/edit.html', {"collaboration": collaboration})
 
+

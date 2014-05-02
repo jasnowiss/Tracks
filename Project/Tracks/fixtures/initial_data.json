@@ -22,6 +22,24 @@
     "fields": {
       "name": "Drums"
     }
+  },,
+  {
+    "model": "Tracks.Instrument",
+    "fields": {
+      "name": "Keyboard"
+    }
+  },
+  {
+    "model": "Tracks.Instrument",
+    "fields": {
+      "name": "Trumpet"
+    }
+  },
+  {
+    "model": "Tracks.Instrument",
+    "fields": {
+      "name": "Trombone"
+    }
   },
 
   {
@@ -46,6 +64,12 @@
     "model": "Tracks.Genre",
     "fields": {
       "name": "R&B"
+    }
+  },
+{
+    "model": "Tracks.Genre",
+    "fields": {
+      "name": "Rock & Roll"
     }
   }
 ]

@@ -18,7 +18,7 @@
 {% url 'Tracks:change_permission_of_collab' as change_permission_of_collab_url %}
 {% url 'Tracks:add_user_to_collab' as add_user_to_collab_url %}
 {% url 'Tracks:remove_user_from_collab' as remove_user_from_collab_url %}
-{% url 'Tracks:webAudio' as webAudio_url %}
+{% url 'Tracks:editTrack' as editTrack_url %}
 {% url 'Tracks:record' as record_url %}
 {% url 'Tracks:get_update_collab_JSON' as get_update_collab_JSON_url %}
 {% url 'Tracks:edit' as edit_url %}
@@ -40,7 +40,7 @@
     resolve_to_url["change_permission_of_collab_url"] = "{{ change_permission_of_collab_url }}";
     resolve_to_url["add_user_to_collab_url"] = "{{ add_user_to_collab_url }}";
     resolve_to_url["remove_user_from_collab_url"] = "{{ remove_user_from_collab_url }}";
-    resolve_to_url["webAudio_url"] = "{{ webAudio_url }}";
+    resolve_to_url["editTrack_url"] = "{{ editTrack_url }}";
     resolve_to_url["record_url"] = "{{ record_url }}";
     resolve_to_url["get_update_collab_JSON_url"] = "{{ get_update_collab_JSON_url }}";
     resolve_to_url["edit_url"] = "{{ edit_url }}";

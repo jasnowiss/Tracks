@@ -787,7 +787,7 @@ function create_edit_button(track_id) {
 
 function begin_edit() {
 	var track_id = $(this).attr("name");
-	window.location = resolve_to_url["webAudio_url"] + track_id;
+	window.location = resolve_to_url["editTrack_url"] + track_id;
 }
 
 /** ADD A DESCRIPTION */

@@ -22,11 +22,12 @@
       <h3>Collaborations</h3>
       <ul id="collaborations_list">
         {% for collaboration in list_of_collaborations %}
-          <li class="no-bullets unindent">
+          <li class="no-bullets unindent collab_list_item">
             <div id="{{ collaboration.id }}" class="collab_div_container collab_pause">
-            <input type="hidden" name="collab_last_known_update" value="{{ collaboration.last_updated }}"/>
+            <input type="hidden" name="collab_last_known_update" class="collab_last_known_update" value="{{ collaboration.last_updated }}"/>
               <div class="collab_info_div">
                   {{ collaboration }}
+                  <img class="loading_gif" src="{% static "loading-icon.gif" %}" />
                   <button name="collab_{{ collaboration.id }}" class="play_collab_button">Play</button>
                   <button name="collab_{{ collaboration.id }}" class="restart_collab_button">Reset</button>
                   <!-- may need to change in future iteration  account for a master_user of collab -->
@@ -42,7 +43,7 @@
                     </button>
                   </div>
                   {% endif %}
-                  <button id="test">test</button>
+                  <!-- <button id="test">test</button> -->
 
               </div>
               <div class="collab_users_div">
@@ -64,7 +65,7 @@
                       </tr>
 
                   {% for track in collaboration.get_tracks %}
-                    <tr name= "{{ track.id }}" class="colla_tracks_list_item">
+                    <tr name= "{{ track.id }}" class="colla_tracks_list_item track_item">
                       <td class="collab_tracks_list_item_firstColumn" title="{{ track.filename }}">
                           {{ track.filename }}
                       </td>

@@ -31,4 +31,8 @@ $(document).ready(function () {
 
     $("#test").click(function(){ update_collab(this); });
 
+   // $(".loading_gif").css("visibility", "hidden");
+
+    setTimeout(function(){ run_collab_updates($(".collab_last_known_update").get(0)); }, 5000);
+
 });

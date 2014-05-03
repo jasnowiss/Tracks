@@ -22,7 +22,7 @@
     "fields": {
       "name": "Drums"
     }
-  },,
+  },
   {
     "model": "Tracks.Instrument",
     "fields": {

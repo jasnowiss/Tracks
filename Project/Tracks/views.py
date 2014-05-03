@@ -13,7 +13,7 @@ import os
 ##import sys
 import traceback
 import json
-
+from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 # need these for serving mp3 files from this Django server. If another server handles serving mp3 files, these can be removed.
@@ -257,7 +257,8 @@ def finalize_collaboration(request):
         mod_type = request.POST['mod_type']
 
         temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), None)
-        collab = Collaboration.handle_finalization(temp_user, track1_id, track2_id, collab_id, mod_type)
+        ##collab = Collaboration.handle_finalization(temp_user, track1_id, track2_id, collab_id, mod_type)
+        Collaboration.handle_finalization(temp_user, track1_id, track2_id, collab_id, mod_type)
 
         response = HttpResponse('success') ## render(request, 'Tracks/collaboration_for_AJAX.html', {'collaboration' : collab})
         response.status_code = 200
@@ -493,13 +494,33 @@ def resetFixture(request):
 
 @login_required
 def edit(request, collaboration_id):
-    collaboration = Collaboration.objects.get(id=collaboration_id)
-    return render(request, 'Tracks/edit.html', {"collaboration": collaboration})
+    if request.method == 'GET':
+        collaboration = Collaboration.objects.get(id=collaboration_id)
+        return render(request, 'Tracks/edit.html', {"collaboration": collaboration})
+    else:
+        collaboration = Collaboration.objects.get(id=collaboration_id)
+        new_name = request.POST['new_name']
+        collaboration.handle_change_name(new_name)
+        return render(request, 'Tracks/edit.html', {"collaboration": collaboration})
 
+## unused
 def change_name(request, collaboration_id):
     collaboration = Collaboration.objects.get(id=collaboration_id)
     new_name = request.POST['new_name']
     collaboration.handle_change_name(new_name)
     return render(request, 'Tracks/edit.html', {"collaboration": collaboration})
 
+# function for JSON call
+def get_JSON_for_search(request):
+    try:
+        response_data = get_all_search_terms();
+        response = HttpResponse(json.dumps(response_data), content_type="application/json")
+        return response
+    except:
+        response = HttpResponse('error trying to update collaboration') # May need to change message sent
+        print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
+        response.status_code = 500;
+        return response
+    
 
+    

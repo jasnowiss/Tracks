@@ -250,19 +250,24 @@ function set_collab_to(html_element_inside_collab, style_type) {
             if (style_type == "play") {
                 $(container_div).removeClass().addClass("collab_div_container collab_play");
                 collab_play_button_bind_as(collab_play_button, "pause"); // since collab is set as playing, collab_play_button needs to be bound to the opposite (pause)
+                set_collab_loading_gif_visibility(html_element_inside_collab, "hidden");
             }
             else if (style_type == "processing") {
                 $(container_div).removeClass().addClass("collab_div_container collab_processing");
+                set_collab_loading_gif_visibility(html_element_inside_collab, "visible");
             }
             else if (style_type == "editing") {
                 $(container_div).removeClass().addClass("collab_div_container collab_editing");
+                 set_collab_loading_gif_visibility(html_element_inside_collab, "hidden");
             }
             else if (style_type == "error") {
                 $(container_div).removeClass().addClass("collab_div_container collab_error");
+                set_collab_loading_gif_visibility(html_element_inside_collab, "hidden");
             }
             else { // style_type == "pause"
                 $(container_div).removeClass().addClass("collab_div_container collab_pause");
                 collab_play_button_bind_as(collab_play_button, "play"); // since collab is set as paused, collab_play_button needs to be bound to the opposite (play)
+                set_collab_loading_gif_visibility(html_element_inside_collab, "hidden");
             }
         }
     }
@@ -792,14 +797,10 @@ function begin_edit() {
 
 /** ADD A DESCRIPTION */
 function finalize_collaboration(html_element, mod_type) {
-    //this_button = this; = html_element
     var track1_id = get_track1_id(html_element);
-    //var select_element = $(this_button).parent().children("select");
-    //var track2_id = select_element.children(":selected").val();
     var track2_id = get_track2_id(html_element);
     var collab_id = get_collab_id(html_element);
-    //alert("track1_id: " + track1_id + "track2_id: " + track2_id + "collab_id: " + collab_id + "mod_type: " + mod_type);
-    set_collab_to(html_element, "processing");
+    //set_collab_to(html_element, "processing");
 
     $.ajax({
         url: resolve_to_url["finalize_collaboration_url"],
@@ -807,9 +808,18 @@ function finalize_collaboration(html_element, mod_type) {
         data: {track1_id : track1_id, track2_id : track2_id, collab_id : collab_id, mod_type : mod_type},
         success: function (data, textStatus, jqXHR) {
             //alert(jqXHR.responseText);
-            location.reload();
-            //update_collab(html_element, jqXHR.responseText);
-            //set_collab_to(html_element, "pause");
+            //location.reload();
+            var parent = $(html_element).parents(".collab_div_container").get(0);
+            var num_of_tracks_items = $(parent).find(".track_item").size();
+
+            if ((mod_type.toLowerCase().indexOf("remove") >= 0) && (num_of_tracks_items <= 1)){
+                animated_remove(parent);
+            }
+            else if(!is_inside_collab(html_element)){
+                location.reload();
+            } else {
+                update_collab(html_element);
+            }
 
         },
         error: function (jqXHR, textStatus, errorThrown) {
@@ -827,22 +837,55 @@ function update_collab(html_element_inside_collab){
     if (get_collab_style(html_element_inside_collab) != "play"){
         var collab_id = get_collab_id(html_element_inside_collab);
         var collab_last_history_id = get_collab_last_known_update(html_element_inside_collab);
+
+        //var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+        //$(container_div).find(".loading_gif").css("visibility", "visible");
+        set_collab_loading_gif_visibility(html_element_inside_collab, "visible");
+
         $.getJSON(resolve_to_url["get_update_collab_JSON_url"], { collab_id : collab_id, collab_last_history_id : collab_last_history_id } , function (data) {
             if( ! $.isEmptyObject(data)){
                 var prev_style = get_collab_style(html_element_inside_collab);
                 set_collab_to(html_element_inside_collab, "processing");
-                var can_user_collaborate = data["can_user_collaborate"]
-                var can_user_modify = data["can_user_modify"]
+                var can_user_collaborate = data["can_user_collaborate"];
+                var can_user_modify = data["can_user_modify"];
                 var collab_users = data["collab_users"];
                 var collab_new_history_id = data["new_history_id"];
-                var collab_tracks_data = data["tracks_data"]
+                var collab_tracks_data = data["tracks_data"];
                 if (collab_update_track_info(html_element_inside_collab, collab_tracks_data)) {
                     collab_update_nontrack_info(html_element_inside_collab, can_user_collaborate, can_user_modify, collab_users, collab_new_history_id);
                 }
                 set_collab_to(html_element_inside_collab, prev_style);
             }
         });
+        //setTimeout(function(){ $(container_div).find(".loading_gif").css("visibility", "hidden"); }, 1000);
+        set_collab_loading_gif_visibility(html_element_inside_collab, "hidden");
     }
+}
+
+function set_collab_loading_gif_visibility(html_element_inside_collab, visible_or_hidden){
+    var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+    visible_or_hidden = visible_or_hidden.toLowerCase();
+    if (visible_or_hidden === "visible"){
+        $(container_div).find(".loading_gif").css("visibility", "visible");
+    } else { // === "hidden"
+        setTimeout(function(){ $(container_div).find(".loading_gif").css("visibility", "hidden"); }, 1000);
+    }
+}
+
+function run_collab_updates(html_element_inside_collab){
+    var parent = $(html_element_inside_collab).parents(".collab_list_item").get(0);
+    var parent_sibling = $(parent).next(".collab_list_item").get(0);
+    if (typeof parent_sibling === "undefined"){
+        parent_sibling = $(parent).siblings(".collab_list_item").get(0);
+        if (typeof parent_sibling === "undefined"){
+            parent_sibling = parent;
+        }
+    }
+    var next_sibling = $(parent_sibling).find(".collab_last_known_update").get(0);
+
+    update_collab(html_element_inside_collab);
+    setTimeout(function(){run_collab_updates(next_sibling); }, 10000);
+
 }
 
 function collab_update_nontrack_info(html_element_inside_collab, can_user_collaborate, can_user_modify, collab_users, collab_new_history_id){
@@ -885,12 +928,18 @@ function collab_update_track_info(html_element_inside_collab, collab_tracks_data
                                 + 'by <a href="' + resolve_to_url["userpage_url"] +  track_user_id + '">' + track_user_display_name + '</a>'
                                 + '</td>'
                                 + '<td class="collab_tracks_list_item_thirdColumn">'
-                                + '<button name="' + track_server_filename + '" onclick="show_player()" class="show_hide_player_button">Show Player</button>';
+                                + '<button name="' + track_server_filename + '" class="show_hide_player_button">Show Player</button>';
                 if (track_is_user_authorized.toLowerCase() === "true"){
-                    track_row = track_row + ' ' + '<button name="' + track_id + '" onclick="remove_track_from_collab()" class="remove_track_from_collab_button">X</button>';
+                    track_row = track_row + ' ' + '<button name="' + track_id + '" class="remove_track_from_collab_button">X</button>';
                 }
                 track_row = track_row + '</td>' + '</tr>';
                 track_row = $.parseHTML(track_row);
+
+                $($(track_row).find(".show_hide_player_button")).on("click", show_player);
+                $($(track_row).find(".remove_track_from_collab_button")).on("click", remove_track_from_collab);
+                //$(".show_hide_player_button").click(show_player);
+                //$(".remove_track_from_collab_button").click(remove_track_from_collab);
+
                 remove_track_from_collab_UI(html_element_inside_collab, track_id); // remove the element, if it exists. then re-add a new row with the updated info.
                 add_track_to_collab_UI(html_element_inside_collab, track_id, track_row);
             }
@@ -980,11 +1029,14 @@ function collab_modify_authorized_only_item(html_element_inside_collab, mod_type
                                         + '<img style="width: 18px; height: 18px;" src="/static/wrench-icon.png" />'
                                         + '</button>'
                                         + '</a>'
-                                        + '<button class="settings_button" onclick="open_settings()" title="Settings">'
+                                        + '<button class="settings_button" title="Settings">'
                                         + '<img src="/static/settings-icon.png" />'
                                         + '</button>'
                                         + '</div>';
             authorized_buttons_div = $.parseHTML(authorized_buttons_div);
+
+            $($(authorized_buttons_div).find(".settings_button")).on("click", open_settings);
+
             $(container_div).find(".collab_info_div").append(authorized_buttons_div);
             $(authorized_buttons_div).show(500);
         }

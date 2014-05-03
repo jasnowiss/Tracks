@@ -14,7 +14,7 @@ function addNav(session) {
                     +       '<ul id="navbar_options" class="nav navbar-nav"> </ul>'
                     +       '<form method="GET" class="navbar-form" role="search">'
                     +         '<div class="form-group">'
-                    +           '<input type="text" name="search" class="form-control" placeholder="search">'
+                    +           '<input id="search" type="text" name="search" class="form-control" placeholder="search">'
                     +         '</div>'
                     +         '<button type="submit" class="btn btn-default">'
                     +           '<span class="glyphicon glyphicon-music"></span>'
@@ -105,12 +105,16 @@ function hrefCreate(session) {
 	$("#signin").attr('href', window.location.origin+"/Tracks/signin/");
     $(".navbar-form").attr('action', window.location.origin+"/Tracks/search/");
 	if(session){
-		//$("#upload").attr('href','javascript:upload_dialog("",function() {}, function(){})');
         $("#upload").attr('href', "javascript:;");
         $("#upload").on("click", upload_dialog);
 	} else {
 		$("#upload").attr('href',window.location.origin + "/Tracks/signin/");
 	}
+
+	$.getJSON(resolve_to_url["get_JSON_for_search_url"], {}, function (data) {
+		$("#search").autocomplete({source:data});
+	});
+
 }
 
 /*
@@ -120,6 +124,7 @@ function uploadFile() {
 */
 
 function upload_dialog(){
+	$("#upload").on("click","");
     var dialog_html = $("<table></table>").addClass("tracks_list").append(create_tracks_authorized_buttons_html());
     var title = "Add New Track";
     var width = 640;

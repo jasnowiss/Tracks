@@ -328,9 +328,11 @@ class Track(models.Model):
         if (os.path.isfile(temp_filepath)):
             os.remove(temp_filepath)
             track.delete()
-            return True
-        else:
-            return False
+
+        return True # return true as long as track != None
+##            return True
+##        else:
+##            return False
 
 
 PERMISSION_OPTIONS = { 'true' :'public', 'false' : 'private' }
@@ -716,6 +718,22 @@ def search_relevant_models(searchString):
     for model in list_of_relevant_models:
         temp_query_set += model.filter_for_search(searchString)
     return temp_query_set
+
+def get_all_search_terms():
+    """
+    for search dropdown menu
+
+    """
+    list_of_relevant_models = [TracksUser, Track, UserProfile] ## ,Collaboration]
+    temp_query_set = []
+    for track in Track.objects.all():
+        temp_query_set += [track.filename]
+    for user in TracksUser.objects.all():
+        temp_query_set += [user.email]
+    for prof in UserProfile.objects.all():
+        temp_query_set += [prof.display_name]
+    return temp_query_set
+
 
 
 def reset_fixture():

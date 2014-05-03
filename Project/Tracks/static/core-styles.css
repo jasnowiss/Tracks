@@ -343,3 +343,8 @@ tr:hover{
     width: 450px;
     height: 300px;
 }
+.loading_gif{
+    width: 14px;
+    height: 14px;
+    visibility: hidden;
+}

@@ -328,9 +328,11 @@ class Track(models.Model):
         if (os.path.isfile(temp_filepath)):
             os.remove(temp_filepath)
             track.delete()
-            return True
-        else:
-            return False
+
+        return True # return true as long as track != None
+##            return True
+##        else:
+##            return False
 
 
 PERMISSION_OPTIONS = { 'true' :'public', 'false' : 'private' }

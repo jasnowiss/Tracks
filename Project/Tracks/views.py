@@ -13,7 +13,7 @@ import os
 ##import sys
 import traceback
 import json
-
+from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 # need these for serving mp3 files from this Django server. If another server handles serving mp3 files, these can be removed.
@@ -257,7 +257,8 @@ def finalize_collaboration(request):
         mod_type = request.POST['mod_type']
 
         temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), None)
-        collab = Collaboration.handle_finalization(temp_user, track1_id, track2_id, collab_id, mod_type)
+        ##collab = Collaboration.handle_finalization(temp_user, track1_id, track2_id, collab_id, mod_type)
+        Collaboration.handle_finalization(temp_user, track1_id, track2_id, collab_id, mod_type)
 
         response = HttpResponse('success') ## render(request, 'Tracks/collaboration_for_AJAX.html', {'collaboration' : collab})
         response.status_code = 200

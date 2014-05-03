@@ -24,8 +24,8 @@ Quick-start development settings
 # - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-TEMPLATE_DEBUG = True
+DEBUG = False
+TEMPLATE_DEBUG = False
 
 
 
@@ -81,6 +81,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'Tracks',
+    'gunicorn',
 )
 
 MIDDLEWARE_CLASSES = (

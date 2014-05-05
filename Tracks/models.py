@@ -254,7 +254,7 @@ class Track(models.Model):
         ##temp_dest = os.path.join(path, str(self.user.get_unique_identifier()) + "_" + self.filename) # need to change later to be a more unique identifier
         # using user.id and timestamp to decrease chance of filename collisions
         temp_dest = os.path.join(path, str(self.user.id) + "_" + timezone.datetime.now().strftime('%m-%d-%Y_%H-%M-%S') + ".mp3").replace('\\', '/')
-        ##print(temp_dest)
+        print(temp_dest)
         with open(temp_dest,'wb+') as destination:
             for chunk in f.chunks():
                 destination.write(chunk)
@@ -262,7 +262,6 @@ class Track(models.Model):
         self.filepath = temp_dest
         self.save()
         #Don't need this, as handle_music_file_upload already does this ##History.add_history(self.user, self, ADDED_HISTORY)
-        print(temp_dest)
         return temp_dest
 
     def get_server_filename(self):

@@ -232,6 +232,9 @@ function initialize_collab_sliders(html_element) {
                     $(collab_slider).slider("option", "max", audio_control.duration);
                 }
                 if (audio_control.seekable.end(0) > 0){ // i.e. is the audio seekable?
+                    $(collab_slider).off("slidestart"); // remove any previously attached event handler before binding the new one
+                    $(collab_slider).on("slidestart", function(event, ui){ unelapse_collab(this); });
+
                     $(collab_slider).off("slidestop"); // remove any previously attached event handler before binding the new one
                     $(collab_slider).on("slidestop", function(event, ui){
                                                                 var time_to_seek = ui.value;
@@ -259,13 +262,9 @@ function initialize_collab_sliders(html_element) {
 var collab_slider_timeouts = []; // helps handle all the collab sliders
 
 function seek_collab(html_element, time_to_seek) {
-    var container_div = get_collab_container(html_element);
-
-    unelapse_collab(html_element);
     sync_collab(time_to_seek, html_element);
-
-    if (get_collab_style(container_div) == "play"){
-        //elapse_collab(container_div);
+    if (get_collab_style(html_element) == "play"){
+        elapse_collab(html_element);
     }
 }
 
@@ -676,6 +675,7 @@ function seek_music(music_player, time_to_seek) {
         audio_control.currentTime = time_to_seek;
     } else {
         audio_control.currentTime = 0;
+        audio_control.pause();
     }
 }
 

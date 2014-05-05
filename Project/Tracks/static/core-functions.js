@@ -229,7 +229,9 @@ function initialize_collab_sliders(html_element) {
                 var audio_control = this;
                 var max_duration = $(collab_slider).slider("option", "max");
                 if(audio_control.duration > max_duration){
-                    $(collab_slider).slider("option", "max", audio_control.duration);
+                    var step_size = $(collab_slider).slider("option", "step");
+                    var duration_to_set = Math.floor(audio_control.duration/step_size)*step_size;
+                    $(collab_slider).slider("option", "max", duration_to_set);
                 }
                 if (audio_control.seekable.end(0) > 0){ // i.e. is the audio seekable?
                     $(collab_slider).off("slidestart"); // remove any previously attached event handler before binding the new one
@@ -263,7 +265,7 @@ var collab_slider_timeouts = []; // helps handle all the collab sliders
 
 function seek_collab(html_element, time_to_seek) {
     sync_collab(time_to_seek, html_element);
-    if (get_collab_style(html_element) == "play"){
+    if (get_collab_style(html_element) == "play") {
         elapse_collab(html_element);
     }
 }
@@ -328,10 +330,14 @@ function seek_collab_volume(html_element, volume_to_set){
 /** ADD A DESCRIPTION */
 function play_collab() {
     var tracks_buttons = get_buttons_for_tracks_of_collab(this);
+    var container_div = get_collab_container(this);
+    var collab_slider = $(container_div).find(".collab_slider").get(0);
+    var curr_val = $(collab_slider).slider("value");
     $(tracks_buttons).each(function () {
         try{
             var music_player = get_music_player(this);
             play_music(music_player);
+            seek_music(music_player, curr_val);
         } catch(e){
         }
     });
@@ -400,6 +406,8 @@ function set_collab_to(html_element_inside_collab, style_type) {
             set_collab_loading_gif_visibility(html_element_inside_collab, "hidden");
             unelapse_collab(html_element_inside_collab);
         }
+        /*var curr_val = $($(container_div).find(".collab_slider").get(0)).slider("value");
+        seek_collab(html_element_inside_collab, curr_val);*/
     }
     //}
 }
@@ -673,6 +681,9 @@ function seek_music(music_player, time_to_seek) {
     var audio_control = $(music_player).children("audio").get(0);
     if (time_to_seek <= audio_control.duration){
         audio_control.currentTime = time_to_seek;
+        if (get_collab_style(music_player) == "play"){
+            audio_control.play();
+        }
     } else {
         audio_control.currentTime = 0;
         audio_control.pause();

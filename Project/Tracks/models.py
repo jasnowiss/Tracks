@@ -497,6 +497,10 @@ class Collaboration(models.Model):
             for history in history_list:
                 temp_data = {}
                 track = history.track
+                removed_track_id = history.removed_track_id
+                if(removed_track_id > 0):
+                    temp_data["update_type"] = history.get_update_type()
+                    temp_data["track_id"] = track.id
                 if(track != None):
                     temp_data["update_type"] = history.get_update_type()
                     temp_data["track_id"] = track.id
@@ -595,6 +599,7 @@ class Collaboration(models.Model):
             for i in xrange(0, len(list_of_valid_tracks)):
                 temp_track = list_of_valid_tracks[i]
                 if(mod_type.lower().count("remove") != 0):
+                    removed_track_id = temp_track.id
                     temp_collab.handle_removing_track(temp_track)
                 else: # default action is to add
                     temp_collab.handle_adding_track(temp_track)
@@ -604,8 +609,10 @@ class Collaboration(models.Model):
 ##                    History.add_history(session_user, temp_collab, history_type)
 ##                    if(history_type == ADDED_HISTORY):
 ##                        temp_collab.add_user(temp_track.user)
-
-                History.add_history(session_user, history_type, collab=temp_collab, track=temp_track)
+                if (mod_type.lower().count("remove") == 0):
+                    History.add_history(session_user, history_type, collab=temp_collab, track=temp_track)
+                else:
+                    History.add_history(session_user, history_type, collab=temp_collab, removed_track_id=removed_track_id)
                 if(history_type == ADDED_HISTORY):
                     temp_collab.add_user(temp_track.user)
 
@@ -637,6 +644,7 @@ class History(models.Model):
     track = models.ForeignKey(Track, null=True)
     collaboration = models.ForeignKey(Collaboration, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    removed_track_id = models.IntegerField(default=0)
 
     def __unicode__(self):
         """ADD A DESCRIPTION"""
@@ -684,7 +692,7 @@ class History(models.Model):
 
 
     @classmethod
-    def add_history(cls, temp_user, type_of_history, collab=None, track=None):
+    def add_history(cls, temp_user, type_of_history, collab=None, track=None, removed_track_id=None):
         """ADD A DESCRIPTION"""
         temp_history = History(user=temp_user) # ,timestamp=timezone.datetime.now())
         temp_history.added = True if (type_of_history == ADDED_HISTORY) else False
@@ -702,6 +710,8 @@ class History(models.Model):
             temp_history.collaboration = collab
         if(track != None and type(track) == Track):
             temp_history.track = track
+        if(removed_track_id != None):
+            temp_history.removed_track_id = removed_track_id
 
         temp_history.save()
 

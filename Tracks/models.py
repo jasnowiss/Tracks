@@ -262,6 +262,7 @@ class Track(models.Model):
         self.filepath = temp_dest
         self.save()
         #Don't need this, as handle_music_file_upload already does this ##History.add_history(self.user, self, ADDED_HISTORY)
+        print(temp_dest)
         return temp_dest
 
     def get_server_filename(self):

@@ -150,7 +150,7 @@ def userprofile(request, user_id=None):
             return response
 
     except:
-        response = HttpResponse('error in userprofile') # May need to change message sent
+        response = HttpResponse('custom error in userprofile') # May need to change message sent
         print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
         response.status_code = 500;
         return response
@@ -388,7 +388,7 @@ def upload_MP3(request):
             return response
 
     except:
-        response = HttpResponse('error with userprofile') # May need to change message sent
+        response = HttpResponse('fatal error with upload_MP3') # May need to change message sent
         print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
         response.status_code = 500;
         return response

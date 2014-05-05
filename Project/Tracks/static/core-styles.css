@@ -66,7 +66,6 @@ audio
 }
 .collab_info_div
 {
-    /*border-bottom: 1px solid black;*/ /*background-color: #DBDBDB; */
     font-weight: bold;
 }
 .collab_users_div
@@ -147,7 +146,7 @@ audio
 }
 .collab_info_div button
 {
-    border-left: 1px solid white;
+    /*border-left: 1px solid white;*/
     border-right: 1px solid white;
     background-color: inherit;
     color: white;
@@ -348,3 +347,47 @@ tr:hover{
     height: 14px;
     visibility: hidden;
 }
+.collab_slider .ui-slider-range {
+     background: red;
+ }
+.ui-corner-all{
+    border-radius: 0px;
+}
+.ui-slider{
+    background: #D5D5D5;
+}
+ .collab_slider .ui-slider-handle {
+     background: #ffffff;
+     border-color: #B8B8B8;
+     width: 10px;
+     height: 15px;
+    display: none;
+ }
+ .collab_slider {
+     display: block;
+     /*width: 100px;*/
+     height: 4px;
+     margin: 0px;
+    /*margin-left: 10px;*/
+    border: none;
+ }
+.collab_info_div:hover .collab_slider{
+    height: 8px;
+}
+.collab_volume_slider {
+     display: inline-block;
+     width: 50px;
+     height: 7px;
+     margin: 0px;
+    margin-left: 10px;
+    border:none;
+ }
+ .collab_volume_slider .ui-slider-handle {
+     background: #ffffff;
+     border-color: #B8B8B8;
+     width: 10px;
+     height: 15px;
+ }
+.collab_volume_slider .ui-slider-range {
+     background: red;
+ }

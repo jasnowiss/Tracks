@@ -35,4 +35,9 @@ $(document).ready(function () {
 
     setTimeout(function(){ run_collab_updates($(".collab_last_known_update").get(0)); }, 5000);
 
+    /*$(".collab_div_container").on("load", function(){});*/
+    $.each($(".collab_div_container"), function(index, value){
+        initialize_collab_sliders(value);
+    });
+
 });

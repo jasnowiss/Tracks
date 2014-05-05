@@ -186,14 +186,144 @@ function collab_play_button_bind_as(play_button_inside_collab, type){
         if (type == "play") {
             $(play_button_inside_collab).off("click", pause_collab);
             $(play_button_inside_collab).on("click", play_collab);
-            $(play_button_inside_collab).text("Play");
+            /*$(play_button_inside_collab).text("Play");*/
         }
         else { // type == "pause"
             $(play_button_inside_collab).off("click", play_collab);
             $(play_button_inside_collab).on("click", pause_collab);
-            $(play_button_inside_collab).text("Pause");
+            /*$(play_button_inside_collab).text("Pause");*/
         }
     }
+}
+
+function initialize_collab_sliders(html_element) {
+    var container_div = get_collab_container(html_element);
+    var collab_slider = $(container_div).find(".collab_slider").get(0);
+    var collab_volume_slider = $(container_div).find(".collab_volume_slider").get(0);
+    $(collab_slider).slider({
+        orientation: "horizontal",
+        range: "min",
+        animation: 600,
+        max: 1,
+        value: 0,
+        step: 0.1
+    });
+    $(collab_volume_slider).slider({
+        orientation: "horizontal",
+        range: "min",
+        animation: "fast",
+        max: 1,
+        value: 0,
+        step: 0.1
+    });
+
+    var tracks_buttons = get_buttons_for_tracks_of_collab(container_div);
+    //var max_duration = 0;
+    //var can_seek = 0;
+    $.each(tracks_buttons, function (index, value) {
+        try{
+            temp_button = value;
+            var child_music_player = get_music_player(temp_button);
+            var child_audio = $(child_music_player).children("audio").get(0);
+            $(child_audio).on("loadedmetadata", function(){
+                var audio_control = this;
+                var max_duration = $(collab_slider).slider("option", "max");
+                if(audio_control.duration > max_duration){
+                    $(collab_slider).slider("option", "max", audio_control.duration);
+                }
+                if (audio_control.seekable.end(0) > 0){ // i.e. is the audio seekable?
+                    $(collab_slider).off("slidestop"); // remove any previously attached event handler before binding the new one
+                    $(collab_slider).on("slidestop", function(event, ui){
+                                                                var time_to_seek = ui.value;
+                                                                seek_collab(this, time_to_seek);
+                                                            });
+                }
+            });
+        } catch(e) {
+        }
+    });
+/*    $(collab_slider).slider("value", max_duration);
+    if (can_seek){
+        $(collab_slider).off("slidetop"); // remove any previously attached event handler before binding the new one
+        $(collab_slider).on("slidestop", function(event, ui){ seek_collab(event, ui, tracks_buttons); });
+    }
+*/
+    $(collab_volume_slider).slider("value", 1);
+    $(collab_volume_slider).off("slide"); //may need to change to "slidestop"
+    $(collab_volume_slider).on("slide", function(event, ui){
+                                                var volume_to_set = ui.value;
+                                                seek_collab_volume(this, volume_to_set);
+                                                });
+}
+
+var collab_slider_timeouts = []; // helps handle all the collab sliders
+
+function seek_collab(html_element, time_to_seek) {
+    var container_div = get_collab_container(html_element);
+
+    unelapse_collab(html_element);
+    sync_collab(time_to_seek, html_element);
+
+    if (get_collab_style(container_div) == "play"){
+        //elapse_collab(container_div);
+    }
+}
+
+function sync_collab(time_to_seek, html_element){
+    var tracks_buttons = get_buttons_for_tracks_of_collab(html_element);
+    $.each(tracks_buttons, function (index, value) {
+        try{
+            temp_button = value;
+            var music_player = get_music_player(temp_button);
+            seek_music(music_player, time_to_seek);
+        } catch(e) {
+        }
+    });
+}
+
+function elapse_collab(html_element){
+    var container_div = get_collab_container(html_element);
+    var collab_slider = $(container_div).find(".collab_slider").get(0);
+    var max_val = $(collab_slider).slider("option", "max");
+    var curr_val = $(collab_slider).slider("value");
+    //$(".elapsed").text(curr_val);
+    var seconds_to_elapse = Math.min(0.1, max_val-curr_val); // set the time to elapse to the minimum time passable
+    if (seconds_to_elapse > 0) {
+        var new_val = curr_val + seconds_to_elapse;
+        var callback_delay = seconds_to_elapse*1000;
+        collab_slider_timeouts[container_div] = setTimeout(function () {
+                    $(collab_slider).slider("value", new_val);
+                    elapse_collab(html_element);
+                }, callback_delay);
+    }
+}
+
+function unelapse_collab(html_element){
+    var container_div = get_collab_container(html_element);
+    var temp_timeout = collab_slider_timeouts[container_div];
+    clearTimeout(temp_timeout);
+
+    var collab_slider = $(container_div).find(".collab_slider").get(0);
+    var max_val = $(collab_slider).slider("option", "max");
+    var curr_val = $(collab_slider).slider("value");
+    var seconds_to_elapse = max_val-curr_val;
+
+    if(seconds_to_elapse == 0) {
+        $(collab_slider).slider("value", 0);
+    }
+}
+
+function seek_collab_volume(html_element, volume_to_set){
+    var tracks_buttons = get_buttons_for_tracks_of_collab(html_element);
+    $.each(tracks_buttons, function (index, value) {
+        try{
+            temp_button = value;
+            var child_music_player = get_music_player(temp_button);
+            var child_audio = $(child_music_player).children("audio").get(0);
+            child_audio.volume = volume_to_set;
+        } catch(e) {
+        }
+    });
 }
 
 /** ADD A DESCRIPTION */
@@ -242,73 +372,75 @@ function restart_collab() {
 
 /** ADD A DESCRIPTION */
 function set_collab_to(html_element_inside_collab, style_type) {
-    if (is_inside_collab(html_element_inside_collab)){
-        var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
-        var collab_play_button = $(container_div).find(".play_collab_button").get(0);
-        style_type = style_type.toLowerCase();
-        if( ! $(container_div).hasClass("collab_" + style_type)){
-            if (style_type == "play") {
-                $(container_div).removeClass().addClass("collab_div_container collab_play");
-                collab_play_button_bind_as(collab_play_button, "pause"); // since collab is set as playing, collab_play_button needs to be bound to the opposite (pause)
-                set_collab_loading_gif_visibility(html_element_inside_collab, "hidden");
-            }
-            else if (style_type == "processing") {
-                $(container_div).removeClass().addClass("collab_div_container collab_processing");
-                set_collab_loading_gif_visibility(html_element_inside_collab, "visible");
-            }
-            else if (style_type == "editing") {
-                $(container_div).removeClass().addClass("collab_div_container collab_editing");
-                 set_collab_loading_gif_visibility(html_element_inside_collab, "hidden");
-            }
-            else if (style_type == "error") {
-                $(container_div).removeClass().addClass("collab_div_container collab_error");
-                set_collab_loading_gif_visibility(html_element_inside_collab, "hidden");
-            }
-            else { // style_type == "pause"
-                $(container_div).removeClass().addClass("collab_div_container collab_pause");
-                collab_play_button_bind_as(collab_play_button, "play"); // since collab is set as paused, collab_play_button needs to be bound to the opposite (play)
-                set_collab_loading_gif_visibility(html_element_inside_collab, "hidden");
-            }
+    //if (is_inside_collab(html_element_inside_collab)){
+    var container_div = get_collab_container(html_element_inside_collab); //$(html_element_inside_collab).parents(".collab_div_container").get(0);
+    var collab_play_button = $(container_div).find(".play_collab_button").get(0);
+    style_type = style_type.toLowerCase();
+    if( ! $(container_div).hasClass("collab_" + style_type)){
+        if (style_type == "play") {
+            $(container_div).removeClass().addClass("collab_div_container collab_play");
+            collab_play_button_bind_as(collab_play_button, "pause"); // since collab is set as playing, collab_play_button needs to be bound to the opposite (pause)
+            set_collab_loading_gif_visibility(html_element_inside_collab, "hidden");
+            elapse_collab(html_element_inside_collab);
+        }
+        else if (style_type == "processing") {
+            $(container_div).removeClass().addClass("collab_div_container collab_processing");
+            set_collab_loading_gif_visibility(html_element_inside_collab, "visible");
+        }
+        else if (style_type == "editing") {
+            $(container_div).removeClass().addClass("collab_div_container collab_editing");
+             set_collab_loading_gif_visibility(html_element_inside_collab, "hidden");
+        }
+        else if (style_type == "error") {
+            $(container_div).removeClass().addClass("collab_div_container collab_error");
+            set_collab_loading_gif_visibility(html_element_inside_collab, "hidden");
+        }
+        else { // style_type == "pause"
+            $(container_div).removeClass().addClass("collab_div_container collab_pause");
+            collab_play_button_bind_as(collab_play_button, "play"); // since collab is set as paused, collab_play_button needs to be bound to the opposite (play)
+            set_collab_loading_gif_visibility(html_element_inside_collab, "hidden");
+            unelapse_collab(html_element_inside_collab);
         }
     }
+    //}
 }
 
 /** ADD A DESCRIPTION */
 function get_collab_style(html_element_inside_collab) {
-    if (is_inside_collab(html_element_inside_collab)){
-        var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
-        var classes = $(container_div).attr("class").toLowerCase();
-        if (classes.indexOf("collab_play") !== -1) {
-            return "play";
-        }
-        else if (classes.indexOf("collab_processing") !== -1) {
-            return "processing";
-        }
-        else if (classes.indexOf("collab_editing") !== -1) {
-            return "editing";
-        }
-        else if (classes.indexOf("collab_error") !== -1) {
-            return "error";
-        }
-        else { // classes.toLowerCase().index_of("collab_pause") !== -1
-            return "pause";
-        }
+    //if (is_inside_collab(html_element_inside_collab)){
+    var container_div = get_collab_container(html_element_inside_collab); //$(html_element_inside_collab).parents(".collab_div_container").get(0);
+    var classes = $(container_div).attr("class").toLowerCase();
+    if (classes.indexOf("collab_play") !== -1) {
+        return "play";
     }
+    else if (classes.indexOf("collab_processing") !== -1) {
+        return "processing";
+    }
+    else if (classes.indexOf("collab_editing") !== -1) {
+        return "editing";
+    }
+    else if (classes.indexOf("collab_error") !== -1) {
+        return "error";
+    }
+    else { // classes.toLowerCase().index_of("collab_pause") !== -1
+        return "pause";
+    }
+    //}
 }
 
 /** ADD A DESCRIPTION */
 function get_buttons_for_tracks_of_collab(html_element){
-    var container_div = $(html_element).parents(".collab_div_container").get(0);
+    var container_div = get_collab_container(html_element); // $(html_element).parents(".collab_div_container").get(0);
     var collab_tracks_div = $(container_div).children(".collab_tracks_div").get(0);
     var tracks_buttons = $(collab_tracks_div).find(".show_hide_player_button");
-    if (tracks_buttons){
-        return tracks_buttons;
-    }
+    //if (tracks_buttons){
+    return tracks_buttons;
+    //}
 }
 
 /** ADD A DESCRIPTION */
 function toggle_all_tracks(){
-    var container_div = $(this).parents(".collab_div_container").get(0);
+    var container_div = get_collab_container(this); // $(this).parents(".collab_div_container").get(0);
     if (container_div) {
         var collab_tracks_div = $(container_div)
             .children(".collab_tracks_div").get(0);
@@ -364,11 +496,12 @@ function is_inside_collab(html_element) {
 
 /** ADD A DESCRIPTION */
 function get_collab_id(html_element) {
-    if ($(html_element).parents(".collab_div_container").length == 0) {
+    var container_div = get_collab_container(html_element);
+    if (typeof container_div === "undefined") { //if ($(html_element).parents(".collab_div_container").length == 0) {
         var attempt2 = get_selected_value_of_sibling_select_list(html_element, "collab_select_list");
         return attempt2;
     } else {
-        return $(html_element).parents(".collab_div_container").get(0).id;
+        return container_div.id; //$(html_element).parents(".collab_div_container").get(0).id;
     }
 }
 
@@ -445,7 +578,7 @@ function confirm_dialog(dialog_text, yes_funcToExecute, no_funcToExecute) {
 /** Creates a general dialog box using the parameters. */
 function dialog_box(dialog_html, title, width, height, action_func_kv_obj) { //action1_name_string, action2_name_string, action1_funcToExecute, action2_funcToExecute) {
     var temp_dialog_box = $("<div></div>").appendTo("body").html(dialog_html);
-    var temp_buttons = {}
+    var temp_buttons = {};
     $.each(action_func_kv_obj, function(key, val){
         var action_name = key;
         var action_funcToExecute = val;
@@ -534,6 +667,15 @@ function restart_music(music_player) {
     if (audio_control) {
         audio_control.currentTime = 0;
         //play_music(music_player);
+    }
+}
+
+function seek_music(music_player, time_to_seek) {
+    var audio_control = $(music_player).children("audio").get(0);
+    if (time_to_seek <= audio_control.duration){
+        audio_control.currentTime = time_to_seek;
+    } else {
+        audio_control.currentTime = 0;
     }
 }
 
@@ -809,7 +951,7 @@ function finalize_collaboration(html_element, mod_type) {
         success: function (data, textStatus, jqXHR) {
             //alert(jqXHR.responseText);
             //location.reload();
-            var parent = $(html_element).parents(".collab_div_container").get(0);
+            var parent = get_collab_container(html_elememt); // $(html_element).parents(".collab_div_container").get(0);
             var num_of_tracks_items = $(parent).find(".track_item").size();
 
             if ((mod_type.toLowerCase().indexOf("remove") >= 0) && (num_of_tracks_items <= 1)){
@@ -853,6 +995,7 @@ function update_collab(html_element_inside_collab){
                 var collab_tracks_data = data["tracks_data"];
                 if (collab_update_track_info(html_element_inside_collab, collab_tracks_data)) {
                     collab_update_nontrack_info(html_element_inside_collab, can_user_collaborate, can_user_modify, collab_users, collab_new_history_id);
+                    initialize_collab_sliders(html_element_inside_collab);
                 }
                 set_collab_to(html_element_inside_collab, prev_style);
             }
@@ -863,7 +1006,7 @@ function update_collab(html_element_inside_collab){
 }
 
 function set_collab_loading_gif_visibility(html_element_inside_collab, visible_or_hidden){
-    var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+    var container_div = get_collab_container(html_element_inside_collab); // $(html_element_inside_collab).parents(".collab_div_container").get(0);
     visible_or_hidden = visible_or_hidden.toLowerCase();
     if (visible_or_hidden === "visible"){
         $(container_div).find(".loading_gif").css("visibility", "visible");
@@ -953,7 +1096,7 @@ function collab_update_track_info(html_element_inside_collab, collab_tracks_data
 function add_track_to_collab_UI(html_element_inside_collab, track_id, track_row){
     track_id = parseInt(track_id, 10);
     if ( !isNaN(track_id) ){
-        var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+        var container_div = get_collab_container(html_element_inside_collab); // $(html_element_inside_collab).parents(".collab_div_container").get(0);
         var rows = $(container_div).find(".colla_tracks_list_item");
         var has_been_added = 0;
         $.each(rows, function(index, value){
@@ -981,7 +1124,7 @@ function add_track_to_collab_UI(html_element_inside_collab, track_id, track_row)
 }
 
 function remove_track_from_collab_UI(html_element_inside_collab, track_id){
-    var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+    var container_div = get_collab_container(html_element_inside_collab); // $(html_element_inside_collab).parents(".collab_div_container").get(0);
     var track_row = $(container_div).find("tr[name="+stripString(track_id)+"]").get(0);
     if (typeof track_row !== "undefined"){
         animated_remove(track_row);
@@ -989,7 +1132,7 @@ function remove_track_from_collab_UI(html_element_inside_collab, track_id){
 }
 
 function collab_modify_collaborate_item(html_element_inside_collab, mod_type){
-    var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+    var container_div = get_collab_container(html_element_inside_collab); // $(html_element_inside_collab).parents(".collab_div_container").get(0);
     mod_type = mod_type.toLowerCase();
     if (mod_type == "remove"){
         animated_remove( $(container_div).find(".collaborate_item").get(0) );
@@ -1017,7 +1160,7 @@ function collab_modify_collaborate_item(html_element_inside_collab, mod_type){
 }
 
 function collab_modify_authorized_only_item(html_element_inside_collab, mod_type){
-    var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+    var container_div = get_collab_container(html_element_inside_collab); // $(html_element_inside_collab).parents(".collab_div_container").get(0);
     mod_type = mod_type.toLowerCase();
     if (mod_type == "remove"){
         animated_remove( $(container_div).find(".collab_authorized_only_buttons").get(0) );
@@ -1044,7 +1187,7 @@ function collab_modify_authorized_only_item(html_element_inside_collab, mod_type
 }
 
 function set_collab_users(html_element_inside_collab, collab_users){
-    var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+    var container_div = get_collab_container(html_element_inside_collab); // $(html_element_inside_collab).parents(".collab_div_container").get(0);
     $(container_div).find(".collab_users_div_inner_left").text("ft. " + collab_users.toString());
 }
 
@@ -1055,13 +1198,13 @@ function collab_bind_all(new_collab_list_element){
 */
 
 function get_collab_last_known_update(html_element_inside_collab){
-    var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+    var container_div = get_collab_container(html_element_inside_collab); // $(html_element_inside_collab).parents(".collab_div_container").get(0);
     var collab_last_known_update = $(container_div).find("input[name=collab_last_known_update]").val();
     return collab_last_known_update;
 }
 
 function set_collab_last_known_update(html_element_inside_collab, val_to_set){
-    var container_div = $(html_element_inside_collab).parents(".collab_div_container").get(0);
+    var container_div = get_collab_container(html_element_inside_collab); // $(html_element_inside_collab).parents(".collab_div_container").get(0);
     $(container_div).find("input[name=collab_last_known_update]").val(val_to_set);
 }
 
@@ -1156,6 +1299,15 @@ function animated_remove(html_element){
                                 });
 }
 
+function get_collab_container(html_element){
+    var container_div;
+    if ($(html_element).hasClass("collab_div_container")){
+        container_div = html_element;
+    } else{
+        container_div = $(html_element).parents(".collab_div_container").get(0);
+    }
+    return container_div;
+}
 
 /********************** The following methods are not mine, they are from Django. *****************************
 ******* They allow safe POSTing with Jquery/AJAX (e.g. proper CSRF token, proper origin of request, etc.) *******/

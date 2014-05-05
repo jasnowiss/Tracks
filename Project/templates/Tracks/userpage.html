@@ -26,11 +26,12 @@
             <div id="{{ collaboration.id }}" class="collab_div_container collab_pause">
             <input type="hidden" name="collab_last_known_update" class="collab_last_known_update" value="{{ collaboration.last_updated }}"/>
               <div class="collab_info_div">
-                  {{ collaboration }}
+                  <button name="collab_{{ collaboration.id }}" class="play_collab_button">{{ collaboration }}</button>
                   <img class="loading_gif" src="{% static "loading-icon.gif" %}" />
-                  <button name="collab_{{ collaboration.id }}" class="play_collab_button">Play</button>
-                  <button name="collab_{{ collaboration.id }}" class="restart_collab_button">Reset</button>
-                  <!-- may need to change in future iteration  account for a master_user of collab -->
+                  <!-- <button name="collab_{{ collaboration.id }}" class="play_collab_button">Play</button> -->
+                  <!--<button name="collab_{{ collaboration.id }}" class="restart_collab_button">Reset</button> -->
+                  <button class="collab_volume_button">Volume</button>
+                  <div class="collab_volume_slider"></div>
                   {% if collaboration|is_user_authorized:session_user %}
                   <div class="collab_authorized_only_buttons">
                     <a href="{% url 'Tracks:edit' %}{{ collaboration.id }}">
@@ -44,7 +45,7 @@
                   </div>
                   {% endif %}
                   <!-- <button id="test">test</button> -->
-
+                  <div class="collab_slider"></div>
               </div>
               <div class="collab_users_div">
                 <div class="collab_users_div_inner_left">

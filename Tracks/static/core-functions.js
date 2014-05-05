@@ -962,7 +962,7 @@ function finalize_collaboration(html_element, mod_type) {
         success: function (data, textStatus, jqXHR) {
             //alert(jqXHR.responseText);
             //location.reload();
-            var parent = get_collab_container(html_elememt); // $(html_element).parents(".collab_div_container").get(0);
+            var parent = get_collab_container(html_element); // $(html_element).parents(".collab_div_container").get(0);
             var num_of_tracks_items = $(parent).find(".track_item").size();
 
             if ((mod_type.toLowerCase().indexOf("remove") >= 0) && (num_of_tracks_items <= 1)){

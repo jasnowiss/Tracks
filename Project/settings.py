@@ -58,7 +58,6 @@ ALLOWED_HOSTS = ['*']
 Database
 """
 
-"""
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 DATABASES = {
     'default': {
@@ -71,7 +70,6 @@ DATABASES = {
         'PORT': '',         # might be able to comment out             # Set to empty string for default.
     }
 }
-"""
 
 # Parse database configuration from $DATABASE_URL
 import dj_database_url

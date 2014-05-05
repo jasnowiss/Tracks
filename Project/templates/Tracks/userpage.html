@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% load tracks_extras %}
+    {% load staticfiles %}
+    {% load_head_custom %}
+  </head>
+
+  <body>
+    <div id="navbar" class="navbar navbar-inverse navbar-fixed-top" role="navigation"></div>
+    <div class="container bs-docs-container">
+      <br>
+      {% if not is_disabled %}
+        <h3 class="inline"> Hello {{ user.get_name_to_display }}! </h3>
+        <a href="{% url 'Tracks:userprofile' %}" class="inline"> Edit Profile </a>
+      {% else %}
+        <h3 class="inline"> Viewing page of {{ user.get_name_to_display }} </h3>
+        <a href="{% url 'Tracks:userprofile' %}{{ user.id }}" class="inline"> View Profile </a>
+      {% endif %}
+
+      <br>
+      <h3>Collaborations</h3>
+      <ul id="collaborations_list">
+        {% for collaboration in list_of_collaborations %}
+          <li class="no-bullets unindent collab_list_item">
+            <div id="{{ collaboration.id }}" class="collab_div_container collab_pause">
+            <input type="hidden" name="collab_last_known_update" class="collab_last_known_update" value="{{ collaboration.last_updated }}"/>
+              <div class="collab_info_div">
+                  <button name="collab_{{ collaboration.id }}" class="play_collab_button">{{ collaboration }}</button>
+                  <img class="loading_gif" src="{% static "loading-icon.gif" %}" />
+                  <!-- <button name="collab_{{ collaboration.id }}" class="play_collab_button">Play</button> -->
+                  <!--<button name="collab_{{ collaboration.id }}" class="restart_collab_button">Reset</button> -->
+                  <button class="collab_volume_button">Volume</button>
+                  <div class="collab_volume_slider"></div>
+                  {% if collaboration|is_user_authorized:session_user %}
+                  <div class="collab_authorized_only_buttons">
+                    <a href="{% url 'Tracks:edit' %}{{ collaboration.id }}">
+                      <button class="collab_edit_button" title="Edit">
+                        <img style="width: 18px; height: 18px;" src="{% static "wrench-icon.png" %}" />
+                      </button>
+                    </a>
+                    <button class="settings_button" title="Settings">
+                        <img src="{% static "settings-icon.png" %}" />
+                    </button>
+                  </div>
+                  {% endif %}
+                  <!-- <button id="test">test</button> -->
+                  <div class="collab_slider"></div>
+              </div>
+              <div class="collab_users_div">
+                <div class="collab_users_div_inner_left">
+                  ft. {{ collaboration.get_formatted_list_of_collab_users }}
+                </div>
+                <a class="collab_toggle_all_tracks" href="javascript:;">see all tracks</a>
+                <span></span>
+              </div>
+
+              <div class="collab_tracks_div">
+                  <table class="tracks_list">
+                      <tr class="colla_tracks_list_item">
+                          <td class="collab_tracks_list_item_firstColumn">
+                              <a class="collab_toggle_all_tracks" href="javascript:;">hide all tracks</a>
+                          </td>
+                          <td class="collab_tracks_list_item_secondColumn"></td>
+                          <td class="collab_tracks_list_item_thirdColumn"></td>
+                      </tr>
+
+                  {% for track in collaboration.get_tracks %}
+                    <tr name= "{{ track.id }}" class="colla_tracks_list_item track_item">
+                      <td class="collab_tracks_list_item_firstColumn" title="{{ track.filename }}">
+                          {{ track.filename }}
+                      </td>
+                      <td class="collab_tracks_list_item_secondColumn">
+                          by <a href="{% url 'Tracks:userpage' %}{{ track.user.id }}">{{ track.user.get_name_to_display }}</a>
+                      </td>
+                      <td class="collab_tracks_list_item_thirdColumn">
+                          <button name="{{ track.get_server_filename }}" class="show_hide_player_button">Show Player</button>
+                          {% if collaboration|is_user_authorized:session_user %}
+                              <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
+                          {% elif track.user.id == session_user.id %}
+                              <button name= "{{ track.id }}" class="remove_track_from_collab_button">X</button>
+                          {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+
+                  {% if collaboration.is_public or collaboration|is_user_authorized:session_user %}
+                  <tr class="colla_tracks_list_item collaborate_item">
+                      <td class="collab_tracks_list_item_firstColumn">
+                          <button class="collaborate_button">Collaborate</button>
+                      </td>
+                      <td class="collab_tracks_list_item_secondColumn"></td>
+                      <td class="collab_tracks_list_item_thirdColumn"></td>
+                  </tr>
+                  {% endif %}
+                </table>
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <h3>Tracks</h3>
+      <table class="tracks_list">
+        {% for track in list_of_tracks %}
+          <tr class="tracks_list_item">
+            <td class="tracks_list_item_firstColumn">{{ track.filename }} </td>
+            <td class="tracks_list_item_secondColumn">
+            <button name="{{ track.get_server_filename }}" class="show_hide_player_button">Show Player</button>
+            <button name="{{ track.id }}" class="collaborate_button">Collaborate</button>
+            {% if not is_disabled %}
+              <button name="{{ track.id }}" class="edit_button">Edit</button>
+              <button name= "{{ track.id }}" class="delete_track_from_server_button">X</button>
+            {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+
+
+          {% if not is_disabled %}
+          <!-- IF THE FOLLOWING <TR> CHANGES, UPDATE THE CHANGES CORRESPONDINGLY IN create_tracks_authorized_buttons_html() OF CORE-FUNCTION.JS -->
+          <tr class="tracks_list_item">
+              <td class="tracks_list_item_firstColumn">
+                  <form action="javascript:;" method="post" enctype="multipart/form-data" class="fileUpload btn btn-primary musicUpload ml-zero">
+                      {% csrf_token %}
+                      {% for field in form %}
+                          {{ field.errors }}
+                          {{ field }}
+                          Upload
+                      {% endfor %}
+                  </form>
+                  <button onclick="window.location='{% url 'Tracks:record' %}'" class="btn btn-danger">Record</button>
+              </td>
+
+              <td class="tracks_list_secondColumn"></td>
+          </tr>
+          {% else %}
+          <form action="javascript:;" method="post">
+              {% csrf_token %}
+          </form>
+          {% endif %}
+      </table>
+
+      <div id="settings_div">
+          <form id="settings_form" action="javascript:;" method="post">
+              {% csrf_token %}
+          </form>
+      </div>
+    </div>
+
+
+    <!-- JS file containing function bindings for the events that can be triggered on this page -->
+    <script src={% static "userpage-bindings.js" %} type="text/javascript"></script>
+
+    <script src={% static "bootstrap-3.1.1-dist/js/bootstrap.min.js" %}></script>
+
+    <script type="text/javascript">
+        addNav(true);
+    </script>
+
+  </body>
+</html>

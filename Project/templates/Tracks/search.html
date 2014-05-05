@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% load tracks_extras %}
+    {% load staticfiles %}
+    {% load_head_custom %}
+  </head>
+
+  <body>
+    <div id="navbar" class="navbar navbar-inverse navbar-fixed-top" role="navigation"></div>
+    <div class="container bs-docs-container">
+      {% load tracks_extras %}
+      <h3>Search Results:</h3>
+      <ul>
+        {% for model_object in filtered_query_set %}
+          {% if model_object|model_is_of_type:'TracksUser' %}
+            <li>
+              User <a href="{% url 'Tracks:userpage' model_object.id %}"> {{model_object.get_full_name}} </a>
+            </li>
+          {% elif  model_object|model_is_of_type:'Track' %}
+            <li>
+              <!--TODO: In later iterations need to replace dummy <a> link with something more useful (e.g. a play mp3 control) -->
+              Track <a href="{% url 'Tracks:userprofile' model_object.user.id %}">{{model_object.filename}}</a> of <a href="{% url 'Tracks:userpage' model_object.user.id %}"> {{model_object.user.get_full_name}} </a>
+            </li>
+          {% else %} <!-- maybe should be an elif with a condition that it's a list -->
+              {% with model_object|last as last %}
+                <li>
+                  {{ model_object.1 }} <a href="{%url 'Tracks:userprofile' last.user.id %}"> {{ model_object.0 }} </a> of <a href="{% url 'Tracks:userpage' last.user.id %}"> {{ last.user.get_full_name }} </a>
+                </li>
+              {% endwith %}
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+
+    {% load staticfiles %}
+    <script src={% static "bootstrap-3.1.1-dist/js/bootstrap.min.js" %}></script>
+
+    {% if session %}
+    <script type="text/javascript">
+        addNav(true);
+    </script>
+    {% else %}
+    <script type="text/javascript">
+        addNav(false);
+    </script>
+    {% endif %}
+  </body>
+</html>

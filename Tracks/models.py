@@ -248,7 +248,7 @@ class Track(models.Model):
             server_filename = os.path.basename(temp_filepath)
         return server_filename
 
-    def handle_upload_file(self, f, path="../Project/Tracks/user_mp3_files"):
+    def handle_upload_file(self, f, path="../Tracks/user_mp3_files"):
         """ADD A DESCRIPTION"""
         ##print(path)
         ##temp_dest = os.path.join(path, str(self.user.get_unique_identifier()) + "_" + self.filename) # need to change later to be a more unique identifier

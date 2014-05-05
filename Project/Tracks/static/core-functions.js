@@ -416,7 +416,7 @@ function set_collab_to(html_element_inside_collab, style_type) {
 function get_collab_style(html_element_inside_collab) {
     //if (is_inside_collab(html_element_inside_collab)){
     var container_div = get_collab_container(html_element_inside_collab); //$(html_element_inside_collab).parents(".collab_div_container").get(0);
-    var classes = $(container_div).attr("class").toLowerCase();
+    var classes = $(container_div).attr("class")//var classes = $(container_div).attr("class").toLowerCase();
     if (classes.indexOf("collab_play") !== -1) {
         return "play";
     }
@@ -962,7 +962,7 @@ function finalize_collaboration(html_element, mod_type) {
         success: function (data, textStatus, jqXHR) {
             //alert(jqXHR.responseText);
             //location.reload();
-            var parent = get_collab_container(html_elememt); // $(html_element).parents(".collab_div_container").get(0);
+            var parent = get_collab_container(html_element); // $(html_element).parents(".collab_div_container").get(0);
             var num_of_tracks_items = $(parent).find(".track_item").size();
             if (mod_type.toLowerCase().indexOf("remove") >= 0){
                 $($(html_element).siblings(".audio_div")).find("audio").get(0).src = '';

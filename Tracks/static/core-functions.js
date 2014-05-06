@@ -416,7 +416,7 @@ function set_collab_to(html_element_inside_collab, style_type) {
 function get_collab_style(html_element_inside_collab) {
     //if (is_inside_collab(html_element_inside_collab)){
     var container_div = get_collab_container(html_element_inside_collab); //$(html_element_inside_collab).parents(".collab_div_container").get(0);
-    var classes = $(container_div).attr("class").toLowerCase();
+    var classes = $(container_div).attr("class"); //var classes = $(container_div).attr("class").toLowerCase();
     if (classes.indexOf("collab_play") !== -1) {
         return "play";
     }
@@ -1278,6 +1278,7 @@ function delete_track_confirm_dialog(){
 
 function delete_track_from_server(html_element){
     var track_id = get_track1_id(html_element);
+    //$($(html_element).siblings(".audio_div")).find("audio").get(0).src = '';
     $.ajax({
         url: resolve_to_url["delete_track_from_server_url"],
         type: 'POST',

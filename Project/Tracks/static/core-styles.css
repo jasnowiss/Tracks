@@ -231,7 +231,7 @@ button.remove_track_from_collab_button:hover
     opacity: 0;
     filter: alpha(opacity=0);
 } */
-.musicUpload input[name="file"] {
+.musicUpload input[type="file"] {
     position: absolute;
     top: 0;
     right: 0;

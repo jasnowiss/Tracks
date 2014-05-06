@@ -164,7 +164,7 @@ def userpage(request, user_id=None):
         temp_user, is_disabled = TracksUser.get_desired_user(session_user, user_id)
 
         if(request.method == "GET"):
-            form = UploadFileForm()
+            form = UploadFileForm(instance=Track(user=session_user))
             list_of_tracks = temp_user.get_tracks_list()
             list_of_collaborations = temp_user.get_collaborations_list()
             return render(request, 'Tracks/userpage.html', {'user' : temp_user, 'session_user' : session_user, 'form' : form, 'is_disabled' : is_disabled,
@@ -363,9 +363,11 @@ def upload_MP3(request):
     """ADD A DESCRIPTION"""
     try:
         if (request.method == 'POST'):
+            ##import pdb; pdb.set_trace()
             form = UploadFileForm(request.POST, request.FILES)
             if (form.is_valid()):
-                temp_file = request.FILES['file']
+##                temp_file = request.FILES['file']
+                temp_file = request.FILES['music_file_field']
                 # don't actually need the value of is_disabled, but getting it anyway as it is returned by the function
                 temp_user, is_disabled = TracksUser.get_desired_user(get_session_user(request), None)
                 server_filename, track_id, error = Track.handle_music_file_upload(temp_user, temp_file)
@@ -380,6 +382,8 @@ def upload_MP3(request):
                 return response
             else:
                 response = HttpResponse('form not valid')
+                for error in form.errors:
+                    print("error" + str(error))
                 response.status_code = 400;
                 return response
         else:
@@ -388,7 +392,7 @@ def upload_MP3(request):
             return response
 
     except:
-        response = HttpResponse('error with userprofile') # May need to change message sent
+        response = HttpResponse('error with uploading music file') # May need to change message sent
         print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
         response.status_code = 500;
         return response
@@ -521,6 +525,6 @@ def get_JSON_for_search(request):
         print(traceback.format_exc())  # for debugging purposes only. DO NOT USE IN PRODUCTION
         response.status_code = 500;
         return response
-    
 
-    
+
+

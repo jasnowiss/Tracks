@@ -964,9 +964,6 @@ function finalize_collaboration(html_element, mod_type) {
             //location.reload();
             var parent = get_collab_container(html_element); // $(html_element).parents(".collab_div_container").get(0);
             var num_of_tracks_items = $(parent).find(".track_item").size();
-            if (mod_type.toLowerCase().indexOf("remove") >= 0){
-                $($(html_element).siblings(".audio_div")).find("audio").get(0).src = '';
-            }
             if ((mod_type.toLowerCase().indexOf("remove") >= 0) && (num_of_tracks_items <= 1)){
                 animated_remove(parent);
             }
@@ -1280,6 +1277,7 @@ function delete_track_confirm_dialog(){
 
 function delete_track_from_server(html_element){
     var track_id = get_track1_id(html_element);
+    //$($(html_element).siblings(".audio_div")).find("audio").get(0).src = '';
     $.ajax({
         url: resolve_to_url["delete_track_from_server_url"],
         type: 'POST',

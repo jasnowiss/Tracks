@@ -216,7 +216,7 @@ class UserProfile(models.Model):
 
 
 #list of acceptable extensions. make sure it starts with a dot'
-ACCEPTABLE_MUSIC_FORMATS = ['.mp3','.wav']
+ACCEPTABLE_MUSIC_FORMATS = ['.mp3','.wav', 'blob']
 
 #currently the size of the file is a static final, however we should consider having a quota per user, in case a user wishes to extend their quota.
 # 2.5MB - 2621440
@@ -321,14 +321,21 @@ class Track(models.Model):
     def handle_delete_track(cls, track_id):
         """ Returns True if track has been successfully deleted from the database and its corresponding file has been deleted from the server.
             Otherwise, returns False """
+        ##import pdb; pdb.set_trace()
         track = Track.objects.get(id=track_id)
+        collab_set = track.collaboration_set.all()
+##        history_set = track.history_set.all()
+        temp_user = track.user
         if (track == None):
             return False
         temp_filepath = track.filepath
         if (os.path.isfile(temp_filepath)):
             os.remove(temp_filepath)
+            for collab in collab_set:
+                History.add_history(temp_user, REMOVED_HISTORY, collab=collab, removed_track_id=track_id)
+##            for history in history_set:
+##                history.track = None
             track.delete()
-
         return True # return true as long as track != None
 ##            return True
 ##        else:
@@ -500,7 +507,8 @@ class Collaboration(models.Model):
                 removed_track_id = history.removed_track_id
                 if(removed_track_id > 0):
                     temp_data["update_type"] = history.get_update_type()
-                    temp_data["track_id"] = track.id
+                    temp_data["track_id"] = removed_track_id
+                    tracks_data[str(history.id)] = temp_data
                 if(track != None):
                     temp_data["update_type"] = history.get_update_type()
                     temp_data["track_id"] = track.id
@@ -543,9 +551,13 @@ class Collaboration(models.Model):
 
 
     def last_updated(self):
-        latest_history = History.get_history_for(self).order_by("-timestamp")[0]
-        # using id instead of timestamp because timestamp is too unreliable (unreliable in get_update_history_for). will take id and search DB for correct history entry.
-        return latest_history.id
+        latest_history = History.get_history_for(self).order_by("-timestamp")
+        if (latest_history.count() > 0):
+            latest_history = latest_history[0]
+            # using id instead of timestamp because timestamp is too unreliable (unreliable in get_update_history_for). will take id and search DB for correct history entry.
+            return latest_history.id
+        else:
+            return 0
 
     def get_collab_update_history_since(self, history_id, session_user):
         history_list, length = History.get_update_history_for(self, session_user, history_id)
@@ -599,7 +611,6 @@ class Collaboration(models.Model):
             for i in xrange(0, len(list_of_valid_tracks)):
                 temp_track = list_of_valid_tracks[i]
                 if(mod_type.lower().count("remove") != 0):
-                    removed_track_id = temp_track.id
                     temp_collab.handle_removing_track(temp_track)
                 else: # default action is to add
                     temp_collab.handle_adding_track(temp_track)
@@ -609,10 +620,8 @@ class Collaboration(models.Model):
 ##                    History.add_history(session_user, temp_collab, history_type)
 ##                    if(history_type == ADDED_HISTORY):
 ##                        temp_collab.add_user(temp_track.user)
-                if (mod_type.lower().count("remove") == 0):
-                    History.add_history(session_user, history_type, collab=temp_collab, track=temp_track)
-                else:
-                    History.add_history(session_user, history_type, collab=temp_collab, removed_track_id=removed_track_id)
+
+                History.add_history(session_user, history_type, collab=temp_collab, track=temp_track)
                 if(history_type == ADDED_HISTORY):
                     temp_collab.add_user(temp_track.user)
 
@@ -684,8 +693,9 @@ class History(models.Model):
     @classmethod
     def get_update_history_for(cls, collab, temp_user, history_id): #datetime_string):
         try:
-            temp_timestamp = History.objects.get(id=history_id).timestamp
-            collab_update_history = History.objects.filter(collaboration=collab).filter(timestamp__gt=temp_timestamp).order_by("timestamp")
+            #temp_timestamp = History.objects.get(id=history_id).timestamp
+            #collab_update_history = History.objects.filter(collaboration=collab).filter(timestamp__gt=temp_timestamp).order_by("timestamp")
+            collab_update_history = History.objects.filter(collaboration=collab).filter(id__gt=history_id).order_by("id")
             return collab_update_history, collab_update_history.count() ##.exclude(user=temp_user)
         except:
             return [], 0

@@ -89,10 +89,9 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
 
-    """ FOR AMAZON S3
+    #FOR AMAZON S3
     # adding in S3
-    'storages',
-    """
+    #'storages',
 
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
@@ -183,23 +182,21 @@ MEDIA_URL = 'http://morning-journey-7508.herokuapp.com/Tracks/user_mp3_files/'
 STATIC_ROOT = 'staticfiles'
 
 
-""" FOR AMAZON S3
+#FOR AMAZON S3
 #s3 credentials and storage
 
-STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-AWS_ACCESS_KEY_ID = 'AKIAJ3XIH4VDZAUNZPWA'
-AWS_SECRET_ACCESS_KEY = 'AWSSecretKey=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' 
-AWS_STORAGE_BUCKET_NAME = 'tracksmp3'
-"""
+#STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+#AWS_ACCESS_KEY_ID = 'AKIAJ3XIH4VDZAUNZPWA'
+#AWS_SECRET_ACCESS_KEY = 'AWSSecretKey=kmE/E5O9LfGu3OVuwwSqBWsg+1zZJtF02muVWb0J' 
+#AWS_STORAGE_BUCKET_NAME = 'tracksmp3'
 
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
 
 
-""" FOR AMAZON S3
-STATIC_URL = 'tracksmp3.s3-website-us-east-1.amazonaws.com'
-"""
+#FOR AMAZON S3
+#STATIC_URL = 'tracksmp3.s3-website-us-east-1.amazonaws.com'
 
 STATIC_URL = '/static/'
 

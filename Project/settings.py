@@ -88,6 +88,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
+    # adding in S3
+    'storages',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'Tracks',
@@ -176,6 +178,12 @@ MEDIA_URL = 'http://morning-journey-7508.herokuapp.com/Tracks/user_mp3_files/'
 # Example: "/var/www/example.com/static/"
 STATIC_ROOT = 'staticfiles'
 
+#s3 credentials and storage
+
+STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+AWS_ACCESS_KEY_ID = 'AKIAJ3XIH4VDZAUNZPWA'
+AWS_SECRET_ACCESS_KEY = 'AWSSecretKey=kmE/E5O9LfGu3OVuwwSqBWsg+1zZJtF02muVWb0J' 
+AWS_STORAGE_BUCKET_NAME = 'tracksmp3'
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
 STATIC_URL = '/static/'

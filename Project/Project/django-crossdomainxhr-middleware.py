@@ -42,3 +42,4 @@ class XsSharing(object):
         response['Access-Control-Allow-Methods'] = ",".join( XS_SHARING_ALLOWED_METHODS )
  
         return response
+        

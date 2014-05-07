@@ -114,7 +114,7 @@ function add_user_to_collab(add_user_text_input, html_element_inside_collab) { /
 
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            alert(jqXHR.responseText);
+            //alert(jqXHR.responseText);
             set_collab_to(html_element_inside_collab, "error");
         },
         async: true
@@ -515,7 +515,8 @@ function get_collab_id(html_element) {
 /** ADD A DESCRIPTION */
 function create_music_player(audio_server_name) {
     var audio_div = $("<div></div>").addClass("audio_div").attr("name", audio_server_name);
-    var temp_pathname = resolve_to_url["MEDIA_URL"] + audio_server_name;
+    //var temp_pathname = resolve_to_url["MEDIA_URL"] + audio_server_name;
+    var temp_pathname = audio_server_name;
     var audio_control = $("<audio></audio>").attr("controls", "");
     var source = $("<source></source>").attr("type", "audio/mpeg").attr("src", temp_pathname);
     audio_control.append(source);
@@ -535,6 +536,7 @@ function create_music_player(audio_server_name) {
         if (is_inside_collab(this)){
             var tracks_buttons = get_buttons_for_tracks_of_collab(this);
             var style_to_set = "pause";
+            var all_have_ended = 1;
             $(tracks_buttons).each(function () {
                 try{
                     var child_music_player = get_music_player(this);
@@ -543,9 +545,21 @@ function create_music_player(audio_server_name) {
                         style_to_set = "play";
                         return false; // does what "break;" does in OOP for/while loops
                     }
+                    if (child_audio.currentTime != 0 && !child_audio.ended) { // check to see if any child audio has not ended   
+                        all_have_ended = 0;  
+                    }
                 } catch(e) {
                 }
             });
+            if (all_have_ended){  
+                var container_div = get_collab_container(this);  
+                var collab_slider = $(container_div).find(".collab_slider").get(0);   
+                var max_val = $(collab_slider).slider("option", "max");   
+                var curr_val = $(collab_slider).slider("value");   
+                if (curr_val < max_val) { // all have ended, but collab slider still does not show proper end state.  
+                    $(collab_slider).slider("value", 0); // hacky fix: just set the curr val to max val  
+                }   
+            }
             set_collab_to(this, style_to_set);
         }
     });
@@ -798,13 +812,14 @@ function uploadFailedHandler(evt, progress_bar) {
  */
 function upload_file() {
     // gets the file from the file input and prepares it for uploading
-    var form_data = new FormData();
+    //var form_data = new FormData();
+    var form_data = new FormData($(this).parents("form").get(0)); //new FormData();
     if (!$(this).val()) {
         return
     }
     var file_input = $(this)[0];
     var file = file_input.files[0];
-    form_data.append('file', file);
+    //form_data.append('file', file);
     //form_data.append('user_email', '{{ user.email }}');
 
     // updates the UI to reflect a file which is uploading
@@ -838,13 +853,45 @@ function upload_file() {
         },
         error: function (jqXHR, textStatus, errorThrown) {
             progress_bar_Failure(new_bar);
-            alert(jqXHR.responseText);
+            //alert(jqXHR.responseText);
         },
         async: true
 
     });
 }
 
+
+
+function create_tracks_authorized_buttons_html(){
+    var authorized_buttons_element = $("<tr></tr>").addClass("tracks_list_item");
+
+    var firstColumn = $("<td></td>").addClass("tracks_list_item_firstColumn");
+    var secondColumn = $("<td></td>").addClass("tracks_list_item_secondColumn"); // this is used, do not remove
+
+    /*var music_upload_form = $("<form></form>").attr({
+                                                action : "javascript:;",
+                                                method : "post",
+                                                enctype : "multipart/form-data"
+                                                });*/
+                                                
+    var music_upload_form = $.parseHTML('<form action="javascript:;" method="post" enctype="multipart/form-data" class="fileUpload btn btn-primary musicUpload ml-zero"></form>');
+    $(music_upload_form).addClass("fileUpload btn btn-primary musicUpload");
+    //var upload_element = $("<input></input>").attr({type : "file", name : "file"});
+    var upload_element = $.parseHTML('<input id="id_music_file_field" name="music_file_field" type="file">');
+    $(music_upload_form).append(upload_element);
+    $(music_upload_form).append("Upload");
+    var record_element = $("<button></button>").addClass("btn btn-danger").text("Record").on("click", function(){ window.location = resolve_to_url["record_url"]; });
+
+    $(firstColumn).append(music_upload_form)
+                  .append(record_element);
+
+    $(authorized_buttons_element).append(firstColumn)
+                                 .append(secondColumn); // this is used, do not remove
+
+    return authorized_buttons_element;
+}
+
+/** 
 function create_tracks_authorized_buttons_html(){
     var authorized_buttons_element = $("<tr></tr>").addClass("tracks_list_item");
 
@@ -870,6 +917,7 @@ function create_tracks_authorized_buttons_html(){
 
     return authorized_buttons_element;
 }
+*/
 
 /** ADD A DESCRIPTION */
 function update_completed_loading_track(progress_bar, server_filename, track_id){
@@ -975,7 +1023,7 @@ function finalize_collaboration(html_element, mod_type) {
 
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            alert(jqXHR.responseText);
+            //alert(jqXHR.responseText);
             set_collab_to(html_element, "error");
         },
         async: true
@@ -1026,18 +1074,20 @@ function set_collab_loading_gif_visibility(html_element_inside_collab, visible_o
 }
 
 function run_collab_updates(html_element_inside_collab){
-    var parent = $(html_element_inside_collab).parents(".collab_list_item").get(0);
-    var parent_sibling = $(parent).next(".collab_list_item").get(0);
-    if (typeof parent_sibling === "undefined"){
-        parent_sibling = $(parent).siblings(".collab_list_item").get(0);
+    if (typeof html_element_inside_collab !== "undefined") {
+        var parent = $(html_element_inside_collab).parents(".collab_list_item").get(0);
+        var parent_sibling = $(parent).next(".collab_list_item").get(0);
         if (typeof parent_sibling === "undefined"){
-            parent_sibling = parent;
+            parent_sibling = $(parent).siblings(".collab_list_item").get(0);
+            if (typeof parent_sibling === "undefined"){
+                parent_sibling = parent;
+            }
         }
-    }
-    var next_sibling = $(parent_sibling).find(".collab_last_known_update").get(0);
+        var next_sibling = $(parent_sibling).find(".collab_last_known_update").get(0);
 
-    update_collab(html_element_inside_collab);
-    setTimeout(function(){run_collab_updates(next_sibling); }, 10000);
+        update_collab(html_element_inside_collab);
+        setTimeout(function(){run_collab_updates(next_sibling); }, 10000);
+    }
 
 }
 
@@ -1289,7 +1339,7 @@ function delete_track_from_server(html_element){
             animated_remove(track);
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            alert(jqXHR.responseText);
+            //alert(jqXHR.responseText);
         },
         async: true
 

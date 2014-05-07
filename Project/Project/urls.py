@@ -17,5 +17,6 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
 
     # Patterns
+    url(r'^$', 'Tracks.views.redirect', name='home'),
     url(r'^(?i)Tracks/', include('Tracks.urls', namespace='Tracks')),
 )

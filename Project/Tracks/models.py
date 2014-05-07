@@ -229,24 +229,23 @@ ACCEPTABLE_MUSIC_FORMATS = ['.mp3','.wav', 'blob']
 # 500MB - 429916160
 SIZE_LIMIT = 52428800
 
+def upload_music_to(instance, filename):  
+    filename_base, filename_ext = os.path.splitext(filename) 
+    return str(instance.user.id) + "_" + timezone.datetime.now().strftime('%m-%d-%Y_%H-%M-%S') + filename_ext.lower()
+
+
 class Track(models.Model):
     """A class to manage sound files."""
 
     user = models.ForeignKey(TracksUser)
     filename = models.CharField(max_length=50)
-    filepath = models.CharField(max_length=200)
+    #filepath = models.CharField(max_length=200)
+    music_file_field = models.FileField(upload_to=upload_music_to)
 
     def __unicode__(self):
         """Returns the name of the file."""
         return self.filename
 
-    def get_server_filename(self):
-        """ADD A DESCRIPTION"""
-        server_filename = '#'
-        temp_filepath = self.filepath
-        if(os.path.exists(temp_filepath)):
-            server_filename = os.path.basename(temp_filepath)
-        return server_filename
 
     def handle_upload_file(self, f, path="../app/Tracks/user_mp3_files"):
         """ADD A DESCRIPTION"""
@@ -254,7 +253,14 @@ class Track(models.Model):
         ##temp_dest = os.path.join(path, str(self.user.get_unique_identifier()) + "_" + self.filename) # need to change later to be a more unique identifier
         # using user.id and timestamp to decrease chance of filename collisions
         temp_dest = os.path.join(path, str(self.user.id) + "_" + timezone.datetime.now().strftime('%m-%d-%Y_%H-%M-%S') + ".mp3").replace('\\', '/')
+
+        #temp_dest = str(self.user.id) + "_" + timezone.datetime.now().strftime('%m-%d-%Y_%H-%M-%S') + ".mp3"
+
         ##print(temp_dest)
+
+        #from django.core.files.storage import default_storage as storage
+        #with storage.open(temp_dest,'wb+') as destination:
+
         with open(temp_dest,'wb+') as destination:
             for chunk in f.chunks():
                 destination.write(chunk)
@@ -266,9 +272,10 @@ class Track(models.Model):
 
     def get_server_filename(self):
         server_filename = '#'
-        temp_filepath = self.filepath
-        if(os.path.exists(temp_filepath)):
-            server_filename = os.path.basename(temp_filepath)
+        #temp_filepath = self.filepath
+        #if(os.path.exists(temp_filepath)):
+        #    server_filename = os.path.basename(temp_filepath)
+        server_filename = self.music_file_field.url
         return server_filename
 
     @classmethod
@@ -301,8 +308,10 @@ class Track(models.Model):
         error = Track.is_music_file_valid(temp_file)
 
         if(error == None):
-            new_track = Track(user = temp_user, filename=temp_file.name)
-            new_track.handle_upload_file(temp_file)
+            #new_track = Track(user = temp_user, filename=temp_file.name)
+            #new_track.handle_upload_file(temp_file)
+            new_track = Track(user = temp_user, filename=temp_file.name, music_file_field=temp_file)
+            new_track.save()
             History.add_history(temp_user, ADDED_HISTORY, collab=None, track=new_track) ##History.add_history(new_track.user, new_track, ADDED_HISTORY)
             server_filename = new_track.get_server_filename()
             track_id = new_track.id
@@ -328,14 +337,14 @@ class Track(models.Model):
         temp_user = track.user
         if (track == None):
             return False
-        temp_filepath = track.filepath
-        if (os.path.isfile(temp_filepath)):
-            os.remove(temp_filepath)
-            for collab in collab_set:
-                History.add_history(temp_user, REMOVED_HISTORY, collab=collab, removed_track_id=track_id)
+        #temp_filepath = track.filepath
+        #if (os.path.isfile(temp_filepath)):
+        #    os.remove(temp_filepath)
+        for collab in collab_set:
+            History.add_history(temp_user, REMOVED_HISTORY, collab=collab, removed_track_id=track_id)
 ##            for history in history_set:
 ##                history.track = None
-            track.delete()
+        track.delete()
         return True # return true as long as track != None
 ##            return True
 ##        else:

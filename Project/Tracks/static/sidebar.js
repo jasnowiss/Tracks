@@ -130,10 +130,10 @@ function upload_dialog(){
     var width = 640;
     var height = 250;
 
-    $(dialog_html).find('.musicUpload input[name="file"]').on("change", upload_file);
+    $(dialog_html).find('.musicUpload input[type="file"]').on("change", upload_file);
 
     var action_func_kv_obj = { "Finish" : function(){
-                                     $(dialog_html).find('.musicUpload input[name="file"]').off("change", upload_file);
+                                     $(dialog_html).find('.musicUpload input[type="file"]').off("change", upload_file);
                                      }
                                 };
 

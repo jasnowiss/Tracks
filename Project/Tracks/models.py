@@ -335,9 +335,9 @@ class Track(models.Model):
         temp_user = track.user
         if (track == None):
             return False
-        temp_filepath = track.filepath
-        if (os.path.isfile(temp_filepath)):
-            os.remove(temp_filepath)
+##        temp_filepath = track.filepath
+##        if (os.path.isfile(temp_filepath)):
+##            os.remove(temp_filepath)
             for collab in collab_set:
                 History.add_history(temp_user, REMOVED_HISTORY, collab=collab, removed_track_id=track_id)
 ##            for history in history_set:
